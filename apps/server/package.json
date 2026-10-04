@@ -1,0 +1,35 @@
+{
+  "name": "@vitral/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "node --import tsx src/main.ts",
+    "migrate": "tsx src/db/migrate.ts",
+    "create-admin": "tsx src/scripts/create-admin.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/helmet": "^13.1.1",
+    "@fastify/multipart": "^10.1.2",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/static": "^10.1.5",
+    "@vitral/shared": "workspace:*",
+    "argon2": "^0.45.1",
+    "decimal.js": "^10.6.0",
+    "fastify": "^5.12.5",
+    "file-type": "^22.1.1",
+    "kysely": "^0.29.6",
+    "pg": "^8.23.1",
+    "sharp": "^0.35.5",
+    "tsx": "^4.23.15",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

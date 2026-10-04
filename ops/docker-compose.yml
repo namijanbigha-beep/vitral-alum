@@ -1,0 +1,86 @@
+# Single Linux VPS: app (API + web), db, caddy (HTTPS), backup (daily cron). bot arrives in phase 5.
+# Run from the repository root:  docker compose -f ops/docker-compose.yml --env-file ops/.env up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vitral
+      POSTGRES_USER: vitral
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U vitral -d vitral']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://vitral:${POSTGRES_PASSWORD}@db:5432/vitral
+      FILE_STORAGE_DIR: /data/files
+      BACKUP_DIR: /backups
+      PORT: '3000'
+      HOST: 0.0.0.0
+    volumes:
+      - files:/data/files
+      - backups:/backups:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'node -e "fetch(\"http://localhost:3000/api/v1/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+  backup:
+    image: postgres:16
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgres://vitral:${POSTGRES_PASSWORD}@db:5432/vitral
+      FILE_STORAGE_DIR: /data/files
+      BACKUP_DIR: /backups
+    volumes:
+      - files:/data/files:ro
+      - backups:/backups
+      - ./backup.sh:/usr/local/bin/vitral-backup:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    # Daily at 02:30 server time; retention is handled inside backup.sh.
+    command: >
+      sh -c "apt-get update >/dev/null && apt-get install -y --no-install-recommends openssl >/dev/null;
+             while true; do
+               now=$$(date +%H%M); if [ \"$$now\" = \"0230\" ]; then vitral-backup daily; sleep 61; fi; sleep 30;
+             done"
+
+volumes:
+  db-data:
+  files:
+  backups:
+  caddy-data:
+  caddy-config:
