@@ -1,3 +1,4 @@
+import { API } from '../api/client.js';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { formatNumber, toPersianDigits } from '@vitral/shared';
@@ -10,8 +11,8 @@ export function PublicSharePage() {
   const { token = '' } = useParams();
   const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  useEffect(() => { fetch(`/api/v1/public/share/${token}`).then(async (r) => { if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error?.message ?? 'لینک نامعتبر'); return r.json(); }).then(setData).catch((e) => setErr(e.message)); }, [token]);
-  const img = (id: string) => `/api/v1/public/share/${token}/files/${id}`;
+  useEffect(() => { fetch(`${API}/public/share/${token}`).then(async (r) => { if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error?.message ?? 'لینک نامعتبر'); return r.json(); }).then(setData).catch((e) => setErr(e.message)); }, [token]);
+  const img = (id: string) => `${API}/public/share/${token}/files/${id}`;
   if (err) return <div className="login"><div className="card center"><h1>ویترال</h1><p className="alert danger">{err}</p></div></div>;
   if (!data) return <div className="login"><p className="muted">…</p></div>;
   const photos = (data.photos as Array<Record<string, unknown>>) ?? [];

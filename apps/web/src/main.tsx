@@ -13,7 +13,7 @@ const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWin
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={qc}>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
         <AuthProvider>
           <App />
         </AuthProvider>
@@ -23,5 +23,5 @@ createRoot(document.getElementById('root')!).render(
 );
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
+  window.addEventListener('load', () => void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`));
 }

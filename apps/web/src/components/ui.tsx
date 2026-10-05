@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { formatJalali, formatNumber, parseJalali, parseNumber, toGregorian, toJalali, toLatinDigits, toPersianDigits, type RoundKind } from '@vitral/shared';
-import { api } from '../api/client.js';
+import { API, api } from '../api/client.js';
 import { useAuth } from '../lib/auth.js';
 import { downloadBlob, qs, useList, type ActResult } from '../lib/hooks.js';
 
@@ -103,7 +103,7 @@ export function Confirm({ title, children, onConfirm, onCancel, danger, busy }: 
 export function PdfButtons({ path, name, langs = ['fa', 'ar'], params = {}, png = true, label }: { path: string; name: string; langs?: Array<'fa' | 'ar'>; params?: Record<string, string | number | undefined>; png?: boolean; label?: string }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(false);
-  const go = async (lang: string, format: string) => { setBusy(true); setErr(false); try { if (format === 'html') window.open(`/api/v1${path}${qs({ ...params, lang, format })}`, '_blank'); else await downloadBlob(`${path}${qs({ ...params, lang, format })}`, `${name}-${lang}.${format}`); } catch { setErr(true); } finally { setBusy(false); } };
+  const go = async (lang: string, format: string) => { setBusy(true); setErr(false); try { if (format === 'html') window.open(`${API}${path}${qs({ ...params, lang, format })}`, '_blank'); else await downloadBlob(`${path}${qs({ ...params, lang, format })}`, `${name}-${lang}.${format}`); } catch { setErr(true); } finally { setBusy(false); } };
   return <div className="row">{langs.map((l) => <span key={l} className="row" style={{ gap: 4 }}><button className="btn" disabled={busy} onClick={() => void go(l, 'pdf')}>{label ?? `PDF ${l === 'fa' ? 'فارسی' : 'عربی'}`}</button>{png && <button className="btn" disabled={busy} onClick={() => void go(l, 'png')}>تصویر</button>}<button className="btn" disabled={busy} onClick={() => void go(l, 'html')}>پیش‌نمایش</button></span>)}{err && <span className="error">دانلود نشد</span>}</div>;
 }
 
@@ -115,7 +115,7 @@ export function FileUpload({ kind, owner, onDone, accept = 'image/*,application/
 }
 
 export function Thumb({ id, size = 64 }: { id: string; size?: number }) {
-  return <a href={`/api/v1/files/${id}/download`} target="_blank" rel="noreferrer"><img src={`/api/v1/files/${id}/thumb`} width={size} height={size} style={{ objectFit: 'cover', borderRadius: 8 }} alt="" loading="lazy" /></a>;
+  return <a href={`${API}/files/${id}/download`} target="_blank" rel="noreferrer"><img src={`${API}/files/${id}/thumb`} width={size} height={size} style={{ objectFit: 'cover', borderRadius: 8 }} alt="" loading="lazy" /></a>;
 }
 
 export function Tabs<T extends string>({ value, onChange, tabs }: { value: T; onChange: (t: T) => void; tabs: Array<[T, string]> }) {

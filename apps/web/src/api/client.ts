@@ -1,3 +1,7 @@
+/** App base ('/' or e.g. '/app/') and the API root under it. */
+export const BASE = import.meta.env.BASE_URL;
+export const API = `${BASE}api/v1`;
+
 import type { ApiError } from '@vitral/shared';
 
 export class ApiRequestError extends Error {
@@ -21,7 +25,7 @@ export async function api<T>(
   if (opts.idempotencyKey) headers['Idempotency-Key'] = opts.idempotencyKey;
   let res: Response;
   try {
-    res = await fetch(`/api/v1${url}`, {
+    res = await fetch(`${API}${url}`, {
       method,
       headers,
       credentials: 'same-origin',

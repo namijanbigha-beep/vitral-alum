@@ -6,7 +6,7 @@ import { Action, Details, E, EntityForm, ev, FieldEditor, L, ListPage, showOrder
 import { Back, ConflictBanner, FileUpload, JalaliInput, PdfButtons, Status, Table, Tabs, Thumb, fa, jdt, money, num } from '../components/ui.js';
 import { useAuth } from '../lib/auth.js';
 import { downloadBlob, qs, useAct, useOne } from '../lib/hooks.js';
-import { api } from '../api/client.js';
+import { API, api } from '../api/client.js';
 
 const TOPICS = ['paint_purchase', 'tool_purchase', 'bill_payment', 'freight_cost', 'misc_delivery', 'damage', 'other'];
 const TOPIC_FA: Record<string, string> = { paint_purchase: 'خرید رنگ', tool_purchase: 'خرید ابزار', bill_payment: 'پرداخت قبض', freight_cost: 'کرایه', misc_delivery: 'تحویل متفرقه', damage: 'خرابی', other: 'دیگر' };
@@ -68,8 +68,8 @@ function FileLink({ id }: { id: string }) {
   const f = useOne<{ mime: string; original_name: string }>(`/files/${id}`);
   if (!f.data) return null;
   if (f.data.mime.startsWith('image/')) return <Thumb id={id} />;
-  if (f.data.mime.startsWith('audio/')) return <audio controls src={`/api/v1/files/${id}/download`} />;
-  return <a className="btn" href={`/api/v1/files/${id}/download`} target="_blank" rel="noreferrer">{f.data.original_name}</a>;
+  if (f.data.mime.startsWith('audio/')) return <audio controls src={`${API}/files/${id}/download`} />;
+  return <a className="btn" href={`${API}/files/${id}/download`} target="_blank" rel="noreferrer">{f.data.original_name}</a>;
 }
 
 // ───────── Tasks ─────────
@@ -93,7 +93,7 @@ export function TaskDetail() {
     <div className="stack">
       <Back to="/tasks">کارها</Back>
       <div className="row between"><h1>{String(x.title)}</h1><div className="row"><Status s={String(x.status)} map={TST} /><Link className="btn" to={`/tasks/${id}/edit`}>ویرایش</Link></div></div>
-      <div className="card"><Details r={x} keys={['description', 'assignee_name', 'due_at', 'order_number', 'party_name', 'done_at', 'done_note', 'created_at']} />{x.voice_file_id ? <audio controls src={`/api/v1/files/${x.voice_file_id}/download`} /> : null}
+      <div className="card"><Details r={x} keys={['description', 'assignee_name', 'due_at', 'order_number', 'party_name', 'done_at', 'done_note', 'created_at']} />{x.voice_file_id ? <audio controls src={`${API}/files/${x.voice_file_id}/download`} /> : null}
         {x.status === 'open' && <div className="row" style={{ marginTop: 8 }}><Action label="انجام شد ✓" path={`/tasks/${id}/done`} version={Number(x.version)} fields={[{ k: 'done_note', t: 'text', label: 'یادداشت انجام' }]} onDone={() => void qc.invalidateQueries()} /></div>}
       </div>
       <div className="card"><h2>گفتگو</h2>{comments.map((c) => <div key={String(c.id)} className="lines"><div className="line"><span>{String(c.text ?? '')}{c.file_id ? <> <FileLink id={String(c.file_id)} /></> : null}</span><span className="muted">{String(c.user_name ?? '')} · {jdt(String(c.created_at))}</span></div></div>)}
@@ -169,7 +169,7 @@ export function GalleryPage() {
   const setF = (k: string, v: string | null) => { const n = new URLSearchParams(sp); if (v) n.set(k, v); else n.delete(k); setSp(n, { replace: true }); };
   return <div className="stack"><h1>گالری عکس</h1>
     <div className="toolbar card compact"><label className="field" style={{ margin: 0 }}><span>تاریخ</span><JalaliInput value={params.date ? isoOfJalali(params.date) : null} onChange={(iso) => setF('date', iso ? jalaliOfIso(iso) : null)} /></label><label className="field" style={{ margin: 0 }}><span>مرحله</span><select value={params.stage ?? ''} onChange={(e) => setF('stage', e.target.value || null)}><option value="">همه</option><option value="production">تولید</option><option value="coating">رنگ</option><option value="transfer">بار</option><option value="scale">باسکول</option></select></label><FieldEditor spec={{ k: 'party_id', t: 'pick', path: '/parties', show: showParty, label: 'کارگاه' }} form={{ party_id: params.party_id }} set={(_, v) => setF('party_id', v as string | null)} /><FieldEditor spec={{ k: 'product_id', t: 'pick', path: '/products', show: showProduct, label: 'محصول' }} form={{ product_id: params.product_id }} set={(_, v) => setF('product_id', v as string | null)} /></div>
-    <div className="gallery">{(g.data?.items ?? []).map((f) => <figure key={String(f.id)}><a href={`/api/v1/files/${f.id}/download`} target="_blank" rel="noreferrer"><img src={`/api/v1/files/${f.id}/thumb`} alt="" loading="lazy" /></a><figcaption>{String(f.caption ?? f.auto_caption ?? '')}<br />{jdt(String(f.created_at))}</figcaption></figure>)}</div>
+    <div className="gallery">{(g.data?.items ?? []).map((f) => <figure key={String(f.id)}><a href={`${API}/files/${f.id}/download`} target="_blank" rel="noreferrer"><img src={`${API}/files/${f.id}/thumb`} alt="" loading="lazy" /></a><figcaption>{String(f.caption ?? f.auto_caption ?? '')}<br />{jdt(String(f.created_at))}</figcaption></figure>)}</div>
     {g.data && g.data.items.length === 0 && <p className="muted">عکسی نیست.</p>}</div>;
 }
 

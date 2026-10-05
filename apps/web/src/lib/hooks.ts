@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { api, ApiRequestError, newRequestId } from '../api/client.js';
+import { API, api, ApiRequestError, newRequestId } from '../api/client.js';
 
 export interface Page<T> { items: T[]; next_cursor: string | null }
 
@@ -68,11 +68,11 @@ export function useAct<TBody = unknown, TRes = unknown>(method: 'POST' | 'PATCH'
 }
 
 export async function downloadBlob(url: string, filename: string): Promise<void> {
-  const res = await fetch(`/api/v1${url}`, { credentials: 'same-origin', headers: { 'X-Requested-With': 'vitral' } });
+  const res = await fetch(`${API}${url}`, { credentials: 'same-origin', headers: { 'X-Requested-With': 'vitral' } });
   if (!res.ok) throw new Error(`download ${res.status}`);
   if (/\.(pdf|png)$/.test(filename) && (res.headers.get('content-type') ?? '').startsWith('text/html')) {
     // Server has no PDF renderer (shared hosting): it sent a print page instead — open it so the browser's «Save as PDF» runs.
-    if (!window.open(`/api/v1${url}`, '_blank')) window.location.assign(`/api/v1${url}`);
+    if (!window.open(`${API}${url}`, '_blank')) window.location.assign(`${API}${url}`);
     return;
   }
   const blob = await res.blob();

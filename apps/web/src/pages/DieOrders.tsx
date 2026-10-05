@@ -1,3 +1,4 @@
+import { API } from '../api/client.js';
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -109,7 +110,7 @@ export function DieOrderDetail() {
         <Table head={['گام', 'تاریخ', 'کاربر', 'یادداشت', 'فایل']} rows={DIE_STEPS.map((s) => {
           const h = steps.find((x) => x.step === s);
           return [h ? <b>{STEP_FA[s]}</b> : <span className="muted">{STEP_FA[s]}</span>, h ? jdt(h.at) : '—', h ? userName(h.by) : '—', h?.note ?? '—',
-            h?.file_ids?.length ? <span className="row" style={{ gap: 4 }}>{h.file_ids.map((f, i) => <a key={f} href={`/api/v1/files/${f}/download`} target="_blank" rel="noreferrer">فایل {fa(i + 1)}</a>)}</span> : h?.production_run_id ? <Link to={`/production/${h.production_run_id}`}>نوبت تولید</Link> : '—'];
+            h?.file_ids?.length ? <span className="row" style={{ gap: 4 }}>{h.file_ids.map((f, i) => <a key={f} href={`${API}/files/${f}/download`} target="_blank" rel="noreferrer">فایل {fa(i + 1)}</a>)}</span> : h?.production_run_id ? <Link to={`/production/${h.production_run_id}`}>نوبت تولید</Link> : '—'];
         })} />
       </div>
       {next ? (
