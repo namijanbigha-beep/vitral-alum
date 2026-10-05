@@ -111,6 +111,9 @@ export async function setupTestApp(overrides: TestEnvOverrides = {}): Promise<Te
 
 export const uuid = (): string => randomUUID();
 
+/** The tests run against apps/php (VITRAL_TARGET=php): no Chromium, no Node/Postgres ops scripts. */
+export const PHP_MODE = process.env.VITRAL_TARGET === 'php';
+
 // ---------------------------------------------------------------------------------------------------------------
 // PHP target (VITRAL_TARGET=php, `pnpm --filter @vitral/server test:php`): the same tests run against apps/php.
 // Per test file: the MySQL test database is reset (apps/php/bin/reset-test-db.php), `php -S` serves

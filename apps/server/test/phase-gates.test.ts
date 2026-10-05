@@ -264,7 +264,7 @@ describe('module 4 — rework cost on closing a production run', () => {
     await post('/api/v1/bundles', { production_run_id: run.id, code: 'RW-9', weight_kg: '50', lines: [{ product_id: p, length_m: '6' }] });
     const closed = await post(`/api/v1/production-runs/${run.id}/close`, { version: (await get(`/api/v1/production-runs/${run.id}`)).version, ingot_consumed_kg: '50', rework_cost: '700000' }, 200);
     expect(closed.status).toBe('closed');
-    const n = await sql<{ n: string }>`SELECT COUNT(*)::text AS n FROM documents WHERE kind = 'expense' AND source_id = ${run.id}`.execute(t.db);
+    const n = await sql<{ n: string }>`SELECT CONCAT(COUNT(*), '') AS n FROM documents WHERE kind = 'expense' AND source_id = ${run.id}`.execute(t.db);
     expect(n.rows[0]!.n).toBe('0');
     const a = await t.db.selectFrom('audit_log').select('after').where('entity_id', '=', run.id).where('action', '=', 'close').executeTakeFirstOrThrow();
     expect(a.after).toEqual(expect.objectContaining({ rework_cost: '700000', rework_document_id: null }));

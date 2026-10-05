@@ -15,6 +15,8 @@ final class Request
     /** @var array<string,string> route parameters (URL-decoded) */
     public array $params = [];
     public ?AuthUser $user = null;
+    /** Built in-process (the Telegram webhook calling the API as the linked user): a multipart body is in rawBody, not $_FILES. */
+    public bool $internal = false;
     public readonly string $id;
     private mixed $parsedBody = null;
     private bool $hasBody = false;

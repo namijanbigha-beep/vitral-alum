@@ -35,6 +35,16 @@ final class Config
         'TELEGRAM_BOT_TOKEN' => null,
         'PUBLIC_URL' => null,
         'DAILY_REPORT_TIME' => '21:00',
+        /** Secret Telegram echoes on every webhook call; derived from BOT_SERVICE_KEY when empty. */
+        'TELEGRAM_WEBHOOK_SECRET' => null,
+        /** Proxy for api.telegram.org when the host cannot reach it directly, e.g. socks5h://127.0.0.1:1080. */
+        'TELEGRAM_PROXY' => null,
+        /** Bot API base; only for tests and self-hosted Bot API servers. */
+        'TELEGRAM_API_URL' => null,
+        /** Scheduled jobs after the response is sent: 'auto' (default), true, 'always' or false (use cron.php only). */
+        'LAZY_CRON' => 'auto',
+        /** Key that lets public/cron.php run from a URL (?key=…); CLI cron needs none. */
+        'CRON_KEY' => null,
         /** Trust X-Forwarded-For for the client IP (only behind a proxy you control). */
         'TRUST_PROXY' => false,
         /** Directory of the built web app (index.html + assets); default: the front controller's directory. */
@@ -73,7 +83,7 @@ final class Config
             if (is_string($values[$k])) $values[$k] = $values[$k] === 'true' || $values[$k] === '1';
         }
         foreach (self::INT_KEYS as $k) $values[$k] = (int) $values[$k];
-        foreach (['APP_ORIGIN', 'BOT_SERVICE_KEY', 'BACKUP_ENCRYPTION_KEY', 'PUBLIC_URL', 'TELEGRAM_BOT_TOKEN', 'WEB_DIST_DIR'] as $k) {
+        foreach (['APP_ORIGIN', 'BOT_SERVICE_KEY', 'BACKUP_ENCRYPTION_KEY', 'PUBLIC_URL', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET', 'TELEGRAM_PROXY', 'TELEGRAM_API_URL', 'CRON_KEY', 'WEB_DIST_DIR'] as $k) {
             if ($values[$k] === '') $values[$k] = null;
         }
         if ($values['FILE_STORAGE_DIR'] === '') $values['FILE_STORAGE_DIR'] = $root . '/data/files';

@@ -20,5 +20,10 @@ if (str_starts_with($path, '/__test/')) {
     require dirname(__DIR__) . '/dev/TestBridge.php';
     return true;
 }
+// The two stand-alone entry points of the shared-hosting build (served by the web server itself in production).
+if ($path === '/telegram.php' || $path === '/cron.php') {
+    require __DIR__ . $path;
+    return true;
+}
 require __DIR__ . '/index.php';
 return true;

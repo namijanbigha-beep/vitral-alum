@@ -18,6 +18,7 @@ final class Multipart
         if (!$req->isMultipart()) throw new HttpError(415);
         $declared = (int) ($req->header('content-length') ?? 0);
         $postMax = self::iniBytes((string) ini_get('post_max_size'));
+        if ($req->internal) return self::parse($req->rawBody, (string) $req->header('content-type'), $maxFileBytes, $maxFields);
         $readByPhp = (bool) ini_get('enable_post_data_reading');
 
         if ($readByPhp) {

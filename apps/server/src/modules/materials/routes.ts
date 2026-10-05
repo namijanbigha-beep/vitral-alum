@@ -33,7 +33,12 @@ export function presentLot(r: Record<string, unknown>, user?: AuthUser): Record<
 
 /** Moving average (R13) replayed over the lot's receipts and issues, oldest first. */
 export async function lotAverage(db: Db | Trx, lotId: string): Promise<AvgState> {
-  const moves = await db.selectFrom('stock_moves').select(['kg', 'unit_cost', 'to_location_id', 'from_location_id', 'ref_type', 'currency']).where('item_type', '=', 'material_lot').where('item_id', '=', lotId).orderBy('at').orderBy('created_at').execute();
+  // The ledger is append-only: a purchase receipt booked before its price was known keeps unit_cost NULL, and the
+  // price later completed on the purchase document values it here (the document is the valuation record).
+  const moves = await db.selectFrom('stock_moves')
+    .leftJoin('documents as pd', (j) => j.onRef('pd.id', '=', 'stock_moves.ref_id').on('stock_moves.ref_type', '=', 'purchase_receipt').on('pd.kind', '=', 'purchase'))
+    .select(['stock_moves.kg', sql<string | null>`COALESCE(stock_moves.unit_cost, pd.unit_price)`.as('unit_cost'), 'stock_moves.to_location_id', 'stock_moves.from_location_id', 'stock_moves.ref_type', sql<string | null>`COALESCE(stock_moves.currency, pd.currency)`.as('currency')])
+    .where('stock_moves.item_type', '=', 'material_lot').where('stock_moves.item_id', '=', lotId).orderBy('stock_moves.at').orderBy('stock_moves.created_at').execute();
   let st = emptyAvg();
   for (const m of moves) {
     const inbound = ['purchase_receipt', 'opening', 'smelting_output', 'scrap_conversion'].includes(m.ref_type) && m.to_location_id && !m.from_location_id;
@@ -155,12 +160,12 @@ export function materialRoutes(app: FastifyInstance, ctx: AppContext): void {
       let amount = body.amount !== undefined ? body.amount : d.amount;
       if (body.unit_price !== undefined && body.amount === undefined && agreed && unit) amount = round(new Dec(agreed).mul(unit), d.currency as 'TOMAN');
       if (body.amount !== undefined && body.unit_price === undefined && agreed && amount && !new Dec(agreed).isZero()) unit = round(new Dec(amount).div(agreed), d.currency as 'TOMAN');
-      const { version, due_date, ...rest } = body;
+      const { version, reason, due_date, ...rest } = body;
       void version;
       const after = await trx.updateTable('documents').set({ ...rest, agreed_kg: agreed, unit_price: unit, amount, status: amount === null ? 'needs_completion' : d.status === 'needs_completion' ? 'draft' : d.status, due_date: due_date === undefined ? d.due_date : due_date ? new Date(due_date) : null, ...bump }).where('id', '=', id).returningAll().executeTakeFirstOrThrow();
-      // Receipts already booked at an unknown price now carry the known one (moving average stays consistent).
-      if (unit && d.material_lot_id && d.unit_price === null) await trx.updateTable('stock_moves').set({ unit_cost: unit, currency: d.currency }).where('ref_type', '=', 'purchase_receipt').where('ref_id', '=', id).where('unit_cost', 'is', null).execute().catch(() => undefined);
-      await audit(trx, { userId: me.id, entity: 'documents', entityId: id, action: 'update', before: d, after });
+      // Receipts already booked at an unknown price are not rewritten (stock_moves is append-only, principle 8):
+      // lotAverage values them with the price now on this purchase document.
+      await audit(trx, { userId: me.id, entity: 'documents', entityId: id, action: 'update', before: d, after, reason: reason ?? null });
       return presentPurchase((await loadPurchase(trx, id))!, me);
     });
   });

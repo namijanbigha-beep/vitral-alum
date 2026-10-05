@@ -125,6 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$fatal) {
             'APP_ORIGIN' => $origin,
             'PUBLIC_URL' => $origin . $base,
             'TELEGRAM_BOT_TOKEN' => $f['telegram'] !== '' ? $f['telegram'] : null,
+            // Lets a cPanel cron job call cron.php by URL when it cannot run the PHP binary.
+            'CRON_KEY' => bin2hex(random_bytes(16)),
         ];
         try {
             $db = Db::fromConfig(Config::fromArray($values, VITRAL_ROOT));

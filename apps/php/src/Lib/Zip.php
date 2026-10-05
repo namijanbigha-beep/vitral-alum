@@ -52,6 +52,42 @@ final class Zip
         return $out;
     }
 
+    /** lib/zip.ts crc32. */
+    public static function crc32(string $data): int
+    {
+        return crc32($data) & 0xffffffff;
+    }
+
+    /**
+     * lib/zip.ts buildZip: minimal ZIP writer (store method, UTF-8 names), byte-identical layout to the Node code.
+     * @param list<array{name:string,data:string,mtime?:\DateTimeInterface|string|null}> $entries
+     */
+    public static function buildZip(array $entries): string
+    {
+        $parts = '';
+        $central = '';
+        $offset = 0;
+        foreach ($entries as $e) {
+            $name = $e['name'];
+            $data = $e['data'];
+            $crc = self::crc32($data);
+            $m = $e['mtime'] ?? null;
+            $d = $m instanceof \DateTimeInterface ? \DateTimeImmutable::createFromInterface($m) : new \DateTimeImmutable($m ?? 'now');
+            $d = $d->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $time = ((int) $d->format('G') << 11) | ((int) $d->format('i') << 5) | ((int) $d->format('s') >> 1);
+            $date = (((int) $d->format('Y') - 1980) << 9) | ((int) $d->format('n') << 5) | (int) $d->format('j');
+            $len = strlen($data);
+            $nlen = strlen($name);
+            $local = pack('VvvvvvVVVvv', 0x04034b50, 20, 0x0800, 0, $time & 0xffff, $date & 0xffff, $crc, $len, $len, $nlen, 0);
+            $parts .= $local . $name . $data;
+            $central .= pack('VvvvvvvVVVvvvvvVV', 0x02014b50, 20, 20, 0x0800, 0, $time & 0xffff, $date & 0xffff, $crc, $len, $len, $nlen, 0, 0, 0, 0, 0, $offset) . $name;
+            $offset += 30 + $nlen + $len;
+        }
+        $n = count($entries);
+        $end = pack('VvvvvVVv', 0x06054b50, 0, 0, $n, $n, strlen($central), $offset, 0);
+        return $parts . $central . $end;
+    }
+
     private static function unesc(string $s): string
     {
         return str_replace(['&lt;', '&gt;', '&quot;', '&apos;', '&amp;'], ['<', '>', '"', "'", '&'], $s);

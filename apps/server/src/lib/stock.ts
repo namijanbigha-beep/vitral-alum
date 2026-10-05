@@ -84,19 +84,24 @@ export async function stockPositions(db: Trx | Db, filter: { location_id?: strin
     .selectFrom(
       db
         .selectFrom('stock_moves')
-        .select(['item_type', 'item_id', sql<string>`to_location_id`.as('location_id'), sql<string>`kg`.as('kg')])
+        .select(['item_type', 'item_id', 'at', sql<string>`to_location_id`.as('location_id'), sql<string>`kg`.as('kg')])
         .where('to_location_id', 'is not', null)
         .unionAll(
           db
             .selectFrom('stock_moves')
-            .select(['item_type', 'item_id', sql<string>`from_location_id`.as('location_id'), sql<string>`-kg`.as('kg')])
+            .select(['item_type', 'item_id', 'at', sql<string>`from_location_id`.as('location_id'), sql<string>`-kg`.as('kg')])
             .where('from_location_id', 'is not', null),
         )
         .as('m'),
     )
     .select(['m.location_id', 'm.item_type', 'm.item_id', sql<string>`SUM(m.kg)`.as('kg')])
     .groupBy(['m.location_id', 'm.item_type', 'm.item_id'])
-    .having(sql<SqlBool>`SUM(m.kg) <> 0`);
+    .having(sql<SqlBool>`SUM(m.kg) <> 0`)
+    // Deterministic order (same in the PHP twin): oldest position first, then by ids.
+    .orderBy(sql`MIN(m.at)`)
+    .orderBy('m.location_id')
+    .orderBy('m.item_type')
+    .orderBy('m.item_id');
   if (filter.location_id) q = q.where('m.location_id', '=', filter.location_id);
   if (filter.item_type) q = q.where('m.item_type', '=', filter.item_type);
   if (filter.item_id) q = q.where('m.item_id', '=', filter.item_id);

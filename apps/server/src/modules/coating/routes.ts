@@ -182,7 +182,8 @@ export function coatingRoutes(app: FastifyInstance, ctx: AppContext): void {
       const s = await trx.selectFrom('coating_run_items').select(sql<string>`COALESCE(SUM(raw_kg),0)`.as('kg')).where('run_id', '=', r.id).executeTakeFirstOrThrow();
       kg = round(s.kg, 'weight');
     } else if (body.input_basis === 'scale_ticket') {
-      const t = await trx.selectFrom('scale_tickets').selectAll().where('id', '=', String(body.scale_ticket_id)).where('coating_run_id', '=', r.id).executeTakeFirst();
+      // No ticket id → the same 400 as an unknown ticket (not a uuid cast error).
+      const t = body.scale_ticket_id ? await trx.selectFrom('scale_tickets').selectAll().where('id', '=', String(body.scale_ticket_id)).where('coating_run_id', '=', r.id).executeTakeFirst() : undefined;
       if (!t || t.status !== 'approved') throw new AppError('validation', 'قبض باسکول تأییدشده برای این نوبت لازم است', { scale_ticket_id: 'نامعتبر' });
       kg = t.net_direct_kg ?? (t.gross_kg && t.tare_kg ? round(new Dec(t.gross_kg).minus(t.tare_kg).minus(t.packaging_kg ?? 0), 'weight') : null);
     } else {

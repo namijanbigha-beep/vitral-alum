@@ -11,7 +11,7 @@ import { AppError } from '../../lib/errors.js';
 import { requireIdempotencyKey, withIdempotency } from '../../lib/idempotency.js';
 import { nextNumber } from '../../lib/numbering.js';
 import { move, OWN_WAREHOUSE } from '../../lib/stock.js';
-import { buildXlsx } from '../../lib/xlsx.js';
+import { attachment, buildXlsx } from '../../lib/xlsx.js';
 import { readCsvRows, readXlsxRows } from '../../lib/xlsx-read.js';
 import { suggestedWeightPerMeter } from '../../rules/weights.js';
 
@@ -212,7 +212,8 @@ async function commit(trx: Trx, kind: Kind, rows: Record<string, unknown>[], use
         await move(trx, { at, item_type: 'bundle', item_id: b.id, from_location_id: null, to_location_id: locId, kg: String(r.kg), state_to: form === 'raw' ? 'raw' : 'coated', ref_type: 'opening', ref_id: ow.id, unit_cost: (r.unit_cost as string | null) ?? null, currency: r.unit_cost ? 'TOMAN' : null, userId });
       }
     } else if (kind === 'open_orders') {
-      const o = await trx.insertInto('orders').values({ number: await nextNumber(trx, 'order', (r.date as Date) ?? new Date()), party_id: String(r.party_id), currency: String(r.currency ?? 'TOMAN'), order_date: (r.date as Date) ?? new Date(), title: r.old_number ? `شماره قدیم ${r.old_number}` : null, status_sales: 'approved', approved_by: userId, approved_at: new Date(), created_by: userId }).returning('id').executeTakeFirstOrThrow();
+      // r.date comes back from the JSONB batch as an ISO string, not a Date (numbering needs a Date).
+      const o = await trx.insertInto('orders').values({ number: await nextNumber(trx, 'order', r.date ? new Date(String(r.date)) : new Date()), party_id: String(r.party_id), currency: String(r.currency ?? 'TOMAN'), order_date: (r.date as Date) ?? new Date(), title: r.old_number ? `شماره قدیم ${r.old_number}` : null, status_sales: 'approved', approved_by: userId, approved_at: new Date(), created_by: userId }).returning('id').executeTakeFirstOrThrow();
       add('orders', o.id);
       let sort = 0;
       for (const l of r.lines as Array<{ product_id?: string; qty_kg?: string | null; description?: string }>) await trx.insertInto('order_lines').values({ order_id: o.id, kind: l.product_id ? 'profile' : 'service', product_id: l.product_id ?? null, description: l.description ?? null, qty_kg: l.qty_kg ?? null, calc_mode: 'manual', price_basis: 'per_kg', unit_price: (r.price as string | null) ?? null, currency: String(r.currency ?? 'TOMAN'), sort: sort++, created_by: userId }).execute();
@@ -239,7 +240,7 @@ export function importRoutes(app: FastifyInstance, ctx: AppContext): void {
     requirePermission(req, 'settings.manage');
     const { kind } = z.object({ kind: z.enum(['products', 'dies', 'parties', 'contracts', 'opening_stock', 'open_orders']) }).parse(req.params);
     const defs = FIELDS[kind];
-    return reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').header('Content-Disposition', `attachment; filename="${kind}.xlsx"`).send(buildXlsx([{ name: kind, header: defs.map((d) => d.aliases[0]!), rows: [defs.map((d) => d.sample)] }]));
+    return reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').header('Content-Disposition', attachment(`${kind}.xlsx`)).send(buildXlsx([{ name: kind, header: defs.map((d) => d.aliases[0]!), rows: [defs.map((d) => d.sample)] }]));
   });
   app.get('/import/fields/:kind', async (req) => {
     requirePermission(req, 'settings.manage');

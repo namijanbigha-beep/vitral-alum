@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDb } from '../src/db/index.js';
-import { setupTestApp, type TestApp, uuid } from './helpers.js';
+import { PHP_MODE, setupTestApp, type TestApp, uuid } from './helpers.js';
 
 const OPS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../ops');
 const SRC_URL = process.env.TEST_DATABASE_URL ?? 'postgres://vitral:vitral@localhost:5432/vitral_test';
@@ -29,7 +29,9 @@ const hasTools = (() => {
   }
 })();
 
-describe.skipIf(!hasTools)('T53 — backup and restore into an empty database', () => {
+// The ops scripts are Node + PostgreSQL (pg_dump / psql). The PHP edition on shared hosting has neither: backups come
+// from cPanel into BACKUP_DIR and the app only lists them and keeps the restore-test log (see the PHP-mode test below).
+describe.skipIf(!hasTools || PHP_MODE)('T53 — backup and restore into an empty database', () => {
   it('row counts and file sha256 match', async () => {
     await t.createUser({ mobile: '09120000001', password: 'manager-pass-1', role: 'manager' });
     const m = await t.login('09120000001', 'manager-pass-1');
@@ -74,5 +76,21 @@ describe.skipIf(!hasTools)('T53 — backup and restore into an empty database', 
     // Restore refuses a non-empty target.
     expect(() => execFileSync(path.join(OPS, 'restore.sh'), [path.join(backupDir, file!)], { env: { ...env, DATABASE_URL: DST_URL, FILE_STORAGE_DIR: restoreDir }, stdio: 'pipe' })).toThrow();
     await dst.destroy();
+  });
+});
+
+describe.skipIf(!PHP_MODE)('T53 — shared hosting: the app lists host backups and keeps the restore-test log', () => {
+  it('GET /backup reports the directory and the log takes an entry', async () => {
+    await t.createUser({ mobile: '09120000011', password: 'manager-pass-1', role: 'manager' });
+    const m = await t.login('09120000011', 'manager-pass-1');
+    const res = await t.call(m, { method: 'GET', url: '/api/v1/backup' });
+    expect(res.statusCode, res.body).toBe(200);
+    expect(Array.isArray(res.json().backups)).toBe(true);
+    expect(res.json().backup_dir_available).toBe(true);
+    expect(res.json().encryption_configured).toBe(false);
+    const logged = await t.call(m, { method: 'POST', url: '/api/v1/backup/restore-test', payload: { tested_at: new Date().toISOString(), duration_minutes: 12, result: 'ok', note: 'آزمون بازگردانی' } });
+    expect(logged.statusCode, logged.body).toBe(201);
+    const after = await t.call(m, { method: 'GET', url: '/api/v1/backup' });
+    expect(after.json().restore_tests[0].note).toBe('آزمون بازگردانی');
   });
 });

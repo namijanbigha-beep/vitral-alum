@@ -7,10 +7,10 @@ import type { Db } from '../../db/index.js';
 import { audit } from '../../lib/audit.js';
 import { can, requirePermission, requireUser, type AuthUser } from '../../lib/auth.js';
 import { idParam, uuid, boolQuery } from '../../lib/crud.js';
-import { jalaliDateArg, jalaliDayRange } from '../../lib/dates.js';
+import { jalaliDateArg, jalaliDayRange, tehranDateKey } from '../../lib/dates.js';
 import { AppError } from '../../lib/errors.js';
 import { requireIdempotencyKey, withIdempotency } from '../../lib/idempotency.js';
-import { buildXlsx, type Cell } from '../../lib/xlsx.js';
+import { attachment, buildXlsx, type Cell } from '../../lib/xlsx.js';
 import { diskUsagePercent } from '../health/routes.js';
 import { lotAverage } from '../materials/routes.js';
 import { positionsDetailed } from '../stock/routes.js';
@@ -21,14 +21,17 @@ const bump = { updated_at: new Date(), version: sql<number>`version + 1` };
 const rangeQuery = z.object({ from: z.string().max(12).optional(), to: z.string().max(12).optional(), party_id: uuid.optional(), order_id: uuid.optional(), product_id: uuid.optional(), currency: z.enum(CURRENCIES).optional(), country: z.string().max(80).optional(), color: z.string().max(60).optional(), xlsx: boolQuery.optional() });
 type RangeQ = z.infer<typeof rangeQuery>;
 
-function range(q: RangeQ): { start?: Date; end?: Date } {
+type Range = { start?: Date; end?: Date; startDay?: string; endDay?: string };
+
+/** Instants for timestamptz columns; startDay/endDay (Tehran calendar dates, [startDay, endDay)) for DATE columns. */
+function range(q: RangeQ): Range {
   const start = q.from ? jalaliDayRange(jalaliDateArg(toLatinDigits(q.from))).start : undefined;
   const end = q.to ? jalaliDayRange(jalaliDateArg(toLatinDigits(q.to))).end : undefined;
-  return { start, end };
+  return { start, end, startDay: start && tehranDateKey(start), endDay: end && tehranDateKey(end) };
 }
 
 function xlsx(reply: FastifyReply, name: string, header: string[], rows: Cell[][]) {
-  return reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').header('Content-Disposition', `attachment; filename="${name}.xlsx"`).send(buildXlsx([{ name, header, rows }]));
+  return reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').header('Content-Disposition', attachment(`${name}.xlsx`)).send(buildXlsx([{ name, header, rows }]));
 }
 
 export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
@@ -74,7 +77,7 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
       finance ? db.selectFrom('documents').select(['id', 'number', 'kind', 'amount', 'currency']).where('status', '=', 'reported').limit(50).execute() : Promise.resolve([]),
       finance ? db.selectFrom('documents').select(['id', 'number', 'kind', 'description', 'source_type']).where('status', '=', 'needs_completion').limit(50).execute() : Promise.resolve([]),
       finance ? db.selectFrom('correction_requests').select(['id', 'entity', 'entity_id', 'reason', 'created_at']).where('status', '=', 'open').limit(50).execute() : Promise.resolve([]),
-      db.selectFrom('orders').innerJoin('parties', 'parties.id', 'orders.party_id').select(['orders.id', 'orders.number', 'orders.due_date', 'parties.name as party_name']).where('orders.status_sales', '=', 'approved').where('orders.archived', '=', false).where('orders.due_date', 'is not', null).where('orders.due_date', '<', soon).orderBy('orders.due_date').limit(50).execute(),
+      db.selectFrom('orders').innerJoin('parties', 'parties.id', 'orders.party_id').select(['orders.id', 'orders.number', 'orders.due_date', 'parties.name as party_name']).where('orders.status_sales', '=', 'approved').where('orders.archived', '=', false).where('orders.due_date', 'is not', null).where('orders.due_date', '<', sql<Date>`${tehranDateKey(soon)}::date`).orderBy('orders.due_date').limit(50).execute(),
       db.selectFrom('tasks').leftJoin('users', 'users.id', 'tasks.assignee_user_id').select(['tasks.id', 'tasks.title', 'tasks.due_at', 'users.short_name as assignee']).where('tasks.status', '=', 'open').where('tasks.due_at', '<', now).where(me.role === 'manager' ? sql<boolean>`true` : sql<boolean>`tasks.assignee_user_id = ${me.id}::uuid`).limit(50).execute(),
       db.selectFrom('notifications').select(['id', 'title', 'entity', 'entity_id', 'created_at']).where('kind', '=', 'missing_document').where('read_at', 'is', null).where('user_id', '=', me.id).limit(50).execute(),
       db.selectFrom('transfer_lines').innerJoin('transfers', 'transfers.id', 'transfer_lines.transfer_id').select(['transfers.id', 'transfers.number', sql<string>`SUM(transfer_lines.kg - COALESCE(transfer_lines.received_kg, transfer_lines.kg))`.as('diff_kg')]).where('transfer_lines.diff_reason', 'is not', null).where('transfers.received_at', '>', new Date(now.getTime() - 7 * 86400_000)).groupBy(['transfers.id', 'transfers.number']).limit(50).execute(),
@@ -117,10 +120,10 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
   });
 
   /** Period profit: realised per order (complete costs only), ingot/scrap trading, general expenses. Per currency; no cross-currency sums. */
-  async function periodProfit(dbx: Db, r: { start?: Date; end?: Date }) {
+  async function periodProfit(dbx: Db, r: Range) {
     let oq = dbx.selectFrom('orders').select(['id', 'number', 'currency']).where('status_sales', '=', 'approved');
-    if (r.start) oq = oq.where('order_date', '>=', r.start);
-    if (r.end) oq = oq.where('order_date', '<', r.end);
+    if (r.startDay) oq = oq.where('order_date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) oq = oq.where('order_date', '<', sql<Date>`${r.endDay}::date`);
     const orders = await oq.limit(500).execute();
     const perCurrency: Record<string, { estimated: Dec; realised: Dec; collected: Dec; gain_share: Dec }> = {};
     const incomplete: Array<{ id: string; number: string; keys: string[] }> = [];
@@ -133,13 +136,13 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
       acc.collected = acc.collected.plus(c.profit.collected.net);
     }
     let gq = dbx.selectFrom('documents').select(['currency', sql<string>`COALESCE(SUM(amount),0)`.as('a')]).where('kind', '=', 'expense').where('expense_type', '=', 'general').where('status', '=', 'posted');
-    if (r.start) gq = gq.where('date', '>=', r.start);
-    if (r.end) gq = gq.where('date', '<', r.end);
+    if (r.startDay) gq = gq.where('date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) gq = gq.where('date', '<', sql<Date>`${r.endDay}::date`);
     const general = await gq.groupBy('currency').execute();
     // Ingot & scrap trading: posted invoices on material lots − book value of the issued kg (R13).
     let sq = dbx.selectFrom('documents').select(['id', 'currency', 'amount', 'material_lot_id', 'agreed_kg']).where('kind', '=', 'invoice').where('status', '=', 'posted').where('material_lot_id', 'is not', null);
-    if (r.start) sq = sq.where('date', '>=', r.start);
-    if (r.end) sq = sq.where('date', '<', r.end);
+    if (r.startDay) sq = sq.where('date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) sq = sq.where('date', '<', sql<Date>`${r.endDay}::date`);
     const scrapSales = await sq.execute();
     const trading: Record<string, Dec> = {};
     for (const s of scrapSales) {
@@ -166,8 +169,8 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
   report('sales', 'finance.view', async (q) => {
     const r = range(q);
     let qb = db.selectFrom('documents').innerJoin('parties', 'parties.id', 'documents.party_id').leftJoin('orders', 'orders.id', 'documents.order_id').select(['documents.id', 'documents.number', 'documents.kind', 'documents.date', 'documents.amount', 'documents.currency', 'parties.name as party', 'parties.country', 'orders.number as order_number']).where('documents.kind', 'in', ['invoice', 'sales_return']).where('documents.status', '=', 'posted').orderBy('documents.date');
-    if (r.start) qb = qb.where('documents.date', '>=', r.start);
-    if (r.end) qb = qb.where('documents.date', '<', r.end);
+    if (r.startDay) qb = qb.where('documents.date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) qb = qb.where('documents.date', '<', sql<Date>`${r.endDay}::date`);
     if (q.party_id) qb = qb.where('documents.party_id', '=', q.party_id);
     if (q.currency) qb = qb.where('documents.currency', '=', q.currency);
     if (q.country) qb = qb.where('parties.country', '=', q.country);
@@ -199,8 +202,8 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
   report('order-profit', 'finance.view', async (q) => {
     const r = range(q);
     let oq = db.selectFrom('orders').innerJoin('parties', 'parties.id', 'orders.party_id').select(['orders.id', 'orders.number', 'orders.currency', 'parties.name as party']).where('orders.status_sales', '=', 'approved').orderBy('orders.order_date', 'desc').limit(300);
-    if (r.start) oq = oq.where('orders.order_date', '>=', r.start);
-    if (r.end) oq = oq.where('orders.order_date', '<', r.end);
+    if (r.startDay) oq = oq.where('orders.order_date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) oq = oq.where('orders.order_date', '<', sql<Date>`${r.endDay}::date`);
     if (q.party_id) oq = oq.where('orders.party_id', '=', q.party_id);
     if (q.order_id) oq = oq.where('orders.id', '=', q.order_id);
     const orders = await oq.execute();
@@ -265,8 +268,8 @@ export function reportRoutes(app: FastifyInstance, ctx: AppContext): void {
   report('expenses', 'finance.view', async (q) => {
     const r = range(q);
     let qb = db.selectFrom('documents').leftJoin('parties', 'parties.id', 'documents.party_id').leftJoin('orders', 'orders.id', 'documents.order_id').select(['documents.number', 'documents.date', 'documents.expense_type', 'documents.expense_category', 'documents.amount', 'documents.currency', 'documents.status', 'parties.name as party', 'orders.number as order_number', 'documents.description']).where('documents.kind', '=', 'expense').where('documents.status', '<>', 'void').orderBy('documents.date', 'desc');
-    if (r.start) qb = qb.where('documents.date', '>=', r.start);
-    if (r.end) qb = qb.where('documents.date', '<', r.end);
+    if (r.startDay) qb = qb.where('documents.date', '>=', sql<Date>`${r.startDay}::date`);
+    if (r.endDay) qb = qb.where('documents.date', '<', sql<Date>`${r.endDay}::date`);
     if (q.order_id) qb = qb.where((eb) => eb.or([eb('documents.order_id', '=', q.order_id!), sql<SqlBool>`EXISTS (SELECT 1 FROM expense_shares es WHERE es.document_id = documents.id AND es.order_id = ${q.order_id}::uuid)`]));
     const rows = await qb.execute();
     return { header: ['شماره', 'تاریخ', 'نوع', 'دسته', 'طرف', 'سفارش', 'شرح', 'مبلغ', 'ارز', 'وضعیت'], rows: rows.map((x) => [x.number, x.date, x.expense_type, x.expense_category, x.party, x.order_number, x.description, x.amount, x.currency, x.status]), items: rows };

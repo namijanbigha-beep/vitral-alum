@@ -15,6 +15,7 @@ import { AppError } from '../../lib/errors.js';
 import { requireIdempotencyKey, withIdempotency } from '../../lib/idempotency.js';
 import { nextNumber } from '../../lib/numbering.js';
 import { notify, notifyManagers } from '../../lib/notify.js';
+import { attachment } from '../../lib/xlsx.js';
 import { buildZip } from '../../lib/zip.js';
 import { move, OWN_WAREHOUSE } from '../../lib/stock.js';
 import { buildDailyReport, snapshotDailyReport } from './report.js';
@@ -324,7 +325,7 @@ export function dailyRoutes(app: FastifyInstance, ctx: AppContext): void {
     const files = await db.selectFrom('files').select('id').where('owner_entity', '=', 'bundles').where('owner_id', '=', id).execute();
     const day = toLatinDigits(jalaliDateArg(undefined, b.reported_at) && require_fmt(b.reported_at));
     const zip = await zipOf(files.map((f) => f.id), (f, i) => `${day}_${safe(b.factory ?? 'vitral')}_${safe(b.code)}_${i}${ext(f.original_name)}`);
-    return reply.header('Content-Type', 'application/zip').header('Content-Disposition', `attachment; filename="bundle_${safe(b.code)}.zip"`).send(zip);
+    return reply.header('Content-Type', 'application/zip').header('Content-Disposition', attachment(`bundle_${safe(b.code)}.zip`)).send(zip);
   });
   app.get('/reports/daily/photos.zip', async (req, reply) => {
     requireUser(req);
@@ -333,7 +334,7 @@ export function dailyRoutes(app: FastifyInstance, ctx: AppContext): void {
     const items = await galleryItems(db, jalaliDayRange(date));
     const day = require_fmt(jalaliDayRange(date).start);
     const zip = await zipOf(items.map((i) => i.id), (f, i) => { const it = items.find((x) => x.id === f.id); return `${day}_${safe(it?.auto_caption.split(' · ')[0] ?? 'vitral')}_${safe(it?.bundle_code ?? it?.stage ?? '')}_${i}${ext(f.original_name)}`; });
-    return reply.header('Content-Type', 'application/zip').header('Content-Disposition', `attachment; filename="report_${day}.zip"`).send(zip);
+    return reply.header('Content-Type', 'application/zip').header('Content-Disposition', attachment(`report_${day}.zip`)).send(zip);
   });
 
   // ---- global search ----

@@ -48,12 +48,14 @@ export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
    * Render and respond. `onPdf` (archive + print counter) runs BEFORE the body is sent: the inject/HTTP response must not
    * resolve while the archive transaction is still open, and a failed archive must surface as an error, not a silent print.
    */
-  async function send(reply: FastifyReply, html: string, format: 'pdf' | 'png' | 'html', filename: string, onPdf?: (pdf: Buffer) => Promise<void>): Promise<void> {
+  async function send(reply: FastifyReply, html: string, format: 'pdf' | 'png' | 'html', filename: string, onPdf?: (pdf: Buffer | null) => Promise<void>): Promise<void> {
     if (format === 'html') { reply.header('Content-Security-Policy', PREVIEW_CSP).type('text/html; charset=utf-8').send(html); return; }
     if (!chromiumAvailable()) {
       // Shared hosting has no Chromium: hand the same page to the browser and open its print dialog («Save as PDF»).
       const nonce = randomUUID().replace(/-/g, '');
       const page = html.replace('</body>', `<script nonce="${nonce}">addEventListener('load',()=>setTimeout(()=>print(),300))</script></body>`);
+      // Still a print (T48): count it and audit it; there is no server-side PDF to archive.
+      if (onPdf) await onPdf(null);
       reply.header('Content-Security-Policy', `${PREVIEW_CSP}; script-src 'nonce-${nonce}'`).type('text/html; charset=utf-8').send(page);
       return;
     }
@@ -64,7 +66,15 @@ export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
   }
 
   /** Archive the PDF in `files` (kind document_pdf) and bump the print counter; never creates a financial document (T48). */
-  async function archive(entity: 'orders' | 'documents' | 'transfers', id: string, pdf: Buffer, name: string, user: AuthUser): Promise<void> {
+  async function archive(entity: 'orders' | 'documents' | 'transfers', id: string, pdf: Buffer | null, name: string, user: AuthUser): Promise<void> {
+    if (!pdf) {
+      // Printed from the browser (no Chromium on the host): count + audit, nothing to archive.
+      await db.transaction().execute(async (trx) => {
+        await trx.updateTable(entity).set({ print_count: sql`print_count + 1` }).where('id', '=', id).execute();
+        await audit(trx, { userId: user.id, entity, entityId: id, action: 'print', after: { file_id: null, name, printed_in_browser: true } });
+      });
+      return;
+    }
     const key = await storage.put(pdf);
     await db.transaction().execute(async (trx) => {
       const f = await trx.insertInto('files').values({ storage_key: key, thumb_key: null, original_name: name, mime: 'application/pdf', size: pdf.length, sha256: sha256(pdf), kind: 'document_pdf', caption: null, sensitive: false, owner_entity: entity, owner_id: id, sort_order: 0, created_by: user.id }).returning('id').executeTakeFirstOrThrow();

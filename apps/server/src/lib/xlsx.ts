@@ -29,3 +29,14 @@ export function buildXlsx(sheets: Array<{ name: string; header: string[]; rows: 
   files.push({ name: 'xl/_rels/workbook.xml.rels', data: Buffer.from(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}</Relationships>`) });
   return buildZip(files);
 }
+
+/**
+ * `Content-Disposition: attachment` for a download name. A plain ASCII name keeps the simple form; any other name
+ * (e.g. Persian) gets an ASCII fallback plus the RFC 5987 `filename*` (a raw non-ASCII header value is refused by Node).
+ */
+export function attachment(filename: string): string {
+  if (/^[\x20-\x7e]*$/.test(filename) && !/["\\]/.test(filename)) return `attachment; filename="${filename}"`;
+  const fallback = filename.replace(/[^\x20-\x7e]+|["\\]/g, '_');
+  const encoded = encodeURIComponent(filename).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+  return `attachment; filename="${fallback}"; filename*=UTF-8''${encoded}`;
+}

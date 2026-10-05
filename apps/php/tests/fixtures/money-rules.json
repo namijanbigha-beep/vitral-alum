@@ -1,0 +1,5945 @@
+{
+ "cases": [
+  [
+   "moneyRound",
+   [
+    "0.5",
+    "TOMAN"
+   ],
+   "1"
+  ],
+  [
+   "moneyRound",
+   [
+    "0.5",
+    "USD"
+   ],
+   "0.50"
+  ],
+  [
+   "moneyRound",
+   [
+    "0.5",
+    "IQD"
+   ],
+   "0.50"
+  ],
+  [
+   "moneyRound",
+   [
+    "1.005",
+    "TOMAN"
+   ],
+   "1"
+  ],
+  [
+   "moneyRound",
+   [
+    "1.005",
+    "USD"
+   ],
+   "1.01"
+  ],
+  [
+   "moneyRound",
+   [
+    "1.005",
+    "IQD"
+   ],
+   "1.01"
+  ],
+  [
+   "moneyRound",
+   [
+    "-2.5",
+    "TOMAN"
+   ],
+   "-3"
+  ],
+  [
+   "moneyRound",
+   [
+    "-2.5",
+    "USD"
+   ],
+   "-2.50"
+  ],
+  [
+   "moneyRound",
+   [
+    "-2.5",
+    "IQD"
+   ],
+   "-2.50"
+  ],
+  [
+   "moneyRound",
+   [
+    "1234.555",
+    "TOMAN"
+   ],
+   "1235"
+  ],
+  [
+   "moneyRound",
+   [
+    "1234.555",
+    "USD"
+   ],
+   "1234.56"
+  ],
+  [
+   "moneyRound",
+   [
+    "1234.555",
+    "IQD"
+   ],
+   "1234.56"
+  ],
+  [
+   "moneyRound",
+   [
+    "0",
+    "TOMAN"
+   ],
+   "0"
+  ],
+  [
+   "moneyRound",
+   [
+    "0",
+    "USD"
+   ],
+   "0.00"
+  ],
+  [
+   "moneyRound",
+   [
+    "0",
+    "IQD"
+   ],
+   "0.00"
+  ],
+  [
+   "moneyRound",
+   [
+    "-0.004",
+    "TOMAN"
+   ],
+   "0"
+  ],
+  [
+   "moneyRound",
+   [
+    "-0.004",
+    "USD"
+   ],
+   "0.00"
+  ],
+  [
+   "moneyRound",
+   [
+    "-0.004",
+    "IQD"
+   ],
+   "0.00"
+  ],
+  [
+   "lineAmount",
+   [
+    "2997.362",
+    "225658.75",
+    "TOMAN",
+    "415.69",
+    "64.91"
+   ],
+   "237341664"
+  ],
+  [
+   "lineAmount",
+   [
+    "312",
+    "498741.60",
+    "TOMAN",
+    "502.90",
+    "76.67"
+   ],
+   "36302699"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "618707.58",
+    "IQD",
+    "284.79",
+    "17.25"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "839.754",
+    "877375.01",
+    "USD",
+    "661",
+    "71.09"
+   ],
+   "213002198.25"
+  ],
+  [
+   "lineAmount",
+   [
+    "32",
+    "881777.66",
+    "IQD",
+    "339",
+    "60.18"
+   ],
+   "11235624.65"
+  ],
+  [
+   "lineAmount",
+   [
+    "4238.882",
+    "102507.16",
+    "IQD",
+    "320.83",
+    "78.46"
+   ],
+   "93594372.88"
+  ],
+  [
+   "lineAmount",
+   [
+    "797.109",
+    "875914",
+    "USD",
+    "648.32",
+    "31"
+   ],
+   "481756615.19"
+  ],
+  [
+   "lineAmount",
+   [
+    "4842.273",
+    "845977.62",
+    "IQD",
+    "361.16",
+    "75"
+   ],
+   "1024113285.82"
+  ],
+  [
+   "lineAmount",
+   [
+    "3668",
+    "80830.04",
+    "USD",
+    "20.76",
+    "80"
+   ],
+   "59296896.58"
+  ],
+  [
+   "lineAmount",
+   [
+    "1993.008",
+    "167186",
+    "IQD",
+    "78.16",
+    "83.36"
+   ],
+   "55444906.95"
+  ],
+  [
+   "lineAmount",
+   [
+    "4244.215",
+    null,
+    "USD",
+    "214",
+    "3"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "219175.46",
+    "USD",
+    "273.52",
+    "45"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "697.894",
+    "372938.90",
+    "IQD",
+    "214",
+    "65.73"
+   ],
+   "89194938.95"
+  ],
+  [
+   "lineAmount",
+   [
+    "4203.456",
+    "293105.52",
+    "USD",
+    "187.53",
+    "56.94"
+   ],
+   "530523193.54"
+  ],
+  [
+   "lineAmount",
+   [
+    "1001.792",
+    "101924",
+    "IQD",
+    "787",
+    "4.93"
+   ],
+   "97072003.07"
+  ],
+  [
+   "lineAmount",
+   [
+    "2899.686",
+    "662698.87",
+    "TOMAN",
+    "235.49",
+    "42"
+   ],
+   "1114538573"
+  ],
+  [
+   "lineAmount",
+   [
+    "3160.103",
+    null,
+    "IQD",
+    "721",
+    "82.99"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "2265",
+    "883697",
+    "USD",
+    "706",
+    "64.64"
+   ],
+   "707755756.09"
+  ],
+  [
+   "lineAmount",
+   [
+    "4250",
+    "223838",
+    "TOMAN",
+    "796.33",
+    "2.89"
+   ],
+   "923817801"
+  ],
+  [
+   "lineAmount",
+   [
+    "4382.129",
+    null,
+    "IQD",
+    "450.93",
+    "18.77"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "3650.318",
+    "145704",
+    "IQD",
+    "833.58",
+    "97.58"
+   ],
+   "12870322.02"
+  ],
+  [
+   "lineAmount",
+   [
+    "2184.954",
+    "734449",
+    "IQD",
+    "8.46",
+    "70.80"
+   ],
+   "468583277.40"
+  ],
+  [
+   "lineAmount",
+   [
+    "2294.130",
+    "883332.01",
+    "IQD",
+    "929.00",
+    "96.85"
+   ],
+   "63833142.62"
+  ],
+  [
+   "lineAmount",
+   [
+    "2693",
+    "350589.40",
+    "IQD",
+    "289.98",
+    "58.31"
+   ],
+   "393610531.30"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "889961.81",
+    "IQD",
+    "792.63",
+    "94.85"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "3470.512",
+    "510441.88",
+    "USD",
+    "660.59",
+    "75"
+   ],
+   "442873006.87"
+  ],
+  [
+   "lineAmount",
+   [
+    "4538.148",
+    "373373.31",
+    "TOMAN",
+    "864.45",
+    "39.08"
+   ],
+   "1032241834"
+  ],
+  [
+   "lineAmount",
+   [
+    "3441.268",
+    "716024.49",
+    "TOMAN",
+    "676.59",
+    "45.92"
+   ],
+   "1332547918"
+  ],
+  [
+   "lineAmount",
+   [
+    "3418",
+    "634735.36",
+    "USD",
+    "154",
+    "81"
+   ],
+   "412209683.49"
+  ],
+  [
+   "lineAmount",
+   [
+    "1275",
+    "51415.23",
+    "USD",
+    "603.01",
+    "66.55"
+   ],
+   "21927349.89"
+  ],
+  [
+   "lineAmount",
+   [
+    "3758.961",
+    "186796.82",
+    "TOMAN",
+    "628.69",
+    "91"
+   ],
+   "63193948"
+  ],
+  [
+   "lineAmount",
+   [
+    "3697",
+    "167804.91",
+    "USD",
+    "222",
+    "33"
+   ],
+   "415650862.02"
+  ],
+  [
+   "lineAmount",
+   [
+    "3531.966",
+    "888944",
+    "IQD",
+    "903",
+    "66.54"
+   ],
+   "1050549403.61"
+  ],
+  [
+   "lineAmount",
+   [
+    "2678.312",
+    "747810.39",
+    "USD",
+    "399.94",
+    "92"
+   ],
+   "160229163.36"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "886349",
+    "TOMAN",
+    "604.71",
+    "88.37"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "2780.859",
+    "660013.87",
+    "USD",
+    "995.71",
+    "81.42"
+   ],
+   "341017348.14"
+  ],
+  [
+   "lineAmount",
+   [
+    "662.343",
+    null,
+    "TOMAN",
+    "361.78",
+    "55.95"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "2758.436",
+    "174610.23",
+    "IQD",
+    "982.78",
+    "44"
+   ],
+   "269723658.08"
+  ],
+  [
+   "lineAmount",
+   [
+    "4419.215",
+    null,
+    "USD",
+    "70.26",
+    "80.17"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "2177",
+    "642751.42",
+    "IQD",
+    "459.80",
+    "56.24"
+   ],
+   "612320022.77"
+  ],
+  [
+   "lineAmount",
+   [
+    "2886.500",
+    "549054",
+    "USD",
+    "783.18",
+    "99.64"
+   ],
+   "5704656.56"
+  ],
+  [
+   "lineAmount",
+   [
+    "3896.736",
+    null,
+    "TOMAN",
+    "114.54",
+    "90.63"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "1231",
+    "187269.37",
+    "USD",
+    "57.56",
+    "92"
+   ],
+   "18442230.00"
+  ],
+  [
+   "lineAmount",
+   [
+    "3937.932",
+    null,
+    "TOMAN",
+    "45.52",
+    "16.59"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "2621.728",
+    "735865",
+    "USD",
+    "756",
+    "35.29"
+   ],
+   "1248409072.73"
+  ],
+  [
+   "lineAmount",
+   [
+    "2186",
+    "572038.32",
+    "IQD",
+    "291.18",
+    "63.20"
+   ],
+   "460174791.27"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    null,
+    "TOMAN",
+    "870.34",
+    "85.21"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "3870",
+    "869939.65",
+    "USD",
+    "279.50",
+    "65.26"
+   ],
+   "1169579643.67"
+  ],
+  [
+   "lineAmount",
+   [
+    "172.078",
+    "35310",
+    "USD",
+    "118",
+    "31"
+   ],
+   "4192373.18"
+  ],
+  [
+   "lineAmount",
+   [
+    "3520.765",
+    "593751",
+    "USD",
+    "890.26",
+    "74.79"
+   ],
+   "527003505.87"
+  ],
+  [
+   "lineAmount",
+   [
+    "1222.622",
+    "881660.00",
+    "TOMAN",
+    "309.17",
+    "22.01"
+   ],
+   "840682689"
+  ],
+  [
+   "lineAmount",
+   [
+    "1799.433",
+    null,
+    "TOMAN",
+    "522.52",
+    "70.02"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "1243.127",
+    "741546",
+    "USD",
+    "782",
+    "16.31"
+   ],
+   "771483644.50"
+  ],
+  [
+   "lineAmount",
+   [
+    "1898.616",
+    "166276.50",
+    "USD",
+    "350.05",
+    "21.46"
+   ],
+   "247946678.35"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "755758.70",
+    "IQD",
+    "113",
+    "99.23"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "642624.37",
+    "IQD",
+    "69.18",
+    "43.75"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "1681.335",
+    "507525.46",
+    "IQD",
+    "454.60",
+    "76.71"
+   ],
+   "198737847.76"
+  ],
+  [
+   "lineAmount",
+   [
+    null,
+    "542779",
+    "IQD",
+    "784.84",
+    "96.43"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "4542.380",
+    "479796.45",
+    "TOMAN",
+    "150.40",
+    "76.39"
+   ],
+   "514560392"
+  ],
+  [
+   "lineAmount",
+   [
+    "250.687",
+    "199551.45",
+    "TOMAN",
+    "386.87",
+    "29"
+   ],
+   "35517331"
+  ],
+  [
+   "lineAmount",
+   [
+    "917",
+    "721623",
+    "IQD",
+    "376.76",
+    "0.40"
+   ],
+   "659081001.08"
+  ],
+  [
+   "lineAmount",
+   [
+    "432.204",
+    "834233.66",
+    "TOMAN",
+    "991",
+    "91.79"
+   ],
+   "29600913"
+  ],
+  [
+   "lineAmount",
+   [
+    "4066.344",
+    "730877",
+    "USD",
+    "653.89",
+    "38.42"
+   ],
+   "1830155285.72"
+  ],
+  [
+   "lineAmount",
+   [
+    "1777.943",
+    "590319.35",
+    "USD",
+    "535.93",
+    "65"
+   ],
+   "367343418.70"
+  ],
+  [
+   "lineAmount",
+   [
+    "4575",
+    "368411.48",
+    "IQD",
+    "600",
+    "38.73"
+   ],
+   "1032694540.62"
+  ],
+  [
+   "lineAmount",
+   [
+    "1939",
+    "601780.58",
+    "IQD",
+    "666.26",
+    "87"
+   ],
+   "151690164.54"
+  ],
+  [
+   "lineAmount",
+   [
+    "106.692",
+    null,
+    "IQD",
+    "577.70",
+    "24.63"
+   ],
+   null
+  ],
+  [
+   "lineAmount",
+   [
+    "3795.150",
+    "158711.91",
+    "IQD",
+    "129.63",
+    "37.46"
+   ],
+   "376700495.34"
+  ],
+  [
+   "lineAmount",
+   [
+    "4210.001",
+    "13727.78",
+    "TOMAN",
+    "346.88",
+    "75.59"
+   ],
+   "14107161"
+  ],
+  [
+   "lineAmount",
+   [
+    "184.768",
+    "594412.17",
+    "TOMAN",
+    "108.91",
+    "62"
+   ],
+   "41734663"
+  ],
+  [
+   "lineAmount",
+   [
+    "4397",
+    "311624.07",
+    "IQD",
+    "255.80",
+    "46.71"
+   ],
+   "730185205.17"
+  ],
+  [
+   "lineAmount",
+   [
+    "2827.615",
+    "624823.80",
+    "TOMAN",
+    "192.28",
+    "18.03"
+   ],
+   "1448213922"
+  ],
+  [
+   "lineAmount",
+   [
+    "643.774",
+    "654184.90",
+    "IQD",
+    "496.72",
+    "32.27"
+   ],
+   "285242522.03"
+  ],
+  [
+   "lineAmount",
+   [
+    "3240.003",
+    "191970.56",
+    "USD",
+    "129",
+    "34"
+   ],
+   "410510096.61"
+  ],
+  [
+   "lineAmount",
+   [
+    "991.170",
+    "381855.09",
+    "USD",
+    "61.58",
+    "8"
+   ],
+   "348204583.21"
+  ],
+  [
+   "lineAmount",
+   [
+    "4215.483",
+    "738779",
+    "USD",
+    "640.89",
+    "33.53"
+   ],
+   "2070081425.66"
+  ],
+  [
+   "lineAmount",
+   [
+    "2752.211",
+    "103253",
+    "USD",
+    "731.50",
+    "76.94"
+   ],
+   "65529802.67"
+  ],
+  [
+   "lineAmount",
+   [
+    "2351.393",
+    "63302",
+    "USD",
+    "88.93",
+    "30.67"
+   ],
+   "103196146.06"
+  ],
+  [
+   "lineAmount",
+   [
+    "4177.067",
+    "237625.54",
+    "TOMAN",
+    "73.37",
+    "65.28"
+   ],
+   "344622939"
+  ],
+  [
+   "lineAmount",
+   [
+    "2926.161",
+    "285006.41",
+    "IQD",
+    "608.65",
+    "22.95"
+   ],
+   "642576852.77"
+  ],
+  [
+   "lineAmount",
+   [
+    "10",
+    "3",
+    "USD"
+   ],
+   "30.00"
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "37674.04",
+      "currency": "USD"
+     },
+     {
+      "amount": "67607.32",
+      "currency": "USD"
+     },
+     {
+      "amount": "3275.29",
+      "currency": "IQD"
+     },
+     {
+      "amount": "81751.97",
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "USD": "105281.36",
+     "IQD": "85027.26"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "38021.53",
+      "currency": "IQD"
+     },
+     {
+      "amount": "6905.71",
+      "currency": "IQD"
+     },
+     {
+      "amount": "10707.06",
+      "currency": "IQD"
+     },
+     {
+      "amount": "38892.26",
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "IQD": "55634.30",
+     "TOMAN": "38892"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": null,
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {},
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "74133",
+      "currency": "IQD"
+     },
+     {
+      "amount": null,
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "71360.18",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "36678.95",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "IQD": "74133.00",
+     "TOMAN": "71360",
+     "USD": "36678.95"
+    },
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "98316.01",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "86979.39",
+      "currency": "IQD"
+     },
+     {
+      "amount": "8264.72",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "61417",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "3769.37",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "167998",
+     "IQD": "86979.39",
+     "USD": "3769.37"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "11446.97",
+      "currency": "IQD"
+     },
+     {
+      "amount": "28531.07",
+      "currency": "IQD"
+     },
+     {
+      "amount": null,
+      "currency": "IQD"
+     },
+     {
+      "amount": "17907.15",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": null,
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "IQD": "39978.04",
+     "TOMAN": "17907"
+    },
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "12435.40",
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "12435"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "22256.96",
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "IQD": "22256.96"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "70199.42",
+      "currency": "USD"
+     },
+     {
+      "amount": "99755.09",
+      "currency": "USD"
+     },
+     {
+      "amount": "17882.50",
+      "currency": "USD"
+     },
+     {
+      "amount": "31406.24",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "USD": "219243.25"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "95994.38",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "25165.35",
+      "currency": "USD"
+     },
+     {
+      "amount": "31570.22",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "51452.24",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "127565",
+     "USD": "76617.59"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "75723.96",
+      "currency": "USD"
+     },
+     {
+      "amount": "77333.08",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": null,
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "46858.89",
+      "currency": "USD"
+     },
+     {
+      "amount": "51813.99",
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "USD": "122582.85",
+     "TOMAN": "77333",
+     "IQD": "51813.99"
+    },
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "25365.45",
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "25365"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "53137.73",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "USD": "53137.73"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": null,
+      "currency": "TOMAN"
+     },
+     {
+      "amount": null,
+      "currency": "IQD"
+     },
+     {
+      "amount": "23223.28",
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "23223"
+    },
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "98411.60",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "31344.67",
+      "currency": "USD"
+     },
+     {
+      "amount": "4559.26",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "98412",
+     "USD": "35903.93"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "36039",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "1168.59",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "97554.58",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "78424.16",
+      "currency": "IQD"
+     },
+     {
+      "amount": "8387",
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "134762",
+     "IQD": "86811.16"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "55970.99",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "96847.76",
+      "currency": "IQD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "55971",
+     "IQD": "96847.76"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": null,
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {},
+    "incomplete": true
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "71564.84",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "15354.02",
+      "currency": "USD"
+     },
+     {
+      "amount": "68751.34",
+      "currency": "USD"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "TOMAN": "71565",
+     "USD": "84105.36"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    [
+     {
+      "amount": "39873.12",
+      "currency": "IQD"
+     },
+     {
+      "amount": "12561.42",
+      "currency": "USD"
+     },
+     {
+      "amount": "80916.91",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "36176",
+      "currency": "TOMAN"
+     },
+     {
+      "amount": "47098.13",
+      "currency": "TOMAN"
+     }
+    ]
+   ],
+   {
+    "totals": {
+     "IQD": "39873.12",
+     "USD": "12561.42",
+     "TOMAN": "164191"
+    },
+    "incomplete": false
+   }
+  ],
+  [
+   "totalsByCurrency",
+   [
+    []
+   ],
+   {
+    "totals": {},
+    "incomplete": false
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "7898976.33",
+    "44.13",
+    "134496",
+    "USD"
+   ],
+   {
+    "prepay": "3485818.25",
+    "remaining": "7764480.33"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "1492220.92",
+    "29.92",
+    "4672732.92",
+    "TOMAN"
+   ],
+   {
+    "prepay": "446472",
+    "remaining": "-3180512"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "9796438.56",
+    "34.27",
+    "2966654.20",
+    "IQD"
+   ],
+   {
+    "prepay": "3357239.49",
+    "remaining": "6829784.36"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "268667.39",
+    "72.55",
+    "1144093.71",
+    "TOMAN"
+   ],
+   {
+    "prepay": "194918",
+    "remaining": "-875426"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "8695280.65",
+    "12.69",
+    "2669515.77",
+    "TOMAN"
+   ],
+   {
+    "prepay": "1103431",
+    "remaining": "6025765"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "771541",
+    "14.95",
+    "2531811.03",
+    "TOMAN"
+   ],
+   {
+    "prepay": "115345",
+    "remaining": "-1760270"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "6053168.52",
+    "34.52",
+    "4152267",
+    "IQD"
+   ],
+   {
+    "prepay": "2089553.77",
+    "remaining": "1900901.52"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "8025622.28",
+    "16.31",
+    "2344262.80",
+    "IQD"
+   ],
+   {
+    "prepay": "1308978.99",
+    "remaining": "5681359.48"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "578703.99",
+    "65.75",
+    "590484.68",
+    "TOMAN"
+   ],
+   {
+    "prepay": "380498",
+    "remaining": "-11781"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "5547293",
+    "92.93",
+    "3804312.51",
+    "TOMAN"
+   ],
+   {
+    "prepay": "5155099",
+    "remaining": "1742980"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "8846513.44",
+    "36",
+    "1726565.55",
+    "IQD"
+   ],
+   {
+    "prepay": "3184744.84",
+    "remaining": "7119947.89"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "5735338",
+    "57.10",
+    "430463.57",
+    "USD"
+   ],
+   {
+    "prepay": "3274878.00",
+    "remaining": "5304874.43"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "664327",
+    "23.33",
+    "831831.74",
+    "IQD"
+   ],
+   {
+    "prepay": "154987.49",
+    "remaining": "-167504.74"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "66261.56",
+    "40.00",
+    "537819.03",
+    "IQD"
+   ],
+   {
+    "prepay": "26504.62",
+    "remaining": "-471557.47"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "2744501.59",
+    "65.45",
+    "416349.93",
+    "IQD"
+   ],
+   {
+    "prepay": "1796276.29",
+    "remaining": "2328151.66"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "1869461.95",
+    "84.09",
+    "567963.85",
+    "TOMAN"
+   ],
+   {
+    "prepay": "1572031",
+    "remaining": "1301498"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "5188751.40",
+    "60.28",
+    "557145.91",
+    "IQD"
+   ],
+   {
+    "prepay": "3127779.34",
+    "remaining": "4631605.49"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "8006613.48",
+    "6",
+    "432332.39",
+    "TOMAN"
+   ],
+   {
+    "prepay": "480397",
+    "remaining": "7574281"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "7319704.93",
+    "78",
+    "3620813",
+    "IQD"
+   ],
+   {
+    "prepay": "5709369.85",
+    "remaining": "3698891.93"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "6805227.98",
+    "49.59",
+    "3071531",
+    "USD"
+   ],
+   {
+    "prepay": "3374712.56",
+    "remaining": "3733696.98"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "1029428",
+    "15.33",
+    "1621955.31",
+    "USD"
+   ],
+   {
+    "prepay": "157811.31",
+    "remaining": "-592527.31"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "3927085.33",
+    "5",
+    "1109271",
+    "IQD"
+   ],
+   {
+    "prepay": "196354.27",
+    "remaining": "2817814.33"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "2619835.26",
+    "44.39",
+    "4419577.49",
+    "USD"
+   ],
+   {
+    "prepay": "1162944.87",
+    "remaining": "-1799742.23"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "1155916.55",
+    "64.99",
+    "2724795.92",
+    "USD"
+   ],
+   {
+    "prepay": "751230.17",
+    "remaining": "-1568879.37"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "910329.56",
+    "67.10",
+    "3077756.22",
+    "USD"
+   ],
+   {
+    "prepay": "610831.13",
+    "remaining": "-2167426.66"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "574957",
+    "32.56",
+    "4847772",
+    "TOMAN"
+   ],
+   {
+    "prepay": "187206",
+    "remaining": "-4272815"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "2768238.54",
+    "63.91",
+    "1456317.95",
+    "TOMAN"
+   ],
+   {
+    "prepay": "1769181",
+    "remaining": "1311921"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "4547518.23",
+    "9.22",
+    "2228131",
+    "TOMAN"
+   ],
+   {
+    "prepay": "419281",
+    "remaining": "2319387"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "2278259.71",
+    "68.29",
+    "1385024.18",
+    "IQD"
+   ],
+   {
+    "prepay": "1555823.56",
+    "remaining": "893235.53"
+   }
+  ],
+  [
+   "prepayment",
+   [
+    "1729044.93",
+    "98",
+    "4067899.82",
+    "TOMAN"
+   ],
+   {
+    "prepay": "1694464",
+    "remaining": "-2338855"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "expense",
+      "amount": "-22966.93",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "44081.35",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "36087.07",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "purchase",
+      "amount": "-18331.68",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "barter",
+      "amount": "58927",
+      "currency": "IQD",
+      "status": "draft"
+     },
+     {
+      "kind": "barter",
+      "amount": "93251.29",
+      "currency": "TOMAN",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "USD": "-21114.42",
+    "IQD": "18331.68",
+    "TOMAN": "93251"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "barter",
+      "amount": "8398.33",
+      "currency": "USD",
+      "status": "draft"
+     },
+     {
+      "kind": "expense",
+      "amount": "7613.71",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "barter",
+      "amount": "34472.86",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "23500.86",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "3823.86",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "50343.71",
+      "currency": "USD",
+      "status": "draft"
+     }
+    ]
+   ],
+   {
+    "USD": "34472.86",
+    "IQD": "3823.86"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "fx_difference",
+      "amount": "57838",
+      "currency": "IQD",
+      "status": "draft"
+     },
+     {
+      "kind": "receipt",
+      "amount": "59296.51",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "receipt",
+      "amount": "34297.56",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "60406.79",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "80260.95",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "barter",
+      "amount": "63079.97",
+      "currency": "USD",
+      "status": "draft"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "-60407"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "toll_fee",
+      "amount": "86458.66",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "-6364.55",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "expense",
+      "amount": "12533",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "receipt",
+      "amount": "99688.36",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "barter",
+      "amount": "-67309",
+      "currency": "IQD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "-6168",
+    "USD": "-99688.36",
+    "IQD": "-67309.00"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "payment",
+      "amount": "99688.18",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "purchase",
+      "amount": "20717.77",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "payment",
+      "amount": "53251.63",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "87436",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "90760.17",
+      "currency": "USD",
+      "status": "draft"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "81816.59",
+      "currency": "IQD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "IQD": "181504.77",
+    "TOMAN": "-34184"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "payment",
+      "amount": "27884",
+      "currency": "IQD",
+      "status": "draft"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "-83501.42",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "barter",
+      "amount": "36886.31",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "barter",
+      "amount": "-72007.68",
+      "currency": "IQD",
+      "status": "void"
+     },
+     {
+      "kind": "purchase",
+      "amount": "15790.26",
+      "currency": "TOMAN",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "IQD": "36886.31",
+    "TOMAN": "-15790"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "fx_difference",
+      "amount": "43259",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "invoice",
+      "amount": "82194.17",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "receipt",
+      "amount": "7419",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "expense",
+      "amount": "43521.85",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "receipt",
+      "amount": "-76775.56",
+      "currency": "USD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "35840",
+    "USD": "33253.71"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "invoice",
+      "amount": "27058",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "1031.79",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "-32008.69",
+      "currency": "IQD",
+      "status": "void"
+     },
+     {
+      "kind": "payment",
+      "amount": "9295.56",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "payment",
+      "amount": "42631.09",
+      "currency": "IQD",
+      "status": "void"
+     },
+     {
+      "kind": "receipt",
+      "amount": "20421.73",
+      "currency": "TOMAN",
+      "status": "draft"
+     }
+    ]
+   ],
+   {
+    "USD": "27058.00"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "sales_return",
+      "amount": "18603.87",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "55407",
+      "currency": "USD",
+      "status": "draft"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "67645.45",
+      "currency": "IQD",
+      "status": "draft"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "-21906.04",
+      "currency": "IQD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "IQD": "-21906.04"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "barter",
+      "amount": "92914.51",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "invoice",
+      "amount": "-4296.85",
+      "currency": "IQD",
+      "status": "draft"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "37362.40",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "77919.72",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "990.83",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "75639.35",
+      "currency": "USD",
+      "status": "void"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "93905",
+    "USD": "37362.40",
+    "IQD": "-77919.72"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "opening_balance",
+      "amount": "38326.16",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "barter",
+      "amount": "-57636.29",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "81346.10",
+      "currency": "IQD",
+      "status": "void"
+     },
+     {
+      "kind": "invoice",
+      "amount": "93519.12",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "29592",
+      "currency": "USD",
+      "status": "draft"
+     }
+    ]
+   ],
+   {}
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "purchase",
+      "amount": "-37806.35",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "purchase",
+      "amount": "46561",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "receipt",
+      "amount": "52982.42",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "5176.32",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "41983",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "purchase",
+      "amount": "93046",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "sales_return",
+      "amount": "84231.23",
+      "currency": "TOMAN",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "IQD": "-15176.07",
+    "TOMAN": "-265821"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "receipt",
+      "amount": "-99893.46",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "barter",
+      "amount": "92762.85",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "fx_difference",
+      "amount": "74096.84",
+      "currency": "TOMAN",
+      "status": "draft"
+     }
+    ]
+   ],
+   {}
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "sales_return",
+      "amount": "75200",
+      "currency": "USD",
+      "status": "draft"
+     },
+     {
+      "kind": "receipt",
+      "amount": "6559.76",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "expense",
+      "amount": "36548.28",
+      "currency": "USD",
+      "status": "void"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "-30087.32",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "expense",
+      "amount": "80453.55",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "receipt",
+      "amount": "-24652",
+      "currency": "USD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "23528",
+    "IQD": "-80453.55",
+    "USD": "24652.00"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "opening_balance",
+      "amount": "52561.03",
+      "currency": "USD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "USD": "52561.03"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    []
+   ],
+   {}
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "sales_return",
+      "amount": "80250.47",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "toll_fee",
+      "amount": "61655",
+      "currency": "TOMAN",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "TOMAN": "-141905"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "expense",
+      "amount": "63730.27",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "invoice",
+      "amount": "-2561.99",
+      "currency": "USD",
+      "status": "posted"
+     },
+     {
+      "kind": "invoice",
+      "amount": "51348.68",
+      "currency": "TOMAN",
+      "status": "posted"
+     },
+     {
+      "kind": "receipt",
+      "amount": "-33903.04",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "40993.33",
+      "currency": "USD",
+      "status": "posted"
+     }
+    ]
+   ],
+   {
+    "USD": "-25298.93",
+    "TOMAN": "51349"
+   }
+  ],
+  [
+   "partyBalance",
+   [
+    []
+   ],
+   {}
+  ],
+  [
+   "partyBalance",
+   [
+    [
+     {
+      "kind": "fx_difference",
+      "amount": "33715",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "barter",
+      "amount": "81093.66",
+      "currency": "TOMAN",
+      "status": "draft"
+     },
+     {
+      "kind": "opening_balance",
+      "amount": "61036.63",
+      "currency": "TOMAN",
+      "status": "void"
+     },
+     {
+      "kind": "receipt",
+      "amount": "-25738.08",
+      "currency": "IQD",
+      "status": "posted"
+     },
+     {
+      "kind": "barter",
+      "amount": "61616",
+      "currency": "USD",
+      "status": "draft"
+     }
+    ]
+   ],
+   {
+    "IQD": "59453.08"
+   }
+  ],
+  [
+   "emptyAvg",
+   [],
+   {
+    "kg": "0.000",
+    "value": "0",
+    "avg": null,
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "1694.212",
+    "170174",
+    "IQD"
+   ],
+   {
+    "kg": "1694.212",
+    "value": "288310832.888",
+    "avg": "170174.00",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "1694.212",
+     "value": "288310832.888",
+     "avg": "170174.00",
+     "incomplete": false
+    },
+    "651.087",
+    "175246",
+    "TOMAN"
+   ],
+   {
+    "kg": "2345.299",
+    "value": "402411225.29",
+    "avg": "171582",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "2345.299",
+     "value": "402411225.29",
+     "avg": "171582",
+     "incomplete": false
+    },
+    "2237",
+    null,
+    "TOMAN"
+   ],
+   {
+    "kg": "4582.299",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "4582.299",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "160.828"
+   ],
+   {
+    "kg": "4421.471",
+    "value": null,
+    "avg": null,
+    "incomplete": true,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "4206.245",
+    "170816.83",
+    "IQD"
+   ],
+   {
+    "kg": "4206.245",
+    "value": "718497437.10335",
+    "avg": "170816.83",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "4206.245",
+     "value": "718497437.10335",
+     "avg": "170816.83",
+     "incomplete": false
+    },
+    "681.421"
+   ],
+   {
+    "kg": "3524.824",
+    "value": "602099261.98792",
+    "avg": "170816.83",
+    "incomplete": false,
+    "unit_cost": "170816.83",
+    "cost": "116398175"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "3524.824",
+     "value": "602099261.98792",
+     "avg": "170816.83",
+     "incomplete": false
+    },
+    "3111.301",
+    "381838.32",
+    "IQD"
+   ],
+   {
+    "kg": "6636.125",
+    "value": "1790113208.84224",
+    "avg": "269752.79",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "6636.125",
+     "value": "1790113208.84224",
+     "avg": "269752.79",
+     "incomplete": false
+    },
+    "639.932"
+   ],
+   {
+    "kg": "5996.193",
+    "value": "1617489768.813483409718774134001393885739",
+    "avg": "269752.79",
+    "incomplete": false,
+    "unit_cost": "269752.79",
+    "cost": "172623440"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "217.922",
+    null,
+    "USD"
+   ],
+   {
+    "kg": "217.922",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "217.922",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "555.200",
+    "197789",
+    "IQD"
+   ],
+   {
+    "kg": "773.122",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "773.122",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "3385.127",
+    "247428.84",
+    "TOMAN"
+   ],
+   {
+    "kg": "4158.249",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "4158.249",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "2532.828",
+    "368283",
+    "TOMAN"
+   ],
+   {
+    "kg": "6691.077",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "1436",
+    "361013",
+    "IQD"
+   ],
+   {
+    "kg": "1436.000",
+    "value": "518414668",
+    "avg": "361013.00",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "1436.000",
+     "value": "518414668",
+     "avg": "361013.00",
+     "incomplete": false
+    },
+    "4543",
+    "84320.33",
+    "USD"
+   ],
+   {
+    "kg": "5979.000",
+    "value": "901481927.19",
+    "avg": "150774.70",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "5979.000",
+     "value": "901481927.19",
+     "avg": "150774.70",
+     "incomplete": false
+    },
+    "4422.141",
+    "265983.37",
+    "USD"
+   ],
+   {
+    "kg": "10401.141",
+    "value": "2077697892.98517",
+    "avg": "199756.73",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "10401.141",
+     "value": "2077697892.98517",
+     "avg": "199756.73",
+     "incomplete": false
+    },
+    "64.131"
+   ],
+   {
+    "kg": "10337.010",
+    "value": "2064887294.265757203147231635452302781012",
+    "avg": "199756.73",
+    "incomplete": false,
+    "unit_cost": "199756.73",
+    "cost": "12810599"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "2034",
+    "49662.63",
+    "USD"
+   ],
+   {
+    "kg": "2034.000",
+    "value": "101013789.42",
+    "avg": "49662.63",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "2034.000",
+     "value": "101013789.42",
+     "avg": "49662.63",
+     "incomplete": false
+    },
+    "520.277"
+   ],
+   {
+    "kg": "1513.723",
+    "value": "75175465.27149",
+    "avg": "49662.63",
+    "incomplete": false,
+    "unit_cost": "49662.63",
+    "cost": "25838324"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "1513.723",
+     "value": "75175465.27149",
+     "avg": "49662.63",
+     "incomplete": false
+    },
+    "3436.716",
+    "193245.51",
+    "TOMAN"
+   ],
+   {
+    "kg": "4950.439",
+    "value": "739305401.41665",
+    "avg": "149341",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "4950.439",
+     "value": "739305401.41665",
+     "avg": "149341",
+     "incomplete": false
+    },
+    "862.968"
+   ],
+   {
+    "kg": "4087.471",
+    "value": "610428567.7358948958163104322667141237373",
+    "avg": "149341",
+    "incomplete": false,
+    "unit_cost": "149341",
+    "cost": "128876834"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "4685.103",
+    "47421.32",
+    "TOMAN"
+   ],
+   {
+    "kg": "4685.103",
+    "value": "222173768.59596",
+    "avg": "47421",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "4685.103",
+     "value": "222173768.59596",
+     "avg": "47421",
+     "incomplete": false
+    },
+    "634.911",
+    "172717",
+    "IQD"
+   ],
+   {
+    "kg": "5320.014",
+    "value": "331833691.78296",
+    "avg": "62374.59",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "5320.014",
+     "value": "331833691.78296",
+     "avg": "62374.59",
+     "incomplete": false
+    },
+    "1412.527",
+    "270994",
+    "USD"
+   ],
+   {
+    "kg": "6732.541",
+    "value": "714620033.62096",
+    "avg": "106144.18",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "6732.541",
+     "value": "714620033.62096",
+     "avg": "106144.18",
+     "incomplete": false
+    },
+    "73.406"
+   ],
+   {
+    "kg": "6659.135",
+    "value": "706828414.0544426643075771837111723493403",
+    "avg": "106144.18",
+    "incomplete": false,
+    "unit_cost": "106144.18",
+    "cost": "7791620"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "649.864",
+    "311843.09",
+    "IQD"
+   ],
+   {
+    "kg": "649.864",
+    "value": "202655597.83976",
+    "avg": "311843.09",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "649.864",
+     "value": "202655597.83976",
+     "avg": "311843.09",
+     "incomplete": false
+    },
+    "3503.183",
+    "393085.38",
+    "IQD"
+   ],
+   {
+    "kg": "4153.047",
+    "value": "1579705618.6043",
+    "avg": "380372.68",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "4153.047",
+     "value": "1579705618.6043",
+     "avg": "380372.68",
+     "incomplete": false
+    },
+    "2090.374",
+    "185642.32",
+    "IQD"
+   ],
+   {
+    "kg": "6243.421",
+    "value": "1967767497.63198",
+    "avg": "315174.56",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "6243.421",
+     "value": "1967767497.63198",
+     "avg": "315174.56",
+     "incomplete": false
+    },
+    "760.390"
+   ],
+   {
+    "kg": "5483.031",
+    "value": "1728111910.170493537337943412754001372004",
+    "avg": "315174.56",
+    "incomplete": false,
+    "unit_cost": "315174.56",
+    "cost": "239655587"
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "972.903"
+   ],
+   {
+    "kg": "-972.903",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-972.903",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "686.708"
+   ],
+   {
+    "kg": "-1659.611",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-1659.611",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "448.625"
+   ],
+   {
+    "kg": "-2108.236",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-2108.236",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "3940.263",
+    "295032.16",
+    "IQD"
+   ],
+   {
+    "kg": "1832.027",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "636.335"
+   ],
+   {
+    "kg": "-636.335",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-636.335",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "511"
+   ],
+   {
+    "kg": "-1147.335",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-1147.335",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "2900.676",
+    "216994.51",
+    "TOMAN"
+   ],
+   {
+    "kg": "1753.341",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "1753.341",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "4340",
+    "392236.84",
+    "USD"
+   ],
+   {
+    "kg": "6093.341",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "594.700"
+   ],
+   {
+    "kg": "-594.700",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-594.700",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "989.809"
+   ],
+   {
+    "kg": "-1584.509",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-1584.509",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "3242.175",
+    "347469.68",
+    "IQD"
+   ],
+   {
+    "kg": "1657.666",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "1657.666",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "1598.659",
+    "134110.34",
+    "TOMAN"
+   ],
+   {
+    "kg": "3256.325",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "253.204"
+   ],
+   {
+    "kg": "-253.204",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-253.204",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "714.211"
+   ],
+   {
+    "kg": "-967.415",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-967.415",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "4433.112",
+    "91965.46",
+    "USD"
+   ],
+   {
+    "kg": "3465.697",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "3465.697",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "1031.635",
+    "270364.63",
+    "USD"
+   ],
+   {
+    "kg": "4497.332",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "1348.854",
+    "171208.08",
+    "TOMAN"
+   ],
+   {
+    "kg": "1348.854",
+    "value": "230934703.54032",
+    "avg": "171208",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "1348.854",
+     "value": "230934703.54032",
+     "avg": "171208",
+     "incomplete": false
+    },
+    "491.274"
+   ],
+   {
+    "kg": "857.580",
+    "value": "146824625.2464",
+    "avg": "171208",
+    "incomplete": false,
+    "unit_cost": "171208",
+    "cost": "84110078"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "857.580",
+     "value": "146824625.2464",
+     "avg": "171208",
+     "incomplete": false
+    },
+    "75.988",
+    "374896",
+    "TOMAN"
+   ],
+   {
+    "kg": "933.568",
+    "value": "175312222.4944",
+    "avg": "187787",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "933.568",
+     "value": "175312222.4944",
+     "avg": "187787",
+     "incomplete": false
+    },
+    "835.469",
+    "168634.90",
+    "USD"
+   ],
+   {
+    "kg": "1769.037",
+    "value": "316201453.7625",
+    "avg": "178742.14",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "901"
+   ],
+   {
+    "kg": "-901.000",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-901.000",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "3087.343",
+    "23185.86",
+    "IQD"
+   ],
+   {
+    "kg": "2186.343",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "2186.343",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "1499.916",
+    "216379.07",
+    "USD"
+   ],
+   {
+    "kg": "3686.259",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "3686.259",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "755.755",
+    "322178.12",
+    "USD"
+   ],
+   {
+    "kg": "4442.014",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "113"
+   ],
+   {
+    "kg": "-113.000",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-113.000",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "908.259"
+   ],
+   {
+    "kg": "-1021.259",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-1021.259",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "3330.831",
+    "339500.11",
+    "TOMAN"
+   ],
+   {
+    "kg": "2309.572",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "2309.572",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "3486.360",
+    "287308.70",
+    "USD"
+   ],
+   {
+    "kg": "5795.932",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "63.302"
+   ],
+   {
+    "kg": "-63.302",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-63.302",
+     "value": null,
+     "avg": null,
+     "incomplete": false
+    },
+    "4105.122",
+    "269935.41",
+    "USD"
+   ],
+   {
+    "kg": "4041.820",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "4041.820",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "4482.309",
+    "105138",
+    "IQD"
+   ],
+   {
+    "kg": "8524.129",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "8524.129",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "806.869",
+    "328143.11",
+    "USD"
+   ],
+   {
+    "kg": "9330.998",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "34.483",
+    "81358.97",
+    "USD"
+   ],
+   {
+    "kg": "34.483",
+    "value": "2805501.36251",
+    "avg": "81358.97",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "34.483",
+     "value": "2805501.36251",
+     "avg": "81358.97",
+     "incomplete": false
+    },
+    "325.630",
+    "313135",
+    "TOMAN"
+   ],
+   {
+    "kg": "360.113",
+    "value": "104771651.41251",
+    "avg": "290941",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "360.113",
+     "value": "104771651.41251",
+     "avg": "290941",
+     "incomplete": false
+    },
+    "715.444"
+   ],
+   {
+    "kg": "-355.331",
+    "value": "-103380371.3502666963147678645314109737777",
+    "avg": "290941",
+    "incomplete": false,
+    "unit_cost": "290941",
+    "cost": "208152023"
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "-355.331",
+     "value": "-103380371.3502666963147678645314109737777",
+     "avg": "290941",
+     "incomplete": false
+    },
+    "1836.149",
+    "146705.14",
+    "USD"
+   ],
+   {
+    "kg": "1480.818",
+    "value": "165992124.7555933036852321354685890262223",
+    "avg": "112094.89",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "3283.058",
+    "389694.92",
+    "TOMAN"
+   ],
+   {
+    "kg": "3283.058",
+    "value": "1279391024.66536",
+    "avg": "389695",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "3283.058",
+     "value": "1279391024.66536",
+     "avg": "389695",
+     "incomplete": false
+    },
+    "4268.894",
+    "307442.32",
+    "USD"
+   ],
+   {
+    "kg": "7551.952",
+    "value": "2591829699.85944",
+    "avg": "343199.97",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "7551.952",
+     "value": "2591829699.85944",
+     "avg": "343199.97",
+     "incomplete": false
+    },
+    "4990.232",
+    "314190.20",
+    "IQD"
+   ],
+   {
+    "kg": "12542.184",
+    "value": "4159711689.98584",
+    "avg": "331657.68",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "12542.184",
+     "value": "4159711689.98584",
+     "avg": "331657.68",
+     "incomplete": false
+    },
+    "4596.555",
+    "15034.97",
+    "IQD"
+   ],
+   {
+    "kg": "17138.739",
+    "value": "4228820756.51419",
+    "avg": "246740.48",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "4017.431",
+    "293876.48",
+    "USD"
+   ],
+   {
+    "kg": "4017.431",
+    "value": "1180628480.92288",
+    "avg": "293876.48",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "4017.431",
+     "value": "1180628480.92288",
+     "avg": "293876.48",
+     "incomplete": false
+    },
+    "3964.544",
+    "297395.72",
+    "USD"
+   ],
+   {
+    "kg": "7981.975",
+    "value": "2359666898.27456",
+    "avg": "295624.44",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "7981.975",
+     "value": "2359666898.27456",
+     "avg": "295624.44",
+     "incomplete": false
+    },
+    "4441.061",
+    "272461.04",
+    "IQD"
+   ],
+   {
+    "kg": "12423.036",
+    "value": "3569682997.038",
+    "avg": "287343.85",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "12423.036",
+     "value": "3569682997.038",
+     "avg": "287343.85",
+     "incomplete": false
+    },
+    "547.555",
+    null,
+    "IQD"
+   ],
+   {
+    "kg": "12970.591",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "530",
+    null,
+    "TOMAN"
+   ],
+   {
+    "kg": "530.000",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "530.000",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "642.664"
+   ],
+   {
+    "kg": "-112.664",
+    "value": null,
+    "avg": null,
+    "incomplete": true,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-112.664",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "745"
+   ],
+   {
+    "kg": "-857.664",
+    "value": null,
+    "avg": null,
+    "incomplete": true,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "-857.664",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "781.881"
+   ],
+   {
+    "kg": "-1639.545",
+    "value": null,
+    "avg": null,
+    "incomplete": true,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "2157.974",
+    "123707.95",
+    "TOMAN"
+   ],
+   {
+    "kg": "2157.974",
+    "value": "266958539.6933",
+    "avg": "123708",
+    "incomplete": false
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "2157.974",
+     "value": "266958539.6933",
+     "avg": "123708",
+     "incomplete": false
+    },
+    "1883.744",
+    null,
+    "IQD"
+   ],
+   {
+    "kg": "4041.718",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "4041.718",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "579.443"
+   ],
+   {
+    "kg": "3462.275",
+    "value": null,
+    "avg": null,
+    "incomplete": true,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "applyReceipt",
+   [
+    {
+     "kg": "3462.275",
+     "value": null,
+     "avg": null,
+     "incomplete": true
+    },
+    "1291.374",
+    "397376.77",
+    "TOMAN"
+   ],
+   {
+    "kg": "4753.649",
+    "value": null,
+    "avg": null,
+    "incomplete": true
+   }
+  ],
+  [
+   "applyIssue",
+   [
+    {
+     "kg": "0.000",
+     "value": "0",
+     "avg": null,
+     "incomplete": false
+    },
+    "5"
+   ],
+   {
+    "kg": "-5.000",
+    "value": null,
+    "avg": null,
+    "incomplete": false,
+    "unit_cost": null,
+    "cost": null
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "18925283.70",
+    "34054281.47",
+    "2872.568",
+    "6616.837",
+    "IQD"
+   ],
+   {
+    "sales": "18925283.70",
+    "cost": "14783988.06",
+    "profit": "4141295.64"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "11163622.89",
+    "74802703.06",
+    "3819.313",
+    "8583.787",
+    "IQD"
+   ],
+   {
+    "sales": "11163622.89",
+    "cost": "33283087.78",
+    "profit": "-22119464.89"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "64535826.07",
+    "8545093.27",
+    "2055.641",
+    "6459",
+    "TOMAN"
+   ],
+   {
+    "sales": "64535826",
+    "cost": "2719561",
+    "profit": "61816265"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "79767179.37",
+    "10805892.95",
+    "158.670",
+    "8997",
+    "USD"
+   ],
+   {
+    "sales": "79767179.37",
+    "cost": "190571.42",
+    "profit": "79576607.95"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "21415175",
+    "26729660.69",
+    "2839.761",
+    "7147.979",
+    "TOMAN"
+   ],
+   {
+    "sales": "21415175",
+    "cost": "10619204",
+    "profit": "10795971"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "42996797.66",
+    "67469253",
+    "1957.639",
+    "0",
+    "USD"
+   ],
+   null
+  ],
+  [
+   "realisedProfit",
+   [
+    "75691659",
+    "2800302.18",
+    "3727.708",
+    "4864.554",
+    "USD"
+   ],
+   {
+    "sales": "75691659.00",
+    "cost": "2145871.72",
+    "profit": "73545787.28"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "524640.63",
+    "27262992",
+    "189.233",
+    "6196.320",
+    "TOMAN"
+   ],
+   {
+    "sales": "524641",
+    "cost": "832600",
+    "profit": "-307960"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "20742844.25",
+    "10358982",
+    "2054.616",
+    "2184.508",
+    "USD"
+   ],
+   {
+    "sales": "20742844.25",
+    "cost": "9743031.46",
+    "profit": "10999812.79"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "65992577.19",
+    "21254014",
+    "337.579",
+    "8074",
+    "TOMAN"
+   ],
+   {
+    "sales": "65992577",
+    "cost": "888644",
+    "profit": "65103934"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "84664217.28",
+    "45769929.56",
+    "4528.196",
+    "0",
+    "IQD"
+   ],
+   null
+  ],
+  [
+   "realisedProfit",
+   [
+    "10098345",
+    "66338806",
+    "3491.610",
+    "3417.637",
+    "USD"
+   ],
+   {
+    "sales": "10098345.00",
+    "cost": "67774675.43",
+    "profit": "-57676330.43"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "59050215.73",
+    "42947301.77",
+    "1022.729",
+    "266.360",
+    "TOMAN"
+   ],
+   {
+    "sales": "59050216",
+    "cost": "164902579",
+    "profit": "-105852363"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "89621583.75",
+    "32769355.42",
+    "2787.631",
+    "3676.553",
+    "USD"
+   ],
+   {
+    "sales": "89621583.75",
+    "cost": "24846335.96",
+    "profit": "64775247.79"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "44177956.62",
+    "25288581.58",
+    "4742.106",
+    "6162.688",
+    "TOMAN"
+   ],
+   {
+    "sales": "44177957",
+    "cost": "19459225",
+    "profit": "24718731"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "19963177.53",
+    "18511068",
+    "751",
+    "331.990",
+    "USD"
+   ],
+   {
+    "sales": "19963177.53",
+    "cost": "41874189.19",
+    "profit": "-21911011.66"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "82628173.57",
+    "5503540",
+    "3100.638",
+    "392.183",
+    "TOMAN"
+   ],
+   {
+    "sales": "82628174",
+    "cost": "43511537",
+    "profit": "39116636"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "75944672.40",
+    "21864721.08",
+    "4094",
+    "6474",
+    "USD"
+   ],
+   {
+    "sales": "75944672.40",
+    "cost": "13826717.35",
+    "profit": "62117955.05"
+   }
+  ],
+  [
+   "realisedProfit",
+   [
+    "58716580",
+    null,
+    "4463.518",
+    "6978",
+    "TOMAN"
+   ],
+   null
+  ],
+  [
+   "realisedProfit",
+   [
+    "89020494.79",
+    "69173440.84",
+    "4698.366",
+    "5549.505",
+    "USD"
+   ],
+   {
+    "sales": "89020494.79",
+    "cost": "58564167.89",
+    "profit": "30456326.90"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-698010",
+    "15.345",
+    "188485.80",
+    "USD"
+   ],
+   {
+    "gain_share": "2892314.60",
+    "base_share": "-3590324.60",
+    "total": "-698010.00"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-2723641.73",
+    "2",
+    "175512.99",
+    "USD"
+   ],
+   {
+    "gain_share": "351025.98",
+    "base_share": "-3074667.71",
+    "total": "-2723641.73"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "1699147.72",
+    "157.878",
+    "317801.38",
+    "TOMAN"
+   ],
+   {
+    "gain_share": "50173846",
+    "base_share": "-48474699",
+    "total": "1699148"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "8878826.93",
+    "199.084",
+    "52064.75",
+    "IQD"
+   ],
+   {
+    "gain_share": "10365258.69",
+    "base_share": "-1486431.76",
+    "total": "8878826.93"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-811537.75",
+    "24.128",
+    "231055.71",
+    "IQD"
+   ],
+   {
+    "gain_share": "5574912.17",
+    "base_share": "-6386449.92",
+    "total": "-811537.75"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-7418470.42",
+    "50.893",
+    "108545",
+    "USD"
+   ],
+   {
+    "gain_share": "5524180.69",
+    "base_share": "-12942651.11",
+    "total": "-7418470.42"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-740087.16",
+    "199.573",
+    "127352.37",
+    "IQD"
+   ],
+   {
+    "gain_share": "25416094.54",
+    "base_share": "-26156181.70",
+    "total": "-740087.16"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "1003978",
+    "67.269",
+    "356033.14",
+    "IQD"
+   ],
+   {
+    "gain_share": "23949993.29",
+    "base_share": "-22946015.29",
+    "total": "1003978.00"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "5708496.71",
+    "129.619",
+    "387803.59",
+    "TOMAN"
+   ],
+   {
+    "gain_share": "50266714",
+    "base_share": "-44558217",
+    "total": "5708497"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-6283745.10",
+    "1.963",
+    "358858.24",
+    "USD"
+   ],
+   {
+    "gain_share": "704438.73",
+    "base_share": "-6988183.83",
+    "total": "-6283745.10"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "1337714.51",
+    "72.338",
+    "167142",
+    "TOMAN"
+   ],
+   {
+    "gain_share": "12090718",
+    "base_share": "-10753003",
+    "total": "1337715"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "8030394.34",
+    "36.538",
+    "350237.78",
+    "USD"
+   ],
+   {
+    "gain_share": "12796988.01",
+    "base_share": "-4766593.67",
+    "total": "8030394.34"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-4036464.90",
+    "152",
+    "259997.56",
+    "USD"
+   ],
+   {
+    "gain_share": "39519629.12",
+    "base_share": "-43556094.02",
+    "total": "-4036464.90"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "685879.05",
+    "15.152",
+    "44741.60",
+    "IQD"
+   ],
+   {
+    "gain_share": "677924.72",
+    "base_share": "7954.33",
+    "total": "685879.05"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-7143954.48",
+    "136.325",
+    "215124.50",
+    "USD"
+   ],
+   {
+    "gain_share": "29326847.46",
+    "base_share": "-36470801.94",
+    "total": "-7143954.48"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "6053586.14",
+    "70.009",
+    "371952",
+    "IQD"
+   ],
+   {
+    "gain_share": "26039987.57",
+    "base_share": "-19986401.43",
+    "total": "6053586.14"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "8980252",
+    "107.767",
+    "393215.42",
+    "USD"
+   ],
+   {
+    "gain_share": "42375646.17",
+    "base_share": "-33395394.17",
+    "total": "8980252.00"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "-7863739.78",
+    "54.164",
+    "42283.64",
+    "TOMAN"
+   ],
+   {
+    "gain_share": "2290251",
+    "base_share": "-10153991",
+    "total": "-7863740"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "6864696.51",
+    "31.687",
+    "227059.67",
+    "IQD"
+   ],
+   {
+    "gain_share": "7194839.76",
+    "base_share": "-330143.25",
+    "total": "6864696.51"
+   }
+  ],
+  [
+   "profitSplit",
+   [
+    "7351879.13",
+    "105",
+    "234696.31",
+    "USD"
+   ],
+   {
+    "gain_share": "24643112.55",
+    "base_share": "-17291233.42",
+    "total": "7351879.13"
+   }
+  ],
+  [
+   "splitByWeight",
+   [
+    "3566259.85",
+    [
+     "0",
+     "1454"
+    ],
+    "TOMAN"
+   ],
+   [
+    "0",
+    "3566260"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "3333940.72",
+    [
+     "1027.526",
+     "2696.658",
+     "1295"
+    ],
+    "USD"
+   ],
+   [
+    "682523.45",
+    "1791227.00",
+    "860190.27"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "1552026",
+    [
+     "454.095",
+     "2407"
+    ],
+    "USD"
+   ],
+   [
+    "246327.80",
+    "1305698.20"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "5888688.48",
+    [
+     "1391.387"
+    ],
+    "TOMAN"
+   ],
+   [
+    "5888688"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "3795473.02",
+    [
+     "1975",
+     "1690.790",
+     "606.095",
+     "451"
+    ],
+    "USD"
+   ],
+   [
+    "1587178.01",
+    "1358777.07",
+    "487078.81",
+    "362439.13"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "4005282",
+    [],
+    "TOMAN"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "8563711.78",
+    [
+     "2098.451"
+    ],
+    "USD"
+   ],
+   [
+    "8563711.78"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "8810162.04",
+    [
+     "1236"
+    ],
+    "IQD"
+   ],
+   [
+    "8810162.04"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "2824236.36",
+    [
+     "0",
+     "2303"
+    ],
+    "USD"
+   ],
+   [
+    "0.00",
+    "2824236.36"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "8369653.41",
+    [],
+    "TOMAN"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "4773498",
+    [],
+    "USD"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "9955609.52",
+    [
+     "2222"
+    ],
+    "IQD"
+   ],
+   [
+    "9955609.52"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "252461",
+    [
+     "1543",
+     "473",
+     "963.159",
+     "760.048"
+    ],
+    "TOMAN"
+   ],
+   [
+    "104179",
+    "31936",
+    "65030",
+    "51316"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "7312815.65",
+    [],
+    "IQD"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "857034",
+    [
+     "2411",
+     "2566.094",
+     "347.325"
+    ],
+    "USD"
+   ],
+   [
+    "388081.59",
+    "413045.97",
+    "55906.44"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "4146541",
+    [
+     "1304.578",
+     "1431.932",
+     "0",
+     "397.712"
+    ],
+    "TOMAN"
+   ],
+   [
+    "1725942",
+    "1894430",
+    "0",
+    "526169"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "8704943.44",
+    [],
+    "IQD"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "7130453.54",
+    [],
+    "USD"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "7193914.51",
+    [
+     "2435.418",
+     "82.871",
+     "2423.567"
+    ],
+    "IQD"
+   ],
+   [
+    "3545264.96",
+    "120636.23",
+    "3528013.32"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "3773909.89",
+    [
+     "2446.600",
+     "1947",
+     "1728.700",
+     "1144.604"
+    ],
+    "TOMAN"
+   ],
+   [
+    "1270590",
+    "1011132",
+    "897763",
+    "594425"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "4856532.05",
+    [
+     "2508",
+     "822",
+     "865.693"
+    ],
+    "IQD"
+   ],
+   [
+    "2903020.40",
+    "951468.41",
+    "1002043.24"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "4592208.90",
+    [
+     "1466.523",
+     "2073.613",
+     "1658.243",
+     "139.788"
+    ],
+    "TOMAN"
+   ],
+   [
+    "1261590",
+    "1783846",
+    "1426519",
+    "120254"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "6182447.79",
+    [
+     "332.380",
+     "1815.046",
+     "701.173",
+     "506.038"
+    ],
+    "TOMAN"
+   ],
+   [
+    "612562",
+    "3345049",
+    "1292231",
+    "932606"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "6857409.45",
+    [
+     "816",
+     "215.534",
+     "1430"
+    ],
+    "IQD"
+   ],
+   [
+    "2273235.35",
+    "600440.57",
+    "3983733.53"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "2836071.27",
+    [
+     "2424.369",
+     "833",
+     "1115.985",
+     "983.260"
+    ],
+    "USD"
+   ],
+   [
+    "1283587.59",
+    "441033.71",
+    "590860.76",
+    "520589.21"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "2146438",
+    [],
+    "IQD"
+   ],
+   []
+  ],
+  [
+   "splitByWeight",
+   [
+    "4956371.06",
+    [
+     "1291.769"
+    ],
+    "IQD"
+   ],
+   [
+    "4956371.06"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "5734292.21",
+    [
+     "18.032"
+    ],
+    "TOMAN"
+   ],
+   [
+    "5734292"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "9479240.90",
+    [
+     "1210.692",
+     "0"
+    ],
+    "IQD"
+   ],
+   [
+    "9479240.90",
+    "0.00"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "9691207.83",
+    [
+     "2406.290"
+    ],
+    "USD"
+   ],
+   [
+    "9691207.83"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "100",
+    [
+     "0",
+     "0"
+    ],
+    "TOMAN"
+   ],
+   {
+    "error": "جمع وزن صفر است؛ تقسیم ممکن نیست"
+   }
+  ],
+  [
+   "splitByWeight",
+   [
+    "100",
+    [
+     "1",
+     "1",
+     "1"
+    ],
+    "TOMAN"
+   ],
+   [
+    "34",
+    "33",
+    "33"
+   ]
+  ],
+  [
+   "splitByWeight",
+   [
+    "100",
+    [
+     "1",
+     "1",
+     "1"
+    ],
+    "USD"
+   ],
+   [
+    "33.34",
+    "33.33",
+    "33.33"
+   ]
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "42996690",
+    "5440",
+    "33.7",
+    "TOMAN"
+   ],
+   "10567"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "46371531.69",
+    "199.013",
+    "13.1",
+    "IQD"
+   ],
+   "263531.54"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "73712543",
+    "1410.254",
+    "6.3",
+    "IQD"
+   ],
+   "55561.93"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "63728181.63",
+    "5879.723",
+    "30.5",
+    "IQD"
+   ],
+   "14144.42"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "46601589.53",
+    "2822.961",
+    "34.8",
+    "IQD"
+   ],
+   "22252.86"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "3492783.80",
+    "287.891",
+    "50.6",
+    "USD"
+   ],
+   "18271.26"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    null,
+    "1395.768",
+    "6.2",
+    "USD"
+   ],
+   null
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "62595870.51",
+    "2320.795",
+    "33.5",
+    "IQD"
+   ],
+   "36007.27"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "14697883.56",
+    "0",
+    "45.3",
+    "USD"
+   ],
+   null
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "51276969.27",
+    "1787.503",
+    "59",
+    "TOMAN"
+   ],
+   "45611"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "80505956.52",
+    "8273.339",
+    "26.8",
+    "TOMAN"
+   ],
+   "12339"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "16208245.56",
+    "4743",
+    "37.1",
+    "USD"
+   ],
+   "4685.12"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "27510709",
+    "8980.932",
+    "47.5",
+    "IQD"
+   ],
+   "4518.27"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "8632593",
+    "420.577",
+    "4.5",
+    "TOMAN"
+   ],
+   "21449"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "83623504.44",
+    "8725.443",
+    "19",
+    "USD"
+   ],
+   "11404.80"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "56228435",
+    "7986.347",
+    "43.6",
+    "TOMAN"
+   ],
+   "10110"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "4920254",
+    "26.343",
+    "4",
+    "USD"
+   ],
+   "194247.59"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "71990489.13",
+    "3533.257",
+    "20.0",
+    "IQD"
+   ],
+   "24450.13"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "52483878.05",
+    "3288.813",
+    "18",
+    "IQD"
+   ],
+   "18830.80"
+  ],
+  [
+   "suggestedPricePerKg",
+   [
+    "43940377.27",
+    "4023",
+    "7.0",
+    "TOMAN"
+   ],
+   "11687"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "72963",
+    "TOMAN",
+    "TOMAN",
+    "26685.521745",
+    "TOMAN",
+    "TOMAN"
+   ],
+   "3"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "58016.81",
+    "TOMAN",
+    "USD",
+    "74587.966414",
+    "TOMAN",
+    "IQD"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "16505.60",
+    "USD",
+    "IQD",
+    "40613.005236",
+    "IQD",
+    "IQD"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "63162.38",
+    "USD",
+    "TOMAN",
+    "24965.080196",
+    "USD",
+    "TOMAN"
+   ],
+   "1576853882"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "52705.87",
+    "USD",
+    "TOMAN",
+    "84139.173134",
+    "USD",
+    "TOMAN"
+   ],
+   "4434628321"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "58484.91",
+    "USD",
+    "TOMAN",
+    "20093.886672",
+    "TOMAN",
+    "USD"
+   ],
+   "3"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "7765",
+    "IQD",
+    "USD",
+    "5292.132336",
+    "IQD",
+    "USD"
+   ],
+   "41093407.59"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "68006.24",
+    "TOMAN",
+    "USD",
+    "25914.593880",
+    "USD",
+    "TOMAN"
+   ],
+   "2.62"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "95751.33",
+    "IQD",
+    "USD",
+    "46202.316012",
+    "IQD",
+    "USD"
+   ],
+   "4423933207.23"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "47598",
+    "TOMAN",
+    "TOMAN",
+    "36210.959899",
+    "USD",
+    "USD"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "25292.90",
+    "TOMAN",
+    "IQD",
+    "39444.439284",
+    "IQD",
+    "TOMAN"
+   ],
+   "0.64"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "73837.31",
+    "IQD",
+    "TOMAN",
+    "61709",
+    "IQD",
+    "TOMAN"
+   ],
+   "4556426563"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "41314.62",
+    "TOMAN",
+    "TOMAN",
+    "77734.115785",
+    "TOMAN",
+    "TOMAN"
+   ],
+   "1"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "52579.62",
+    "IQD",
+    "TOMAN",
+    "2488.994328",
+    "USD",
+    "TOMAN"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "67622.54",
+    "IQD",
+    "IQD",
+    "35821.695145",
+    "IQD",
+    "IQD"
+   ],
+   "1.89"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "76328",
+    "USD",
+    "TOMAN",
+    "7705.630140",
+    "IQD",
+    "TOMAN"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "92956.99",
+    "IQD",
+    "TOMAN",
+    "18426.539597",
+    "TOMAN",
+    "IQD"
+   ],
+   "5"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "47452.52",
+    "USD",
+    "TOMAN",
+    "39025",
+    "USD",
+    "TOMAN"
+   ],
+   "1851834593"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "2962.26",
+    "IQD",
+    "IQD",
+    "87739.683649",
+    "IQD",
+    "IQD"
+   ],
+   "0.03"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "66287.37",
+    "USD",
+    "USD",
+    "68116.586616",
+    "USD",
+    "USD"
+   ],
+   "0.97"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "54115.60",
+    "USD",
+    "IQD",
+    "80922.470212",
+    "USD",
+    "IQD"
+   ],
+   "4379168029.00"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "18642.02",
+    "IQD",
+    "TOMAN",
+    "28082.428311",
+    "TOMAN",
+    "IQD"
+   ],
+   "1"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "85658",
+    "USD",
+    "USD",
+    "78133.633937",
+    "USD",
+    "USD"
+   ],
+   "1.10"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "65483.60",
+    "USD",
+    "IQD",
+    "44693.519385",
+    "IQD",
+    "USD"
+   ],
+   "1.47"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "90094.16",
+    "IQD",
+    "IQD",
+    "53300.664693",
+    "USD",
+    "TOMAN"
+   ],
+   {
+    "error": "جهت نرخ با ارز پرداخت و بدهی نمی‌خواند"
+   }
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "38603.31",
+    "IQD",
+    "USD",
+    "66755.060750",
+    "IQD",
+    "USD"
+   ],
+   "2576966304.20"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "43249.11",
+    "USD",
+    "TOMAN",
+    "75247.191016",
+    "USD",
+    "TOMAN"
+   ],
+   "3254374041"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "91589",
+    "IQD",
+    "USD",
+    "8677.804658",
+    "USD",
+    "IQD"
+   ],
+   "10.55"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "6326.45",
+    "TOMAN",
+    "USD",
+    "83893",
+    "USD",
+    "TOMAN"
+   ],
+   "0.08"
+  ],
+  [
+   "crossCurrencySettlement",
+   [
+    "92244.94",
+    "USD",
+    "TOMAN",
+    "18148",
+    "TOMAN",
+    "USD"
+   ],
+   "5"
+  ]
+ ]
+}

@@ -15,13 +15,16 @@ apps/php/
   public/            what is served (in the zip these files sit at the app root, next to src/)
     index.php        front controller: /api/v1/* → API, anything else → web app file or index.html
     install.php      one-time installer (writes config.php, migrates, creates the manager, deletes itself)
+    telegram.php     Telegram webhook (the bot, instead of apps/bot's long-polling loop)
+    cron.php         scheduled jobs for a cPanel Cron Job (CLI, or the URL with CRON_KEY)
     .htaccess        rewrites to index.php; denies src/, data/, migrations/, bin/, config.php, *.json …
     .user.ini        upload / memory limits for PHP-FPM hosts
     router-dev.php   router for `php -S` (dev + tests only, never shipped)
   src/
     bootstrap.php    PSR-4 autoloader (Vitral\ → src/), UTC, warnings → exceptions
     Core/            framework: App (pipeline), Router, Request/Response, Db, Schema/V (mini-zod), Auth, …
-    Lib/             pure code: Decimal, Num, Jalali, Words, FileType (MIME sniffing), Zip, Image (GD)
+    Lib/             pure code: Decimal, Num, Jalali, Words, FileType (MIME sniffing), Zip, Image (GD),
+                     PdfTemplates/PdfRender (print pages, Chromium when there is one), Scheduler, Telegram/
     Modules/         one file per API module (Auth, Users, Settings, Backup, Files, Health, …)
   migrations/        0001_base.php … 0004_import_files.php (MySQL translation of apps/server/src/db/migrations)
   bin/               migrate.php, create-user.php, reset-test-db.php (CLI only)
@@ -41,6 +44,7 @@ apps/php/
 6. handler → `Response` or a plain array (200 JSON)
 7. confidential-key filter on every 2xx JSON response for users without `finance.view` (principle 6)
 8. errors: `AppError` → its status/body; anything else → logged, 500 `خطای داخلی؛ شناسه درخواست <id>`
+9. after the response is sent: the lazy cron (`Lib/Scheduler::afterResponse`, see below)
 
 ## Adding a module
 
@@ -155,6 +159,41 @@ Debugging: `TEST_PHP_SERVER_LOG=1` shows PHP's stderr; each run's app log is in 
 Tests that import Node code directly (`numbering.test.ts` calls `nextNumber`, `backup.test.ts` runs the Postgres
 ops scripts) cannot pass in PHP mode.
 
+## PDF / print pages
+
+`Modules/Pdf` is the port of `modules/pdf`: proforma, invoice / credit note, packing list, commercial invoice, party
+statement, daily report and the A6 bundle label, with the Node markup character for character (`Lib/PdfTemplates`,
+Vazirmatn embedded as a data URI by `Lib/PdfRender::loadFontCss`).
+
+- `format=html` — the script-free preview (strict CSP). Never archived, never counted as a print.
+- `format=pdf` / `png` — a real PDF/PNG only when `CHROMIUM_PATH` names an executable **and** `proc_open` is allowed.
+  Shared hosting has neither, so the same page comes back with a nonce-bound `print()` script and
+  `script-src 'nonce-…'` (the Node fallback): the browser's «Save as PDF» prints it. A print page is not a print, so
+  nothing is archived, `print_count` does not move and a draft order stays a draft.
+- With Chromium: the PDF is archived in `files` (kind `document_pdf`), `print_count + 1`, audit `print`, and issuing a
+  proforma moves a draft order to «پیش‌فاکتور» — never a financial document (T48).
+
+## Telegram bot (webhook) and scheduled jobs
+
+A shared host runs no long-lived process, so `apps/bot` (long polling + timers) becomes two entry points:
+
+- **`public/telegram.php`** — Telegram pushes each update here. `Lib/Telegram/*` is the port of `apps/bot/src`
+  (`Handlers`, `Telegram`, `Api`): the same Persian commands, free notes with voice/photo/document uploads and the
+  same inline buttons, calling this app's own API in-process as the linked user (`X-Bot-Key` + `X-Bot-User`), so
+  permissions, idempotency and T56 money hiding stay in the API. Setup: `TELEGRAM_BOT_TOKEN` in `config.php` (the
+  installer asks for it), then a manager calls `POST /api/v1/bot/telegram/webhook` (`settings.manage`), which runs
+  `setWebhook` with `url = <PUBLIC_URL>/telegram.php` and a `secret_token` derived from `BOT_SERVICE_KEY`; every call
+  without that `X-Telegram-Bot-Api-Secret-Token` header is 401. `GET /api/v1/bot/telegram` shows the state,
+  `DELETE` removes the webhook. `TELEGRAM_PROXY` (e.g. `socks5h://…`) helps where `api.telegram.org` is blocked; when
+  it is unreachable everything is logged and nothing crashes.
+- **`Lib/Scheduler`** — `apps/server/src/scheduler.ts` plus the bot's timers: the daily-report snapshot after
+  `DAILY_REPORT_TIME` (Tehran) once per Jalali day, Telegram alerts (claim → send, re-queued when Telegram is down,
+  10-minute backoff) and the nightly report to linked managers. It runs either from a cPanel Cron Job
+  (`* * * * * /usr/local/bin/php -q ~/public_html/app/cron.php`, or `https://<domain>/app/cron.php?key=<CRON_KEY>`) or,
+  with no cron job at all, from the request pipeline after the response is flushed, at most once a minute
+  (`LAZY_CRON`: `auto` (default) / `always` / `false`). A MySQL named lock (`GET_LOCK`) keeps two triggers from
+  running the jobs twice; the state lives in `LOG_DIR/.scheduler-state.json`.
+
 ## Deployment
 
 1. `./build.sh` (builds the web app with `VITE_BASE=/app/`, then zips) → `dist/vitral-app.zip`.
@@ -162,7 +201,10 @@ ops scripts) cannot pass in PHP mode.
 3. Open `https://<domain>/app/install.php`: host checks, database, first manager, optional Telegram token, data folder
    (defaults to `~/vitral-data`, outside the web root, when writable). It writes `config.php` (0600) with fresh
    `SESSION_SECRET`, `BOT_SERVICE_KEY` and `BACKUP_ENCRYPTION_KEY`, migrates, creates the manager, deletes itself.
-4. Upgrades: upload the new zip over the old files (keep `config.php` and the data folder); the next API request
+4. With the Telegram token set: sign in as the manager and register the webhook (`POST /api/v1/bot/telegram/webhook`),
+   and add a cPanel Cron Job every minute for `cron.php` (see above) — without one the jobs still run lazily, but only
+   while someone is using the app.
+5. Upgrades: upload the new zip over the old files (keep `config.php` and the data folder); the next API request
    applies new migrations. Lost manager password without SSH: a one-off cPanel cron job
    `VITRAL_PASSWORD='…' php ~/public_html/app/bin/create-user.php 0912… manager`.
 

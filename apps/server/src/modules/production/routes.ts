@@ -242,7 +242,15 @@ export async function ingotAtLocation(db: Db | Trx, locationId: string): Promise
     if (new Dec(p.kg).lte(0)) continue;
     const lot = await db.selectFrom('material_lots').select(['kind', 'alloy', 'owner_party_id', 'created_at']).where('id', '=', p.item_id).executeTakeFirst();
     if (!lot || (lot.kind !== 'ingot' && lot.kind !== 'billet') || lot.owner_party_id !== null) continue;
-    const cost = await db.selectFrom('stock_moves').select([sql<string>`SUM(kg * unit_cost)`.as('v'), sql<string>`SUM(kg)`.as('k'), sql<boolean>`bool_or(unit_cost IS NULL)`.as('unknown')]).where('item_type', '=', 'material_lot').where('item_id', '=', p.item_id).where('to_location_id', 'is not', null).where('ref_type', 'in', ['purchase_receipt', 'opening', 'transfer_receive', 'smelting_output', 'count_adjustment']).executeTakeFirstOrThrow();
+    // stock_moves is append-only: a purchase receipt booked before its price was known keeps unit_cost NULL and is
+    // valued with the price later completed on its purchase document (same lookup as materials lotAverage).
+    const cost = await db
+      .selectFrom('stock_moves')
+      .leftJoin('documents as pd', (j) => j.onRef('pd.id', '=', 'stock_moves.ref_id').on('stock_moves.ref_type', '=', 'purchase_receipt').on('pd.kind', '=', 'purchase'))
+      .select([sql<string>`SUM(stock_moves.kg * COALESCE(stock_moves.unit_cost, pd.unit_price))`.as('v'), sql<string>`SUM(stock_moves.kg)`.as('k'), sql<boolean>`bool_or(COALESCE(stock_moves.unit_cost, pd.unit_price) IS NULL)`.as('unknown')])
+      .where('stock_moves.item_type', '=', 'material_lot').where('stock_moves.item_id', '=', p.item_id).where('stock_moves.to_location_id', 'is not', null)
+      .where('stock_moves.ref_type', 'in', ['purchase_receipt', 'opening', 'transfer_receive', 'smelting_output', 'count_adjustment'])
+      .executeTakeFirstOrThrow();
     const avg = cost.unknown || !cost.k || Number(cost.k) === 0 ? null : round(new Dec(cost.v).div(cost.k), 'TOMAN');
     out.push({ item_id: p.item_id, kg: p.kg, avg_cost: avg, kind: lot.kind, alloy: lot.alloy });
   }

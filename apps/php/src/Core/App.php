@@ -72,6 +72,9 @@ final class App
         }
         $this->securityHeaders($res);
         $res->send($method === 'HEAD');
+        // Shared hosting has no daemon: the scheduled jobs run here, after the response, at most once a minute
+        // (Lib/Scheduler; cPanel Cron Jobs can call public/cron.php instead).
+        if (str_starts_with($path, '/api/')) \Vitral\Lib\Scheduler::afterResponse($this);
     }
 
     // ---------------------------------------------------------------- API pipeline

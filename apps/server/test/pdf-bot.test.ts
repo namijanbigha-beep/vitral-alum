@@ -3,15 +3,22 @@ import { promisify } from 'node:util';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { saleDocumentHtml } from '../src/modules/pdf/templates.js';
-import { setupTestApp, type TestApp, uuid } from './helpers.js';
+import { PHP_MODE, setupTestApp, type TestApp, uuid } from './helpers.js';
 
 const CHROMIUM = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const BOT_KEY = 'bot-service-key-for-tests-0123456789abcdef';
 
-/** Decided at collection time so `it.skipIf` can see it: can headless Chromium start in this sandbox? */
-const chromiumOk: boolean = await promisify(execFile)(CHROMIUM, ['--headless=new', '--no-sandbox', '--disable-gpu', '--version'], { timeout: 20_000 })
-  .then(() => true)
-  .catch(() => false);
+/**
+ * Decided at collection time so `it.skipIf` can see it: can headless Chromium start in this sandbox?
+ * In PHP mode it also has to be configured for the PHP app (CHROMIUM_PATH in the environment, forwarded to its
+ * config.php): shared cPanel hosting has no Chromium, and the PDF routes then answer with the print page, which the
+ * `skipIf(!PHP_MODE || chromiumOk)` tests below assert instead of real PDF bytes.
+ */
+const chromiumOk: boolean =
+  (!PHP_MODE || !!process.env.CHROMIUM_PATH) &&
+  (await promisify(execFile)(CHROMIUM, ['--headless=new', '--no-sandbox', '--disable-gpu', '--version'], { timeout: 20_000 })
+    .then(() => true)
+    .catch(() => false));
 
 let t: TestApp;
 let manager: string;
@@ -59,9 +66,10 @@ afterAll(() => t.close());
 const botHeaders = (user?: string, key = BOT_KEY): Record<string, string> => ({ 'x-bot-key': key, ...(user ? { 'x-bot-user': user } : {}) });
 
 async function countRows(table: 'documents' | 'files', where?: { kind: string; owner_id: string }): Promise<number> {
+  // CONCAT(COUNT(*), '') instead of COUNT(*)::text: a string in both PostgreSQL and MariaDB (PHP target).
   const r = where
-    ? await sql<{ n: string }>`SELECT COUNT(*)::text AS n FROM files WHERE kind = ${where.kind} AND owner_id = ${where.owner_id}`.execute(t.db)
-    : await sql<{ n: string }>`SELECT COUNT(*)::text AS n FROM ${sql.table(table)}`.execute(t.db);
+    ? await sql<{ n: string }>`SELECT CONCAT(COUNT(*), '') AS n FROM files WHERE kind = ${where.kind} AND owner_id = ${where.owner_id}`.execute(t.db)
+    : await sql<{ n: string }>`SELECT CONCAT(COUNT(*), '') AS n FROM ${sql.table(table)}`.execute(t.db);
   return Number(r.rows[0]!.n);
 }
 
@@ -151,6 +159,24 @@ describe('§14 — proforma from an order', () => {
     const html = await t.call(manager, { method: 'GET', url: `/api/v1/orders/${orderId}/proforma?format=html` });
     expect(html.body).toContain(`چاپ ${toFa(second.print_count + 1)}`);
   }, 120_000);
+
+  it.skipIf(!PHP_MODE || chromiumOk)('without Chromium (shared hosting) format=pdf is the print page: no archive, no print, the order stays draft', async () => {
+    const before = await t.db.selectFrom('orders').select(['print_count', 'status_sales']).where('id', '=', orderId).executeTakeFirstOrThrow();
+    const res = await t.call(manager, { method: 'GET', url: `/api/v1/orders/${orderId}/proforma?format=pdf` });
+    expect(res.statusCode, res.body.slice(0, 200)).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    const nonce = /'nonce-([a-f0-9]+)'/.exec(String(res.headers['content-security-policy']))?.[1];
+    expect(nonce).toBeTruthy();
+    expect(res.body).toContain(`<script nonce="${nonce}">`);
+    expect(res.body).toContain('print()');
+    expect(res.body).toContain(PARTY_NAME);
+    expect(res.body).toContain(AMOUNT_FA);
+    // T48: a print page is not a print — nothing is archived, counted or moved on.
+    const after = await t.db.selectFrom('orders').select(['print_count', 'status_sales']).where('id', '=', orderId).executeTakeFirstOrThrow();
+    expect(after.print_count).toBe(before.print_count);
+    expect(after.status_sales).toBe(before.status_sales);
+    expect(await countRows('files', { kind: 'document_pdf', owner_id: orderId })).toBe(0);
+  });
 
   it('unknown order → 404; unauthenticated → 401', async () => {
     expect((await t.call(manager, { method: 'GET', url: `/api/v1/orders/${uuid()}/proforma?format=html` })).statusCode).toBe(404);
@@ -325,10 +351,10 @@ describe('T56 — texts for a staff user carry no money', () => {
     expect(s.json().text).not.toContain('جمع:');
   });
   it('text/balance: staff is refused, manager gets the balance per currency', async () => {
-    const s = await t.call(null, { method: 'GET', url: '/api/v1/internal/bot/text/balance?q=نمونه', headers: botHeaders(staffId) });
+    const s = await t.call(null, { method: 'GET', url: `/api/v1/internal/bot/text/balance?q=${encodeURIComponent('نمونه')}`, headers: botHeaders(staffId) });
     expect(s.statusCode).toBe(403);
     expect(JSON.stringify(s.json())).not.toMatch(/۵٬۰۰۰٬۰۰۰/);
-    const m = await t.call(null, { method: 'GET', url: '/api/v1/internal/bot/text/balance?q=نمونه', headers: botHeaders(managerId) });
+    const m = await t.call(null, { method: 'GET', url: `/api/v1/internal/bot/text/balance?q=${encodeURIComponent('نمونه')}`, headers: botHeaders(managerId) });
     expect(m.statusCode, m.body).toBe(200);
     expect(m.json().text).toContain(PARTY_NAME);
     expect(m.json().text).toContain('تومان');
@@ -351,10 +377,14 @@ describe('T56 — texts for a staff user carry no money', () => {
 
 describe('§16 — notifications and recipients', () => {
   it('notifications/claim returns queued items for linked users and marks telegram_sent_at exactly once', async () => {
-    const n = await t.db.insertInto('notifications').values({ user_id: managerId, kind: 'bundle_warning', title: 'بندیل در قرنطینه', entity: 'bundles', entity_id: null, group_key: `t:${uuid()}` }).returning('id').executeTakeFirstOrThrow();
+    const mineKey = `t:${uuid()}`;
+    await t.db.insertInto('notifications').values({ user_id: managerId, kind: 'bundle_warning', title: 'بندیل در قرنطینه', entity: 'bundles', entity_id: null, group_key: mineKey }).execute();
+    const n = await t.db.selectFrom('notifications').select('id').where('group_key', '=', mineKey).executeTakeFirstOrThrow();
     // A notification for a user without a chat stays in the queue.
     const orphanId = await t.createUser({ mobile: '09120000104', password: 'orphan-pass-4', role: 'staff' });
-    const orphan = await t.db.insertInto('notifications').values({ user_id: orphanId, kind: 'task', title: 'کار جدید' }).returning('id').executeTakeFirstOrThrow();
+    const orphanKey = `t:${uuid()}`;
+    await t.db.insertInto('notifications').values({ user_id: orphanId, kind: 'task', title: 'کار جدید', group_key: orphanKey }).execute();
+    const orphan = await t.db.selectFrom('notifications').select('id').where('group_key', '=', orphanKey).executeTakeFirstOrThrow();
 
     const res = await t.call(null, { method: 'POST', url: '/api/v1/internal/bot/notifications/claim', headers: botHeaders() });
     expect(res.statusCode, res.body).toBe(200);
@@ -491,4 +521,16 @@ describe('§14 / module 10 — daily report as PDF (GET /reports/daily.pdf)', ()
     expect(res.rawPayload.subarray(0, 4).toString('latin1')).toBe('%PDF');
     expect(await countRows('documents')).toBe(docs);
   }, 90_000);
+
+  it.skipIf(!PHP_MODE || chromiumOk)('without Chromium format=pdf is the printable report page and creates no document', async () => {
+    const docs = await countRows('documents');
+    const res = await t.call(manager, { method: 'GET', url: '/api/v1/reports/daily.pdf?full=1' });
+    expect(res.statusCode, res.body.slice(0, 200)).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(String(res.headers['content-security-policy'])).toMatch(/script-src 'nonce-[a-f0-9]+'/);
+    expect(res.body).toContain('print()');
+    expect(res.body).toContain('گزارش روزانه');
+    expect(res.body).toContain('DR-۸۱۲');
+    expect(await countRows('documents')).toBe(docs);
+  });
 });

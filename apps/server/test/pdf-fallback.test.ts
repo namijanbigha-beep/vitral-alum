@@ -29,6 +29,23 @@ describe('PDF without Chromium', () => {
     expect(r.body).toContain('مشتری چاپ');
   });
 
+  it('T48 — a browser print still counts and is audited, with nothing archived', async () => {
+    const p = await t.call(manager, { method: 'POST', url: '/api/v1/products', payload: { name_fa: 'پروفیل چاپ مرورگر', weight_g_per_m_no_filler: '500' } });
+    expect(p.statusCode, p.body).toBe(201);
+    const o = await t.call(manager, { method: 'POST', url: '/api/v1/orders', idempotency: crypto.randomUUID(), payload: { party_id: partyId, lines: [{ kind: 'profile', product_id: p.json().id, calc_mode: 'manual', qty_kg: '10', unit_price: '400000' }] } });
+    expect(o.statusCode, o.body).toBe(201);
+    for (const n of [1, 2]) {
+      const r = await t.call(manager, { method: 'GET', url: `/api/v1/orders/${o.json().id}/proforma?format=pdf` });
+      expect(r.statusCode).toBe(200);
+      expect(r.body).toContain('print()');
+      const after = await t.call(manager, { method: 'GET', url: `/api/v1/orders/${o.json().id}` });
+      expect(after.json().print_count).toBe(n);
+      expect(after.json().status_sales).toBe('proforma');
+    }
+    const files = await t.call(manager, { method: 'GET', url: `/api/v1/files?owner_entity=orders&owner_id=${o.json().id}` });
+    if (files.statusCode === 200) expect((files.json().items ?? []).filter((f: { kind: string }) => f.kind === 'document_pdf')).toHaveLength(0);
+  });
+
   it('format=html stays a script-free preview', async () => {
     const r = await t.call(manager, { method: 'GET', url: `/api/v1/parties/${partyId}/statement.pdf?format=html` });
     expect(r.statusCode).toBe(200);

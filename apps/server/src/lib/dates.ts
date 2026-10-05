@@ -3,6 +3,9 @@ import { formatJalali, jalaliOf, parseJalali, toGregorian, type JalaliDate } fro
 /** Tehran has had no DST since 2022: a fixed +03:30. Business days are Tehran days. */
 export const TEHRAN_OFFSET_MS = 3.5 * 60 * 60 * 1000;
 
+/** Tehran calendar date (YYYY-MM-DD) of an instant: what a DATE column holds for that business day. */
+export const tehranDateKey = (at: Date): string => new Date(at.getTime() + TEHRAN_OFFSET_MS).toISOString().slice(0, 10);
+
 /** [start, end) UTC instants of a Jalali business day. */
 export function jalaliDayRange(d: JalaliDate): { start: Date; end: Date } {
   const g = toGregorian(d.jy, d.jm, d.jd);
