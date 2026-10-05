@@ -80,6 +80,8 @@ services:
              done"
 
   bot:
+    # Runs only when a Telegram token is set: COMPOSE_PROFILES=bot (ops/setup.sh sets it).
+    profiles: ['bot']
     build:
       context: ..
       dockerfile: ops/Dockerfile
