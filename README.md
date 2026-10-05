@@ -2,7 +2,16 @@
 
 سامانه وب چندکاربره «ویترال آلومینیوم اراک». مشخصات کامل در [`docs/spec.md`](docs/spec.md)؛ گزارش هر فاز در `docs/phase-reports/`.
 
-**وضعیت: فازهای ۰ تا ۵ ساخته شده و در حال اشکال‌زدایی با مالک.** ۰ زیرساخت · ۱ کاتالوگ، بندیل، تولید، رنگ، انبار · ۲ سفارش، بار، باسکول، بسته‌بندی · ۳ پول، گزارش‌ها، کارهای روزانه · ۴ PDF، بات تلگرام، ورود اکسل · ۵ رابط کامل، بهای تمام‌شده، آزمون‌های مرورگری.
+**وضعیت: فازهای ۰ تا ۵ ساخته شده و در حال اشکال‌زدایی با مالک.** فازها طبق بخش ۲۰ مشخصات:
+
+| فاز | دامنه | گزارش |
+| --- | --- | --- |
+| ۰ | زیرساخت | [`phase-0.md`](docs/phase-reports/phase-0.md) |
+| ۱ | محصول، فروش، بندیل، گزارش روزانه | [`phase-1.md`](docs/phase-reports/phase-1.md) |
+| ۲ | کارگاه، مواد، رنگ | [`phase-2.md`](docs/phase-reports/phase-2.md) |
+| ۳ | ارسال، صادرات، پول | [`phase-3.md`](docs/phase-reports/phase-3.md) |
+| ۴ | سود و داشبورد | [`phase-4.md`](docs/phase-reports/phase-4.md) |
+| ۵ | ربات تلگرام | [`phase-5.md`](docs/phase-reports/phase-5.md) |
 
 ## ساختار
 
@@ -43,7 +52,7 @@ export TELEGRAM_BOT_TOKEN=... SERVER_URL=http://localhost:3000 BOT_SERVICE_KEY=<
 pnpm dev
 ```
 
-متغیرهای محیطی سرور (همه در `ops/.env.example`): `DATABASE_URL`، `SESSION_SECRET`، `FILE_STORAGE_DIR`، `BACKUP_DIR`، `BACKUP_ENCRYPTION_KEY`، `APP_ORIGIN`، `PUBLIC_URL` (برای لینک مهمان و پیام بات)، `COOKIE_SECURE`، `WEB_DIST_DIR`، `CHROMIUM_PATH` (رندر PDF؛ پیش‌فرض مسیر Playwright)، `BOT_SERVICE_KEY` (کلید مشترک سرور و بات؛ بدون آن مسیرهای `/internal/bot/*` خاموش‌اند)، `DAILY_REPORT_TIME` (ساعت تهران، پیش‌فرض ۲۱:۰۰). بات: `TELEGRAM_BOT_TOKEN`، `SERVER_URL`، `BOT_SERVICE_KEY`، `DAILY_REPORT_TIME`، `ALERT_POLL_SECONDS`.
+متغیرهای محیطی سرور (همه در `ops/.env.example`): `DATABASE_URL`، `SESSION_SECRET`، `FILE_STORAGE_DIR`، `BACKUP_DIR`، `BACKUP_ENCRYPTION_KEY`، `APP_ORIGIN`، `PUBLIC_URL` (برای لینک مهمان و پیام بات)، `COOKIE_SECURE`، `WEB_DIST_DIR`، `CHROMIUM_PATH` (رندر PDF؛ پیش‌فرض مسیر Playwright)، `BOT_SERVICE_KEY` (کلید مشترک سرور و بات؛ بدون آن مسیرهای `/internal/bot/*` خاموش‌اند)، `DAILY_REPORT_TIME` (ساعت تهران، پیش‌فرض ۲۱:۰۰). بات: `TELEGRAM_BOT_TOKEN`، `SERVER_URL`، `BOT_SERVICE_KEY`، `DAILY_REPORT_TIME`، `ALERT_POLL_SECONDS`، `PUBLIC_URL` (اختیاری؛ لینک مستقیم «بیشتر › اتصال تلگرام» در پیام اتصال).
 
 برای سرو کردن رابط ساخته‌شده از خود سرور: `pnpm --filter @vitral/web build` و `WEB_DIST_DIR=apps/web/dist`.
 

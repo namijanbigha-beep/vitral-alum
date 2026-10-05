@@ -215,3 +215,70 @@ describe('free text and files → free note', () => {
     expect(note[2]).toMatchObject({ body: { file_ids: ['f1'] } });
   });
 });
+
+describe('«بیشتر › اتصال تلگرام» — where to get the link code', () => {
+  it('points to the real web path; with PUBLIC_URL it adds the direct link', async () => {
+    api.resolve.mockResolvedValue({ user: null });
+    await h.onMessage(msg(555, 'سلام'));
+    expect(sentText(tg)).toContain('«بیشتر › اتصال تلگرام»');
+    expect(sentText(tg)).not.toContain('پروفایل');
+    const linked = new Handlers(api as unknown as Api, tg as unknown as Telegram, log, { publicUrl: 'https://vitral.example.com/' });
+    tg.send.mockClear();
+    await linked.onMessage(msg(555, 'سلام'));
+    expect(sentText(tg)).toContain('https://vitral.example.com/settings/telegram');
+    expect(sentText(tg).length).toBeLessThan(200);
+    tg.send.mockClear();
+    await linked.onMessage(msg(555, '/start'));
+    expect(sentText(tg)).toContain('https://vitral.example.com/settings/telegram');
+    expect(sentText(tg)).toContain('«بیشتر › اتصال تلگرام»');
+  });
+});
+
+describe('کار @نام — task assignment never falls back to someone else', () => {
+  const DIRECTORY = [
+    { id: 'u-ali', name: 'علی رضایی', short_name: 'علی', role: 'staff' },
+    { id: 'u-alireza', name: 'علیرضا محمدی', short_name: 'علیرضا', role: 'staff' },
+    { id: 'u-sara', name: 'سارا احمدی', short_name: null, role: 'staff' },
+  ];
+  beforeEach(() => {
+    api.resolve.mockResolvedValue({ user: MANAGER });
+    api.routes.set('GET /users/directory', () => ({ items: DIRECTORY }));
+    api.routes.set('POST /tasks', (o) => ({ id: 't1', title: (o.body as { title: string }).title }));
+  });
+  const created = () => api.request.mock.calls.filter((c) => c[0] === 'POST' && c[1] === '/tasks');
+
+  it('an unknown name creates nothing and lists the valid names', async () => {
+    await h.onMessage(msg(2002, 'کار @حسن زنگ به کارخانه'));
+    expect(created()).toHaveLength(0);
+    const text = sentText(tg);
+    expect(text).toContain('پیدا نشد');
+    expect(text).toContain('@علی');
+    expect(text).toContain('@سارا_احمدی');
+  });
+  it('an ambiguous name lists only the matches and creates nothing', async () => {
+    await h.onMessage(msg(2002, 'کار @رضا زنگ'));
+    expect(created()).toHaveLength(0);
+    expect(sentText(tg)).toContain('چند نفر');
+  });
+  it('an exact short name wins over a longer one that contains it', async () => {
+    await h.onMessage(msg(2002, 'کار @علی زنگ به کارخانه'));
+    expect(created()).toHaveLength(1);
+    expect(created()[0]![2]).toMatchObject({ user: MANAGER.id, idempotent: true, body: { assignee_user_id: 'u-ali', title: 'زنگ به کارخانه' } });
+  });
+  it('a full name typed with underscores matches', async () => {
+    await h.onMessage(msg(2002, 'کار @سارا_احمدی بار را تحویل بگیر'));
+    expect(created()[0]![2]).toMatchObject({ body: { assignee_user_id: 'u-sara' } });
+  });
+  it('staff cannot create tasks (spec §16 /task: مدیر) and the server is not called', async () => {
+    api.resolve.mockResolvedValue({ user: STAFF });
+    await h.onMessage(msg(1001, 'کار @علی زنگ'));
+    expect(created()).toHaveLength(0);
+    expect(sentText(tg)).toContain('فقط مدیر');
+  });
+  it('help says task creation is for the manager', async () => {
+    api.resolve.mockResolvedValue({ user: STAFF });
+    await h.onMessage(msg(1001, 'راهنما'));
+    expect(sentText(tg)).toContain('فقط مدیر');
+    expect(sentText(tg)).not.toContain('برای خودت');
+  });
+});

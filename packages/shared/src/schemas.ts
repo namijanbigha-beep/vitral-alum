@@ -97,9 +97,29 @@ export const FILE_KINDS = [
   'delivery_receipt',
   'voice',
   'document_pdf',
+  'import',
   'other',
 ] as const;
 export type FileKind = (typeof FILE_KINDS)[number];
+
+export const TRANSFER_KINDS = ['ingot_in', 'to_production', 'raw_delivery', 'to_coating', 'from_coating', 'between_locations', 'to_customer', 'customer_return', 'scrap_out', 'scrap_in', 'die_move', 'general'] as const;
+export type TransferKind = (typeof TRANSFER_KINDS)[number];
+
+/**
+ * Module 6 «سیاست مدارک»: the documents a transfer kind needs before it counts as complete (setting `transfer_document_policy`).
+ * load_photo / vehicle_photo / waybill / delivery_receipt = a file of that kind on the transfer; scale_ticket = a scale ticket
+ * recorded on it; packing_list = packing lines (the export documents are printed from them).
+ */
+export const TRANSFER_DOCUMENTS = ['load_photo', 'vehicle_photo', 'waybill', 'scale_ticket', 'delivery_receipt', 'packing_list'] as const;
+export type TransferDocument = (typeof TRANSFER_DOCUMENTS)[number];
+export const TRANSFER_DOCUMENT_LABELS: Record<TransferDocument, string> = {
+  load_photo: 'عکس بار',
+  vehicle_photo: 'عکس ماشین',
+  waybill: 'بارنامه',
+  scale_ticket: 'قبض باسکول',
+  delivery_receipt: 'رسید تحویل',
+  packing_list: 'ریز بار و بسته‌بندی',
+};
 
 export const ALLOWED_MIME = [
   'image/jpeg',
@@ -109,6 +129,12 @@ export const ALLOWED_MIME = [
   'audio/ogg',
   'audio/mp4',
   'audio/mpeg',
+] as const;
+/** Spreadsheet / data files for the bulk import (spec §18); accepted only with kind=`import` and settings.manage. */
+export const IMPORT_MIME = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/csv',
+  'application/json',
 ] as const;
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 

@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { CURRENCIES, Dec, decimalString, round } from '@vitral/shared';
+import { CURRENCIES, Dec, decimalString, round, TRANSFER_KINDS, type TransferDocument } from '@vitral/shared';
 import { sql, type SqlBool } from 'kysely';
 import type { ExpressionBuilder } from 'kysely';
 import type { Database } from '../../db/schema.js';
@@ -22,7 +22,7 @@ import { formState } from '../bundles/routes.js';
 import { lotAverage } from '../materials/routes.js';
 
 const bump = { updated_at: new Date(), version: sql<number>`version + 1` };
-const KINDS = ['ingot_in', 'to_production', 'raw_delivery', 'to_coating', 'from_coating', 'between_locations', 'to_customer', 'customer_return', 'scrap_out', 'scrap_in', 'die_move', 'general'] as const;
+const KINDS = TRANSFER_KINDS;
 const STATUSES = ['draft', 'dispatched', 'in_transit', 'at_border', 'partially_received', 'received', 'delivered'] as const;
 type TransferRow = Row<'transfers'>;
 
@@ -47,7 +47,7 @@ export function presentTransfer(r: Record<string, unknown>, user?: AuthUser): Re
     driver_name: t.driver_name, driver_phone: t.driver_phone, carrier_party_id: t.carrier_party_id, waybill_no: t.waybill_no, departed_at: t.departed_at, eta: t.eta, received_at: t.received_at, receiver_name: t.receiver_name, border: t.border,
     is_export: t.is_export, consignee: t.consignee, destination_country: t.destination_country, destination_city: t.destination_city, destination_address: t.destination_address, bill_to_party_id: t.bill_to_party_id, delivery_term: t.delivery_term,
     freight_cost: t.freight_cost, freight_currency: t.freight_currency, freight_payer: t.freight_payer, freight_document_id: t.freight_document_id, print_count: t.print_count, note: t.note, dispatched_by: t.dispatched_by,
-    lines: t.lines, packing: t.packing, scale_tickets: t.scale_tickets, totals: t.totals, documents_policy: t.documents_policy, version: t.version, created_at: t.created_at, updated_at: t.updated_at,
+    lines: t.lines, packing: t.packing, scale_tickets: t.scale_tickets, totals: t.totals, documents_policy: t.documents_policy, documents_missing: t.documents_missing, version: t.version, created_at: t.created_at, updated_at: t.updated_at,
   };
   if (user && !can(user, 'finance.view')) delete out.freight_document_id;
   return out;
@@ -63,8 +63,28 @@ export async function loadTransfer(db: Db | Trx, id: string) {
   const orders = t.order_ids.length ? await db.selectFrom('orders').select(['id', 'number']).where('id', 'in', t.order_ids).execute() : [];
   const kg = lines.reduce((a, l) => (l.kg ? a.plus(l.kg) : a), new Dec(0));
   const received = lines.reduce((a, l) => (l.received_kg ? a.plus(l.received_kg) : a), new Dec(0));
-  const policy = (await getSetting<Record<string, string[]>>(db, 'transfer_document_policy')) ?? {};
-  return { ...t, lines, packing, scale_tickets: tickets.map(presentTicket), order_numbers: orders.map((o) => o.number), totals: { kg: round(kg, 'weight'), received_kg: round(received, 'weight'), line_count: lines.length, packages: packing.reduce((a, p) => a + p.packages, 0), bars: packing.reduce((a, p) => a + (p.bars ?? 0), 0) }, documents_policy: policy[t.kind] ?? [] };
+  const { required, missing } = await transferDocuments(db, t.id, t.kind);
+  return { ...t, lines, packing, scale_tickets: tickets.map(presentTicket), order_numbers: orders.map((o) => o.number), totals: { kg: round(kg, 'weight'), received_kg: round(received, 'weight'), line_count: lines.length, packages: packing.reduce((a, p) => a + p.packages, 0), bars: packing.reduce((a, p) => a + (p.bars ?? 0), 0) }, documents_policy: required, documents_missing: missing };
+}
+
+/** File kind on the transfer that satisfies each photo/paper requirement of the document policy. */
+const DOC_FILE_KIND: Partial<Record<TransferDocument, string>> = { load_photo: 'load', vehicle_photo: 'vehicle', waybill: 'waybill', delivery_receipt: 'delivery_receipt' };
+
+/**
+ * Module 6 «سیاست مدارک»: the documents the setting `transfer_document_policy` requires for this kind, and which are still missing.
+ * A file counts when it is owned by or linked to the transfer; a scale ticket when one is recorded on it (or a scale-ticket photo is attached).
+ */
+export async function transferDocuments(db: Db | Trx, transferId: string, kind: string): Promise<{ required: TransferDocument[]; missing: TransferDocument[] }> {
+  const policy = (await getSetting<Record<string, TransferDocument[]>>(db, 'transfer_document_policy')) ?? {};
+  const required = policy[kind] ?? [];
+  if (!required.length) return { required, missing: [] };
+  const fileKinds = new Set(
+    (await db.selectFrom('files').select('kind').where((eb) => eb.or([eb.and([eb('owner_entity', '=', 'transfers'), eb('owner_id', '=', transferId)]), eb('id', 'in', eb.selectFrom('file_links').select('file_id').where('entity', '=', 'transfers').where('entity_id', '=', transferId))])).execute()).map((f) => f.kind),
+  );
+  const tickets = await db.selectFrom('scale_tickets').select('id').where('transfer_id', '=', transferId).executeTakeFirst();
+  const packing = await db.selectFrom('packing_lines').select('id').where('transfer_id', '=', transferId).executeTakeFirst();
+  const has = (d: TransferDocument): boolean => (d === 'scale_ticket' ? !!tickets || fileKinds.has('scale_ticket') : d === 'packing_list' ? !!packing : fileKinds.has(DOC_FILE_KIND[d]!));
+  return { required, missing: required.filter((d) => !has(d)) };
 }
 
 export function presentTicket(r: Record<string, unknown>): Record<string, unknown> {
@@ -161,12 +181,8 @@ export function logisticsRoutes(app: FastifyInstance, ctx: AppContext): void {
     if (!lines.length) throw new AppError('validation', 'حواله بدون ردیف ارسال نمی‌شود');
     const at = body.departed_at ? new Date(String(body.departed_at)) : new Date();
     const transit = await IN_TRANSIT(trx);
-    const policy = ((await getSetting<Record<string, string[]>>(trx, 'transfer_document_policy')) ?? {})[t.kind] ?? [];
-    if (policy.includes('load_photo')) {
-      const photo = await trx.selectFrom('file_links').innerJoin('files', 'files.id', 'file_links.file_id').select('files.id').where('entity', '=', 'transfers').where('entity_id', '=', t.id).where('files.kind', '=', 'load_photo').executeTakeFirst();
-      const direct = await trx.selectFrom('files').select('id').where('owner_entity', '=', 'transfers').where('owner_id', '=', t.id).where('kind', '=', 'load_photo').executeTakeFirst();
-      if (!photo && !direct) await notifyManagers(trx, { kind: 'missing_document', title: `حواله ${t.number} بدون عکس بار ارسال شد`, entity: 'transfers', entityId: t.id, groupKey: `load_photo:${t.id}` });
-    }
+    // A missing document never blocks the physical move (principle 14); a load leaving without its photo is flagged at once.
+    if ((await transferDocuments(trx, t.id, t.kind)).missing.includes('load_photo')) await notifyManagers(trx, { kind: 'missing_document', title: `حواله ${t.number} بدون عکس بار ارسال شد`, entity: 'transfers', entityId: t.id, groupKey: `load_photo:${t.id}` });
     for (const l of lines) {
       if (l.die_id) {
         await trx.updateTable('dies').set({ location_id: t.to_location_id, status: 'in_transit', ...bump }).where('id', '=', l.die_id).execute();

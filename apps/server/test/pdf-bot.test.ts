@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { sql } from 'kysely';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { saleDocumentHtml } from '../src/modules/pdf/templates.js';
 import { setupTestApp, type TestApp, uuid } from './helpers.js';
 
 const CHROMIUM = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
@@ -106,13 +107,25 @@ describe('§14 — proforma from an order', () => {
     expect(html).not.toContain('بدون ترجمة عربية');
   });
 
-  it.skipIf(!chromiumOk)('format=pdf returns a real PDF (magic bytes, inline filename)', async () => {
+  it.skipIf(!chromiumOk)('format=pdf returns a real PDF (magic bytes, inline filename); issuing it makes the draft order a proforma (module 3)', async () => {
+    expect((await t.db.selectFrom('orders').select('status_sales').where('id', '=', orderId).executeTakeFirstOrThrow()).status_sales).toBe('draft');
     const res = await t.call(manager, { method: 'GET', url: `/api/v1/orders/${orderId}/proforma?format=pdf` });
     expect(res.statusCode, res.body.slice(0, 200)).toBe(200);
     expect(res.headers['content-type']).toMatch(/application\/pdf/);
     expect(res.headers['content-disposition']).toMatch(/inline; filename=/);
     expect(res.rawPayload.subarray(0, 4).toString('latin1')).toBe('%PDF');
+    expect((await t.db.selectFrom('orders').select('status_sales').where('id', '=', orderId).executeTakeFirstOrThrow()).status_sales).toBe('proforma');
+    expect(await t.db.selectFrom('audit_log').select('id').where('entity_id', '=', orderId).where('action', '=', 'issue_proforma').execute()).toHaveLength(1);
   }, 90_000);
+
+  it('§14 — the proforma is the sendable document: no «پیش‌نویس» mark even for a draft order (production paper)', () => {
+    const doc = { kind: 'proforma' as const, number: 'VT-0001', date: new Date(), seller: { name: 'ویترال' }, buyer: { name: 'مشتری' }, lines: [], currency: 'TOMAN' as const, totals: { TOMAN: '0' }, total_kg: '0', terms: 'cash' as const };
+    const prod = saleDocumentHtml({ ...doc, meta: { env: 'production', version: 1, issued_by: 'x', print_count: 1, draft: false } }, 'fa', '');
+    expect(prod).not.toContain('پیش‌نویس');
+    expect(prod).toContain('.wm{display:none}');
+    const staging = saleDocumentHtml({ ...doc, meta: { env: 'test', version: 1, issued_by: 'x', print_count: 1, draft: false } }, 'fa', '');
+    expect(staging).toContain('نمونه آزمایشی — سند واقعی نیست');
+  });
 
   it.skipIf(!chromiumOk)('T48 — a second print raises print_count by one, archives a document_pdf file and creates no financial document', async () => {
     const docsBefore = await countRows('documents');
@@ -421,3 +434,61 @@ describe('§16 — the app hook: service key + user id act as that user', () => 
 function toFa(n: number): string {
   return String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]!);
 }
+
+describe('§14 / module 10 — daily report as PDF (GET /reports/daily.pdf)', () => {
+  const MONEY = /تومان|دلار|دینار|۵٬۰۰۰٬۰۰۰|وجوه گزارش‌شده/;
+  beforeAll(async () => {
+    const factory = await t.call(manager, { method: 'POST', url: '/api/v1/parties', payload: { name: 'کارخانه گزارش روزانه', roles: ['factory'] } });
+    expect(factory.statusCode, factory.body).toBe(201);
+    const run = await t.call(manager, { method: 'POST', url: '/api/v1/production-runs', idempotency: uuid(), payload: { factory_party_id: factory.json().id, lines: [{ product_id: productId }] } });
+    expect(run.statusCode, run.body).toBe(201);
+    for (const [code, kg] of [['DR-812', '394'], ['DR-813', '594']] as const) {
+      const b = await t.call(manager, { method: 'POST', url: '/api/v1/bundles', idempotency: uuid(), payload: { production_run_id: run.json().id, code, weight_kg: kg, lines: [{ product_id: productId, length_m: '6', bars: 70 }] } });
+      expect(b.statusCode, b.body).toBe(201);
+    }
+  });
+
+  it('html: bundles grouped by product with totals and decisions; money only for finance.view', async () => {
+    const m = await t.call(manager, { method: 'GET', url: '/api/v1/reports/daily.pdf?format=html' });
+    expect(m.statusCode, m.body.slice(0, 300)).toBe(200);
+    expect(m.headers['content-type']).toMatch(/text\/html/);
+    expect(m.headers['content-security-policy']).toContain("default-src 'none'");
+    const html = m.body;
+    expect(html).toContain('گزارش روزانه');
+    expect(html).toContain('نیازمند تصمیم');
+    expect(html).toContain(`🔹 ${PRODUCT_NAME}`);
+    expect(html).toContain('DR-۸۱۲');
+    expect(html).toContain('۹۸۸ کیلو'); // 394 + 594, the product total
+    expect(html).toContain('جمع کل: ۹۸۸ کیلو');
+    expect(html).toContain('تعداد بندیل: ۲');
+    expect(html).toContain('وجوه گزارش‌شده');
+    expect(html).toContain('۵٬۰۰۰٬۰۰۰');
+    expect(html).not.toContain('وزن هر متر (گرم)');
+
+    const s = await t.call(staff, { method: 'GET', url: '/api/v1/reports/daily.pdf?format=html&full=1' });
+    expect(s.statusCode).toBe(200);
+    expect(s.body).toContain('DR-۸۱۳');
+    expect(s.body).toContain('وزن هر متر (گرم)');
+    expect(s.body).toContain('۷۰'); // bars in the full version
+    expect(s.body).not.toMatch(MONEY);
+  });
+
+  it('a given Jalali date, a bad date (400) and no session (401)', async () => {
+    const other = await t.call(manager, { method: 'GET', url: `/api/v1/reports/daily.pdf?format=html&date=${encodeURIComponent('1405/06/23')}` });
+    expect(other.statusCode).toBe(200);
+    expect(other.body).toContain('۱۴۰۵/۰۶/۲۳');
+    expect(other.body).not.toContain('DR-۸۱۲');
+    expect(other.body).toContain('تعداد بندیل: ۰');
+    expect((await t.call(manager, { method: 'GET', url: `/api/v1/reports/daily.pdf?format=html&date=${encodeURIComponent('1404/12/30')}` })).statusCode).toBe(400);
+    expect((await t.call(null, { method: 'GET', url: '/api/v1/reports/daily.pdf' })).statusCode).toBe(401);
+  });
+
+  it.skipIf(!chromiumOk)('format=pdf returns a real PDF and creates no document', async () => {
+    const docs = await countRows('documents');
+    const res = await t.call(manager, { method: 'GET', url: '/api/v1/reports/daily.pdf?full=1' });
+    expect(res.statusCode, res.body.slice(0, 200)).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/pdf/);
+    expect(res.rawPayload.subarray(0, 4).toString('latin1')).toBe('%PDF');
+    expect(await countRows('documents')).toBe(docs);
+  }, 90_000);
+});

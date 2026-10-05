@@ -3,6 +3,8 @@ import { z } from 'zod';
 const schema = z.object({
   TELEGRAM_BOT_TOKEN: z.string().min(20),
   SERVER_URL: z.string().url().default('http://localhost:3000'),
+  /** The app's public address (e.g. https://app.example.com); when set, link instructions carry a direct link. */
+  PUBLIC_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   BOT_SERVICE_KEY: z.string().min(32),
   DAILY_REPORT_TIME: z.string().regex(/^\d{2}:\d{2}$/).default('21:00'),
   ALERT_POLL_SECONDS: z.coerce.number().int().min(5).default(30),

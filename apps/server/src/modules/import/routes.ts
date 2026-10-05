@@ -222,6 +222,16 @@ async function commit(trx: Trx, kind: Kind, rows: Record<string, unknown>[], use
   return created;
 }
 
+/** A JSON file for a spreadsheet kind: rows as arrays (first row = header) or as objects (keys = header). */
+function jsonTable(v: unknown): string[][] {
+  if (!Array.isArray(v)) throw new Error('table expected');
+  const cell = (c: unknown) => (c === null || c === undefined ? '' : typeof c === 'object' ? JSON.stringify(c) : String(c));
+  if (v.every((r) => Array.isArray(r))) return (v as unknown[][]).map((r) => r.map(cell));
+  if (!v.every((r) => r && typeof r === 'object')) throw new Error('table expected');
+  const header = [...new Set((v as Record<string, unknown>[]).flatMap((r) => Object.keys(r)))];
+  return [header, ...(v as Record<string, unknown>[]).map((r) => header.map((h) => cell(r[h])))];
+}
+
 export function importRoutes(app: FastifyInstance, ctx: AppContext): void {
   const { db, storage } = ctx;
 
@@ -245,10 +255,18 @@ export function importRoutes(app: FastifyInstance, ctx: AppContext): void {
     if (body.file_id) {
       const f = await db.selectFrom('files').selectAll().where('id', '=', body.file_id).executeTakeFirst();
       if (!f) throw new AppError('not_found', 'فایل یافت نشد');
+      // Only files uploaded as import material (POST /files, kind=import) are read here — never a photo or a document PDF.
+      if (f.kind !== 'import') throw new AppError('validation', 'این فایل برای ورود گروهی بارگذاری نشده است', { file_id: 'فایل ورود گروهی نیست' });
       const buf = await storage.read(f.storage_key);
-      if (body.kind === 'factor_app' || body.kind === 'chatgpt') raw = JSON.parse(buf.toString('utf8'));
-      else if (f.original_name.toLowerCase().endsWith('.csv') || f.mime.startsWith('text/')) raw = readCsvRows(buf.toString('utf8'));
-      else raw = readXlsxRows(buf);
+      try {
+        const text = () => buf.toString('utf8').replace(/^\uFEFF/, '');
+        if (f.mime === 'application/json') raw = body.kind === 'factor_app' || body.kind === 'chatgpt' ? JSON.parse(text()) : jsonTable(JSON.parse(text()));
+        else if (body.kind === 'factor_app' || body.kind === 'chatgpt') throw new Error('json expected');
+        else if (f.mime === 'text/csv') raw = readCsvRows(text());
+        else raw = readXlsxRows(buf);
+      } catch {
+        throw new AppError('validation', body.kind === 'factor_app' || body.kind === 'chatgpt' ? 'فایل پشتیبان باید JSON معتبر باشد' : 'فایل خوانده نشد؛ XLSX یا CSV معتبر بفرستید', { file_id: 'فایل خوانده نشد' });
+      }
     }
     if (!raw) throw new AppError('validation', 'فایل یا ردیف‌ها لازم است', { file_id: 'لازم است' });
     const prep = await prepare(db, body.kind, raw, body.mapping);

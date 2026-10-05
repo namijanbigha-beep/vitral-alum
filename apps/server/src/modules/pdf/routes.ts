@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { Dec, round, type Currency } from '@vitral/shared';
+import { Dec, round, toLatinDigits, type Currency } from '@vitral/shared';
 import { sql } from 'kysely';
 import { z } from 'zod';
 import type { AppContext } from '../../context.js';
@@ -7,6 +7,8 @@ import type { Db, Trx } from '../../db/index.js';
 import { audit } from '../../lib/audit.js';
 import { can, requirePermission, requireUser, type AuthUser } from '../../lib/auth.js';
 import { dateOnly, idParam } from '../../lib/crud.js';
+import { jalaliDateArg, jalaliDayRange } from '../../lib/dates.js';
+import { buildDailyReport } from '../daily/report.js';
 import { AppError } from '../../lib/errors.js';
 import { getSettings } from '../../lib/settings.js';
 import { sha256 } from '../files/service.js';
@@ -14,7 +16,7 @@ import { partyStatement } from '../money/routes.js';
 import { lineAmount } from '../../rules/money.js';
 import { lineBasisQty, loadLines, orderTotals, postedReceiptsForOrder } from '../orders/service.js';
 import { loadFontCss, renderPdf } from './render.js';
-import { bundleLabelHtml, commercialInvoiceHtml, packingListHtml, saleDocumentHtml, statementHtml, type DocMeta, type SaleDoc, type SaleLine, type Seller } from './templates.js';
+import { bundleLabelHtml, commercialInvoiceHtml, dailyReportHtml, packingListHtml, saleDocumentHtml, statementHtml, type DocMeta, type SaleDoc, type SaleLine, type Seller } from './templates.js';
 
 const fmt = z.object({ format: z.enum(['pdf', 'png', 'html']).default('pdf'), lang: z.enum(['fa', 'ar']).default('fa') });
 const PREVIEW_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:";
@@ -87,10 +89,17 @@ export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
       kind: 'proforma', number: order.number, date: order.order_date, seller, buyer: { name: party.name, name_ar: party.name_ar, phone: (party.phones as string[] | null)?.[0] ?? null, address: [party.city, party.address].filter(Boolean).join('، ') || null },
       lines: saleLines, currency: cur, totals: totals.totals, total_kg: totals.total_kg, terms: order.payment_terms as 'cash' | 'credit', prepay_percent: prepayPercent, prepay_amount: totals.prepay[cur] ?? order.prepay_amount, paid: totals.paid[cur] ?? '0', remaining: totals.remaining[cur] ?? totals.totals[cur] ?? null,
       validity: order.validity_text ?? (settings.proforma_validity_text as string | null), notes: order.invoice_notes ?? (settings[q.lang === 'ar' ? 'sales_terms_ar' : 'sales_terms_fa'] as string | null), delivery_days: order.delivery_days, incomplete: totals.incomplete, missing_ar: missingAr,
-      meta: meta(me, order.revision, order.print_count + 1, order.status_sales === 'draft'),
+      // Module 3: «پیش‌فاکتور یعنی PDF صادر شده» — the proforma is the document sent to the customer, so it never carries the
+      // «پیش‌نویس» mark (§14 keeps that for drafts); the staging watermark still comes from `env`.
+      meta: meta(me, order.revision, order.print_count + 1, false),
     };
     const html = saleDocumentHtml(doc, q.lang, fontCss);
-    await send(reply, html, q.format, `proforma-${order.number}-${q.lang}`, (pdf) => archive('orders', id, pdf, `proforma-${order.number}-${q.lang}-v${order.revision}.pdf`, me));
+    await send(reply, html, q.format, `proforma-${order.number}-${q.lang}`, async (pdf) => {
+      await archive('orders', id, pdf, `proforma-${order.number}-${q.lang}-v${order.revision}.pdf`, me);
+      // Issuing the PDF moves a draft order to «پیش‌فاکتور» (module 3); approval is still a separate sales.approve step.
+      const moved = await db.updateTable('orders').set({ status_sales: 'proforma', updated_at: new Date() }).where('id', '=', id).where('status_sales', '=', 'draft').executeTakeFirst();
+      if (Number(moved.numUpdatedRows) > 0) await audit(db, { userId: me.id, entity: 'orders', entityId: id, action: 'issue_proforma', before: { status_sales: 'draft' }, after: { status_sales: 'proforma' } });
+    });
     return reply;
   });
 
@@ -187,6 +196,20 @@ export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
     const roles = party.roles as string[];
     const html = statementHtml({ party: { name: party.name, name_ar: party.name_ar, phone: (party.phones as string[] | null)?.[0] ?? null, address: party.address }, seller, from: q.from ?? null, to: q.to ?? null, ...st, meta: meta(me, 1, 1, false), workshop: roles.includes('factory') || roles.includes('painter') }, q.lang, fontCss);
     await send(reply, html, q.format, `statement-${party.name}`);
+    return reply;
+  });
+
+  // ── Daily report (module 10 «کل گزارش روز به PDF», §14 / §15) ────────────────
+  app.get('/reports/daily.pdf', async (req, reply) => {
+    const me = requireUser(req);
+    const q = z.object({ date: z.string().max(12).optional(), format: z.enum(['pdf', 'html']).default('pdf'), full: z.enum(['0', '1']).default('0') }).parse(req.query);
+    let date;
+    try { date = jalaliDateArg(q.date ? toLatinDigits(q.date) : undefined); } catch { throw new AppError('validation', 'تاریخ شمسی نامعتبر است', { date: 'نامعتبر' }); }
+    const finance = can(me, 'finance.view');
+    const [report, seller, fontCss] = await Promise.all([buildDailyReport(db, date, { finance, userId: me.id }), sellerInfo(db, storage), loadFontCss(config)]);
+    const day = new Date(jalaliDayRange(date).start.getTime() + 12 * 3_600_000);
+    const html = dailyReportHtml({ report, finance, full: q.full === '1', seller, day, meta: meta(me, 1, 1, false) }, fontCss);
+    await send(reply, html, q.format, `daily-${report.date.replace(/\//g, '-')}`);
     return reply;
   });
 

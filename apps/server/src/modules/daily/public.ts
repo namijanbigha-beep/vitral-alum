@@ -5,7 +5,8 @@ import { z } from 'zod';
 import type { AppContext } from '../../context.js';
 import { stripConfidential } from '../../lib/confidential.js';
 import { AppError } from '../../lib/errors.js';
-import { buildDailyReport } from './report.js';
+import { jalaliDayRange } from '../../lib/dates.js';
+import { buildDailyReport, productionSection } from './report.js';
 import { galleryItems } from './routes.js';
 
 /**
@@ -49,9 +50,20 @@ export function publicRoutes(app: FastifyInstance, ctx: AppContext): void {
     if (!link || link.revoked || link.expires_at.getTime() < Date.now()) throw new AppError('not_found');
     const f = await db.selectFrom('files').selectAll().where('id', '=', id).where('sensitive', '=', false).executeTakeFirst();
     if (!f) throw new AppError('not_found');
-    const allowed = link.scope_type === 'bundle_gallery' ? f.owner_entity === 'bundles' && f.owner_id === link.scope_id
-      : link.scope_type === 'document' ? !!(await db.selectFrom('file_links').select('id').where('file_id', '=', f.id).where('entity', '=', 'documents').where('entity_id', '=', link.scope_id!).executeTakeFirst())
-      : f.owner_entity === 'bundles';
+    // The token proves access to its scope only: the file must belong to an entity inside it, otherwise 404 (never «exists but forbidden»).
+    let entity: 'bundles' | 'documents';
+    let ids: string[];
+    if (link.scope_type === 'document') { entity = 'documents'; ids = [link.scope_id!]; }
+    else if (link.scope_type === 'bundle_gallery') { entity = 'bundles'; ids = [link.scope_id!]; }
+    else {
+      // daily_report: exactly the bundles that report lists (that Jalali day's production bundles).
+      const d = link.scope_date!;
+      const { start, end } = jalaliDayRange(jalaliOf(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 12)), 'UTC'));
+      entity = 'bundles';
+      ids = (await productionSection(db, start, end)).bundles.map((b) => b.id);
+    }
+    const allowed = ids.length > 0 && ((f.owner_entity === entity && f.owner_id !== null && ids.includes(f.owner_id))
+      || !!(await db.selectFrom('file_links').select('id').where('file_id', '=', f.id).where('entity', '=', entity).where('entity_id', 'in', ids).executeTakeFirst()));
     if (!allowed) throw new AppError('not_found');
     const thumb = (req.query as Record<string, unknown>).thumb === '1' && f.thumb_key;
     return reply.header('Content-Type', thumb ? 'image/webp' : f.mime).header('Cache-Control', 'private, max-age=3600').header('X-Content-Type-Options', 'nosniff').send(ctx.storage.stream(thumb ? f.thumb_key! : f.storage_key));

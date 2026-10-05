@@ -1,17 +1,23 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Action, Details, E, EntityForm, ev, L, ListPage, showLocation, showParty, showProduct, type FieldSpec } from '../components/entity.js';
-import { Back, FileUpload, KV, num, PdfButtons, Table, Tabs, Thumb, fa, jdate, money } from '../components/ui.js';
+import { Back, ConflictBanner, FileUpload, KV, num, NumInput, PdfButtons, Select, Table, Tabs, Thumb, fa, jdate, money } from '../components/ui.js';
 import { useAuth } from '../lib/auth.js';
 import { useAct, useList, useOne, qs } from '../lib/hooks.js';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 const PARTY_ROLES = ['customer', 'factory', 'painter', 'anodizer', 'ingot_supplier', 'scrap_trader', 'smelter', 'die_maker', 'carrier', 'tool_supplier', 'other'];
 const CUR = ['TOMAN', 'USD', 'IQD'];
 
 // ───────── Parties ─────────
 const partySpecs: FieldSpec[] = [{ k: 'name', t: 'text', req: true }, { k: 'name_ar', t: 'text' }, { k: 'name_en', t: 'ltr' }, { k: 'phones', t: 'tags' }, { k: 'roles', t: 'multi', opts: PARTY_ROLES }, { k: 'country', t: 'text' }, { k: 'city', t: 'text' }, { k: 'address', t: 'textarea' }, { k: 'national_id', t: 'ltr' }, { k: 'default_currency', t: 'select', opts: CUR, req: true }, { k: 'note', t: 'textarea' }];
-export const PartiesPage = () => <ListPage title="طرف‌های حساب" path="/parties" newTo="/parties/new" rowTo={(r) => `/parties/${r.id}`} cols={[{ k: 'name' }, { k: 'roles' }, { k: 'city' }, { k: 'phones', f: (v) => <span dir="ltr">{fa(((v as string[]) ?? []).join(', '))}</span> }, { k: 'default_currency' }]} filters={[{ k: 'q', l: 'جستجو', t: 'text' }, { k: 'role', l: 'نقش', t: 'select', opts: PARTY_ROLES }]} />;
+/** «حساب‌ها» in the main nav (§13): party ledgers for everyone; finance users also get documents and cash accounts from here. */
+export function PartiesPage() {
+  const { can } = useAuth();
+  const extra = can('finance.view') ? <div className="row"><Link className="btn" to="/documents">اسناد مالی</Link><Link className="btn" to="/accounts">حساب‌ها و صندوق</Link></div> : undefined;
+  return <PartiesList extra={extra} />;
+}
+const PartiesList = ({ extra }: { extra?: ReactNode }) => <ListPage title="طرف‌های حساب" path="/parties" newTo="/parties/new" extra={extra} rowTo={(r) => `/parties/${r.id}`} cols={[{ k: 'name' }, { k: 'roles' }, { k: 'city' }, { k: 'phones', f: (v) => <span dir="ltr">{fa(((v as string[]) ?? []).join(', '))}</span> }, { k: 'default_currency' }]} filters={[{ k: 'q', l: 'جستجو', t: 'text' }, { k: 'role', l: 'نقش', t: 'select', opts: PARTY_ROLES }]} />;
 export function PartyForm() { const { id } = useParams(); const nav = useNavigate(); const isNew = !id || id === 'new'; return <EntityForm title={isNew ? 'طرف حساب جدید' : 'ویرایش طرف حساب'} path="/parties" id={isNew ? undefined : id} specs={partySpecs} initial={{ phones: [], roles: [], default_currency: 'TOMAN' }} onSaved={(r) => nav(`/parties/${r.id}`)} />; }
 
 export function PartyDetail() {
@@ -42,7 +48,11 @@ export function PartyDetail() {
 }
 
 // ───────── Products ─────────
-const CATEGORIES = ['window', 'door', 'curtain_wall', 'industrial', 'tube', 'sheet', 'other'];
+/** Server enum (spec §7.3); labels in E: لاین نوری، نما، درب و پنجره، عمومی، متفرقه. */
+const CATEGORIES = ['light_line', 'facade', 'door_window', 'general', 'misc'];
+const FILLER_SOURCES = ['drawing', 'sample', 'formula', 'agreed'];
+type FillerDraft = { filler_mm: string | null; weight_g_per_m: string | null; source: string; sample_length_m: string | null; sample_weight_kg: string | null };
+const EMPTY_FILLER: FillerDraft = { filler_mm: null, weight_g_per_m: null, source: 'drawing', sample_length_m: null, sample_weight_kg: null };
 const productSpecs: FieldSpec[] = [{ k: 'code', t: 'ltr' }, { k: 'name_fa', t: 'text', req: true }, { k: 'name_ar', t: 'text' }, { k: 'name_en', t: 'ltr' }, { k: 'category', t: 'select', opts: CATEGORIES }, { k: 'alloy', t: 'ltr' }, { k: 'section_area_mm2', t: 'num', unit: 'mm²' }, { k: 'weight_g_per_m_no_filler', t: 'num', unit: 'گرم/متر' }, { k: 'common_lengths', t: 'tags' }, { k: 'colors', t: 'tags' }, { k: 'drawing_version', t: 'ltr' }, { k: 'description', t: 'textarea' }];
 export const ProductsPage = () => <ListPage title="محصولات" path="/products" newTo="/products/new" rowTo={(r) => `/products/${r.id}`} cols={[{ k: 'code' }, { k: 'name_fa' }, { k: 'category' }, { k: 'stock_kg', l: 'موجودی (کیلو)' }, { k: 'active' }]} filters={[{ k: 'q', l: 'جستجو', t: 'text' }, { k: 'category', l: 'دسته', t: 'select', opts: CATEGORIES }, { k: 'in_stock', l: 'فقط موجود', t: 'bool' }]} />;
 export function ProductForm() { const { id } = useParams(); const nav = useNavigate(); const isNew = !id || id === 'new'; return <EntityForm title={isNew ? 'محصول جدید' : 'ویرایش محصول'} path="/products" id={isNew ? undefined : id} specs={productSpecs} initial={{}} onSaved={(r) => nav(`/products/${r.id}`)} />; }
@@ -52,12 +62,16 @@ export function ProductDetail() {
   const qc = useQueryClient();
   const p = useOne<Record<string, unknown>>(`/products/${id}`);
   const fillers = useOne<{ items: Array<Record<string, unknown>> }>(`/products/${id}/fillers`);
-  const [f, setF] = useState<{ filler_mm: string | null; weight_g_per_m: string | null }>({ filler_mm: null, weight_g_per_m: null });
-  const add = useAct<Record<string, unknown>>('POST', `/products/${id}/fillers`, { onSuccess: () => { setF({ filler_mm: null, weight_g_per_m: null }); void qc.invalidateQueries(); } });
+  const [f, setF] = useState<FillerDraft>(EMPTY_FILLER);
+  const add = useAct<Record<string, unknown>>('POST', `/products/${id}/fillers`, { onSuccess: () => { setF(EMPTY_FILLER); void qc.invalidateQueries(); } });
   const setMain = useAct<Record<string, unknown>>('PATCH', `/products/${id}`, { onSuccess: () => void qc.invalidateQueries() });
+  const dies = useList<Record<string, unknown>>('/dies', { product_id: id });
   if (!p.data) return <p className="muted">…</p>;
   const r = p.data;
-  const dies = useList<Record<string, unknown>>('/dies', { product_id: id });
+  const isSample = f.source === 'sample';
+  const needsWeight = f.source === 'drawing' || f.source === 'agreed';
+  const canAdd = !add.isPending && (!isSample || (!!f.sample_length_m && !!f.sample_weight_kg)) && (!needsWeight || !!f.weight_g_per_m);
+  const addFiller = () => add.mutate({ filler_mm: f.filler_mm, source: f.source, ...(needsWeight ? { weight_g_per_m: f.weight_g_per_m } : {}), ...(isSample ? { sample_length_m: f.sample_length_m, sample_weight_kg: f.sample_weight_kg } : {}) });
   return (
     <div className="stack">
       <Back to="/products">محصولات</Back>
@@ -65,8 +79,14 @@ export function ProductDetail() {
       <div className="card"><div className="row">{r.main_file_id ? <Thumb id={String(r.main_file_id)} size={96} /> : null}<FileUpload kind="product" owner={{ entity: 'products', id }} label="تصویر مقطع" onDone={(x) => setMain.mutate({ version: r.version, main_file_id: x.id })} /></div><Details r={r} keys={['name_ar', 'name_en', 'category', 'alloy', 'section_area_mm2', 'weight_g_per_m_no_filler', 'common_lengths', 'colors', 'drawing_version', 'description', 'stock_kg']} /></div>
       <div className="card"><h2>فیلرها و وزن هر متر (R01/R02)</h2>
         <Table head={['فیلر (mm)', 'وزن هر متر (گرم)', 'منبع', 'تأیید', 'میانگین واقعی', 'نمونه']} rows={(fillers.data?.items ?? []).map((x) => [num(x.filler_mm, 'filler'), num(x.weight_g_per_m, 'g_per_m'), ev(x.source), x.approved_at ? <span className="badge ok">تأییدشده</span> : <Action label="تأیید" perm="technical.approve" path={`/products/${id}/fillers/${x.id}/approve`} version={Number(x.version)} onDone={() => void qc.invalidateQueries()} />, x.actual_avg_g_per_m ? num(x.actual_avg_g_per_m, 'g_per_m') : '—', fa(String(x.sample_count ?? 0))])} />
-        <div className="toolbar" style={{ marginTop: 8 }}><label className="field"><span>فیلر (mm)</span><input inputMode="decimal" dir="ltr" value={f.filler_mm ?? ''} onChange={(e) => setF({ ...f, filler_mm: e.target.value || null })} /></label><label className="field"><span>وزن هر متر (گرم) — خالی = پیشنهاد R02</span><input inputMode="decimal" dir="ltr" value={f.weight_g_per_m ?? ''} onChange={(e) => setF({ ...f, weight_g_per_m: e.target.value || null })} /></label><button className="btn primary" disabled={!f.filler_mm || add.isPending} onClick={() => add.mutate({ filler_mm: f.filler_mm, weight_g_per_m: f.weight_g_per_m })}>افزودن</button></div>
-        {add.error && <div className="alert danger">{add.error.message}</div>}
+        <div className="toolbar" style={{ marginTop: 8 }}>
+          <label className="field"><span>فیلر (mm) — خالی = بدون فیلر</span><NumInput value={f.filler_mm} unit="میلی‌متر" onChange={(v) => setF({ ...f, filler_mm: v })} /></label>
+          <label className="field"><span>منبع<b className="req">*</b></span><Select value={f.source} options={FILLER_SOURCES.map((o) => [o, E[o] ?? o])} onChange={(v) => setF({ ...f, source: v ?? 'drawing' })} /></label>
+          {needsWeight && <label className="field"><span>وزن هر متر<b className="req">*</b></span><NumInput value={f.weight_g_per_m} unit="گرم/متر" onChange={(v) => setF({ ...f, weight_g_per_m: v })} /></label>}
+          {isSample && <><label className="field"><span>طول نمونه<b className="req">*</b></span><NumInput value={f.sample_length_m} unit="متر" onChange={(v) => setF({ ...f, sample_length_m: v })} /></label><label className="field"><span>وزن نمونه<b className="req">*</b></span><NumInput value={f.sample_weight_kg} unit="کیلو" onChange={(v) => setF({ ...f, sample_weight_kg: v })} /></label></>}
+          {f.source === 'formula' && <p className="muted" style={{ flexBasis: '100%' }}>وزن از سطح مقطع محصول با فرمول R01 حساب می‌شود (سطح مقطع × ۲٫۷).</p>}
+          <button className="btn primary" disabled={!canAdd} onClick={addFiller}>افزودن</button></div>
+        {add.error && <ConflictBanner err={add.error} fields={L} />}
       </div>
       <div className="card"><h2>قالب‌ها</h2><Table head={['کد', 'وضعیت', 'مکان']} rows={dies.items.map((d) => [<Link to={`/dies/${d.id}`}>{fa(String(d.code))}</Link>, ev(d.status), String(d.location_name ?? '—')])} /></div>
     </div>
@@ -74,9 +94,9 @@ export function ProductDetail() {
 }
 
 // ───────── Dies ─────────
-const DIE_STATUS = ['ready', 'in_repair', 'retired', 'missing'];
+const DIE_STATUS = ['design', 'making', 'ready', 'needs_repair', 'retired'];
 const dieSpecs: FieldSpec[] = [{ k: 'code', t: 'ltr', req: true }, { k: 'name', t: 'text' }, { k: 'product_id', t: 'pick', path: '/products', show: showProduct }, { k: 'owner_party_id', t: 'pick', path: '/parties', show: showParty }, { k: 'maker_party_id', t: 'pick', path: '/parties', params: { role: 'die_maker' }, show: showParty }, { k: 'location_id', t: 'pick', path: '/locations', show: showLocation }, { k: 'compatible_press', t: 'text' }, { k: 'status', t: 'select', opts: DIE_STATUS, req: true }, { k: 'note', t: 'textarea' }];
-export const DiesPage = () => <ListPage title="قالب‌ها" path="/dies" newTo="/dies/new" rowTo={(r) => `/dies/${r.id}`} cols={[{ k: 'code' }, { k: 'product_name' }, { k: 'status' }, { k: 'location_name' }, { k: 'total_produced_kg', l: 'تولید تجمعی (کیلو)' }]} filters={[{ k: 'q', l: 'جستجو', t: 'text' }, { k: 'status', l: 'وضعیت', t: 'select', opts: [...DIE_STATUS, 'in_transit'] }]} />;
+export const DiesPage = () => <ListPage title="قالب‌ها" path="/dies" newTo="/dies/new" extra={<Link className="btn" to="/die-orders">سفارش ساخت قالب</Link>} rowTo={(r) => `/dies/${r.id}`} cols={[{ k: 'code' }, { k: 'product_name' }, { k: 'status' }, { k: 'location_name' }, { k: 'total_produced_kg', l: 'تولید تجمعی (کیلو)' }]} filters={[{ k: 'q', l: 'جستجو', t: 'text' }, { k: 'status', l: 'وضعیت', t: 'select', opts: [...DIE_STATUS, 'in_transit'] }]} />;
 export function DieForm() { const { id } = useParams(); const nav = useNavigate(); const isNew = !id || id === 'new'; return <EntityForm title={isNew ? 'قالب جدید' : 'ویرایش قالب'} path="/dies" id={isNew ? undefined : id} specs={dieSpecs} initial={{ status: 'ready' }} onSaved={(r) => nav(`/dies/${r.id}`)} />; }
 export function DieDetail() {
   const { id = '' } = useParams();
@@ -90,7 +110,7 @@ export function DieDetail() {
   return (
     <div className="stack">
       <Back to="/dies">قالب‌ها</Back>
-      <div className="row between"><h1>قالب {fa(String(r.code))}</h1><Link className="btn" to={`/dies/${id}/edit`}>ویرایش</Link></div>
+      <div className="row between"><h1>قالب {fa(String(r.code))}</h1><div className="row"><Link className="btn" to={`/die-orders/new?die_id=${id}`}>سفارش ساخت قالب</Link><Link className="btn" to={`/dies/${id}/edit`}>ویرایش</Link></div></div>
       <div className="card"><Details r={r} keys={['name', 'product_name', 'status', 'location_name', 'owner_name', 'maker_name', 'compatible_press', 'total_produced_kg', 'run_count', 'last_run_at', 'note']} /></div>
       <div className="card"><h2>رویدادها (تعمیر، چک فیلر، آسیب)</h2>
         <Table head={['زمان', 'نوع', 'فیلر اندازه‌گیری‌شده', 'شرح']} rows={(ev$.data?.items ?? []).map((x) => [jdate(String(x.at)), ({ moved: 'جابجایی', repair: 'تعمیر', filler_check: 'چک فیلر', damage: 'آسیب', note: 'یادداشت' } as Record<string, string>)[String(x.kind)] ?? String(x.kind), x.measured_filler_mm ? num(x.measured_filler_mm, 'filler') : '—', String(x.detail ?? '')])} />

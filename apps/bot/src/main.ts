@@ -8,7 +8,7 @@ const config = loadConfig();
 const log = (o: unknown, m?: string) => { if (config.LOG_LEVEL !== 'silent') console.log(JSON.stringify({ t: new Date().toISOString(), m, ...(typeof o === 'object' && o ? o : { o }) })); };
 const api = new Api(config.SERVER_URL, config.BOT_SERVICE_KEY);
 const tg = new Telegram(config.TELEGRAM_BOT_TOKEN);
-const handlers = new Handlers(api, tg, log);
+const handlers = new Handlers(api, tg, log, { publicUrl: config.PUBLIC_URL });
 let running = true;
 
 /** Long polling: one update at a time, in order; a failing update is logged and skipped so the queue never stalls. */

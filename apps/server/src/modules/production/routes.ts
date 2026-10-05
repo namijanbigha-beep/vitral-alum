@@ -15,6 +15,7 @@ import { itemBalance, move, stockPositions } from '../../lib/stock.js';
 import type { Db, Trx } from '../../db/index.js';
 import type { Row } from '../../db/schema.js';
 import { productionFee, runBalance } from '../../rules/production.js';
+import { splitByWeight } from '../../rules/money.js';
 import { activeContract } from '../contracts/routes.js';
 import { bundleTotalsForRun } from '../bundles/service.js';
 
@@ -187,11 +188,19 @@ export function productionRoutes(app: FastifyInstance, ctx: AppContext): void {
       }).returning('id').executeTakeFirstOrThrow();
       if (fee === null) await notifyManagers(trx, { kind: 'fee_incomplete', title: `اجرت نوبت ${run.number} نرخ یا مبنا ندارد؛ هزینه ناقص`, entity: 'documents', entityId: feeDoc.id, groupKey: `fee:${id}` });
 
+      // Module 4: «برگشت به کارخانه برای تولید مجدد (هزینه دوباره‌کاری به همان نوبت وصل می‌شود)». A rework cost given at close becomes an
+      // expense document sourced on this run and shared over the run's orders by weight (R16), unless the contract puts it on the factory.
+      let reworkDocId: string | null = null;
+      if (body.rework_cost && new Dec(body.rework_cost).gt(0)) {
+        const payer = run.contract_id ? (await trx.selectFrom('contracts').select('rework_payer').where('id', '=', run.contract_id).executeTakeFirst())?.rework_payer ?? null : null;
+        if (payer !== 'party') reworkDocId = await reworkExpense(trx, run, round(new Dec(body.rework_cost), run.rate_currency as 'TOMAN'), me);
+      }
+
       const after = await trx.updateTable('production_runs').set({
         status: 'closed', ingot_consumed_kg: body.ingot_consumed_kg, good_kg: sums.good_kg, rejected_kg: sums.rejected_kg, scrap_kg: body.scrap_kg, returned_material_kg: body.returned_material_kg,
         unexplained_kg: bal.unexplained_kg, close_reason: body.close_reason ?? null, closed_by: me.id, closed_at: new Date(), fee_document_id: feeDoc.id, shortage_document_id: shortageDocId, ...bump,
       }).where('id', '=', id).returningAll().executeTakeFirstOrThrow();
-      await audit(trx, { userId: me.id, entity: 'production_runs', entityId: id, action: 'close', before: run, after: { ...after, ingot_cost: costIncomplete ? null : costSum.toFixed() }, reason: body.close_reason ?? null });
+      await audit(trx, { userId: me.id, entity: 'production_runs', entityId: id, action: 'close', before: run, after: { ...after, ingot_cost: costIncomplete ? null : costSum.toFixed(), rework_cost: body.rework_cost ?? null, rework_document_id: reworkDocId }, reason: body.close_reason ?? null });
       return { status: 200, body: presentRun((await loadRun(trx, id))!, me) };
     });
     return r.body;
@@ -205,6 +214,24 @@ export function productionRoutes(app: FastifyInstance, ctx: AppContext): void {
       .where('production_runs.status', '=', 'closed').groupBy(['production_runs.factory_party_id', 'parties.name']).execute();
     return { items: rows.map((r) => ({ factory_party_id: r.factory_party_id, name: r.name, runs: r.runs, late: r.late, yield_percent: r.consumed && Number(r.consumed) ? round(new Dec(r.good).div(r.consumed).mul(100), 'percent') : null, reject_percent: r.consumed && Number(r.consumed) ? round(new Dec(r.rejected).div(r.consumed).mul(100), 'percent') : null })) };
   });
+}
+
+/** Rework expense of a production run: posted by finance.post, otherwise reported for review; split over the run's orders by target kg (R16). */
+async function reworkExpense(trx: Trx, run: Row<'production_runs'>, amount: string, me: AuthUser): Promise<string> {
+  const perOrder = await trx.selectFrom('production_run_lines').innerJoin('order_lines', 'order_lines.id', 'production_run_lines.order_line_id').select(['order_lines.order_id', sql<string>`COALESCE(SUM(production_run_lines.target_kg),0)`.as('kg')]).where('production_run_lines.run_id', '=', run.id).groupBy('order_lines.order_id').orderBy('order_lines.order_id').execute();
+  const expenseType = perOrder.length === 1 ? 'order' : perOrder.length > 1 ? 'shared' : 'general';
+  const posted = can(me, 'finance.post');
+  const doc = await trx.insertInto('documents').values({
+    number: await nextNumber(trx, 'expense'), kind: 'expense', party_id: run.factory_party_id, amount, currency: run.rate_currency, status: posted ? 'posted' : 'reported', posted_by: posted ? me.id : null, posted_at: posted ? new Date() : null, reported_by: me.id,
+    expense_type: expenseType, expense_category: 'rework', order_id: expenseType === 'order' ? perOrder[0]!.order_id : null, source_type: 'production_run', source_id: run.id, description: `هزینه دوباره‌کاری نوبت ${run.number}`, created_by: me.id,
+  }).returning('id').executeTakeFirstOrThrow();
+  if (perOrder.length) {
+    const weights = perOrder.some((o) => new Dec(o.kg).gt(0)) ? perOrder.map((o) => o.kg) : perOrder.map(() => '1');
+    const shares = splitByWeight(amount, weights, run.rate_currency as 'TOMAN');
+    for (const [i, o] of perOrder.entries()) await trx.insertInto('expense_shares').values({ document_id: doc.id, order_id: o.order_id, amount: shares[i]!, currency: run.rate_currency, weight_kg: perOrder.some((x) => new Dec(x.kg).gt(0)) ? o.kg : null, created_by: me.id }).execute();
+  }
+  if (!posted) await notifyManagers(trx, { kind: 'rework_cost', title: `هزینه دوباره‌کاری نوبت ${run.number} گزارش شد؛ قطعی‌کردن با مالی`, entity: 'documents', entityId: doc.id, groupKey: `rework:${run.id}` });
+  return doc.id;
 }
 
 /** Vitral-owned ingot/billet lots with a positive balance at a location, with the moving-average unit cost (R13). */

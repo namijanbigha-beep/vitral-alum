@@ -10,7 +10,7 @@ const HELP = [
   '• سفارش VT-0003 — وضعیت یک سفارش',
   '• انبار — موجودی به کیلو',
   '• تأییدها — موارد در انتظار تأیید (با دکمه تأیید/رد)',
-  '• کار متن کار — ثبت کار برای خودت؛ «کار @علی متن» برای دیگری',
+  '• کار @نام متن کار — کار جدید برای یک کارمند (فقط مدیر)',
   '• کارها — کارهای باز من',
   '• مانده نام طرف — مانده حساب (فقط مالی)',
   '• هر متن دیگر، ویس یا عکس → یادداشت آزاد',
@@ -35,8 +35,23 @@ function errorText(e: unknown): string {
   return 'خطای غیرمنتظره؛ بعداً دوباره تلاش کن.';
 }
 
+/** Where the app's «اتصال تلگرام» page lives: «بیشتر › اتصال تلگرام», route /settings/telegram. */
+export const LINK_PAGE_ROUTE = '/settings/telegram';
+
+export interface HandlerOptions { publicUrl?: string }
+
+type DirectoryUser = { id: string; name: string; short_name: string | null; role?: string };
+const handle = (u: DirectoryUser): string => `@${(u.short_name || u.name).trim().replace(/\s+/g, '_')}`;
+const norm = (s: string): string => toLatinDigits(s).replace(/_/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
 export class Handlers {
-  constructor(private readonly api: Api, private readonly tg: Telegram, private readonly log: (o: unknown, m?: string) => void) {}
+  constructor(private readonly api: Api, private readonly tg: Telegram, private readonly log: (o: unknown, m?: string) => void, private readonly opts: HandlerOptions = {}) {}
+
+  /** «بیشتر › اتصال تلگرام» plus the direct link when the bot knows the app's public URL. */
+  private linkHint(): string {
+    const base = this.opts.publicUrl?.replace(/\/+$/, '');
+    return `در برنامه از «بیشتر › اتصال تلگرام» کد بگیر و بفرست:\n/start 123456${base ? `\n${base}${LINK_PAGE_ROUTE}` : ''}`;
+  }
 
   async onMessage(m: TgMessage): Promise<void> {
     const chatId = String(m.chat.id);
@@ -48,7 +63,7 @@ export class Handlers {
     if (!user) {
       // T55: unregistered chats are logged and told how to link; nothing else leaks.
       await this.api.log(chatId, 'unregistered', text.slice(0, 200));
-      await this.tg.send(chatId, 'این چت به حسابی متصل نیست. در برنامه، از «پروفایل → اتصال تلگرام» کد بگیر و بفرست:\n/start 123456');
+      await this.tg.send(chatId, `این چت به حسابی متصل نیست. ${this.linkHint()}`);
       return;
     }
     try {
@@ -77,7 +92,7 @@ export class Handlers {
 
   private async start(chatId: string, code: string): Promise<void> {
     const c = toLatinDigits(code).replace(/\D/g, '');
-    if (c.length !== 6) { await this.tg.send(chatId, 'سلام! برای اتصال، کد ۶ رقمی را از برنامه (پروفایل → اتصال تلگرام) بگیر و بفرست:\n/start 123456'); return; }
+    if (c.length !== 6) { await this.tg.send(chatId, `سلام! برای اتصال به کد ۶ رقمی نیاز است. ${this.linkHint()}`); return; }
     try {
       const r = await this.api.link(chatId, c);
       await this.api.log(chatId, 'linked', r.user.id);
@@ -128,16 +143,25 @@ export class Handlers {
     }
   }
 
+  /** Spec §16 `/task` (مدیر) and module 10 «مدیر برای هر کارمند کار می‌سازد»; the server enforces it too. */
   private async task(user: BotUser, chatId: string, arg: string): Promise<void> {
-    if (!arg) { await this.tg.send(chatId, 'متن کار را بنویس: کار زنگ به کارخانه'); return; }
+    if (user.role !== 'manager') { await this.tg.send(chatId, 'کار جدید را فقط مدیر می‌سازد. کارهای خودت: «کارها»'); return; }
+    if (!arg) { await this.tg.send(chatId, 'نام کارمند و متن کار را بنویس: کار @علی زنگ به کارخانه'); return; }
     let assignee = user.id;
     let title = arg;
     const m = arg.match(/^@(\S+)\s+(.+)$/s);
     if (m) {
-      const users = await this.api.request<{ items: Array<{ id: string; name: string; short_name: string | null }> }>('GET', '/users/directory', { user: user.id });
-      const found = users.items.find((u) => u.short_name === m[1] || u.name.includes(m[1]!)) ?? users.items[0];
-      if (!found) { await this.tg.send(chatId, `کاربری با نام «${m[1]}» پیدا نشد.`); return; }
-      assignee = found.id; title = m[2]!;
+      const users = await this.api.request<{ items: DirectoryUser[] }>('GET', '/users/directory', { user: user.id });
+      const want = norm(m[1]!);
+      const exact = users.items.filter((u) => norm(u.short_name ?? '') === want || norm(u.name) === want);
+      const matches = exact.length ? exact : users.items.filter((u) => norm(u.short_name ?? '').includes(want) || norm(u.name).includes(want));
+      if (matches.length !== 1) {
+        // Never fall back to someone else: ask again with the valid names.
+        const list = (matches.length ? matches : users.items).slice(0, 15).map((u) => `${handle(u)} (${u.name})`).join('\n');
+        await this.tg.send(chatId, `${matches.length ? `چند نفر با «${m[1]}» پیدا شد؛ دقیق‌تر بنویس` : `کاربری با نام «${m[1]}» پیدا نشد؛ یکی از این نام‌ها را بنویس`}:\n${list}\nمثال: کار ${handle((matches[0] ?? users.items[0]) ?? { id: '', name: 'علی', short_name: null })} زنگ به کارخانه`);
+        return;
+      }
+      assignee = matches[0]!.id; title = m[2]!;
     }
     const t = await this.api.request<{ id: string; title: string }>('POST', '/tasks', { user: user.id, body: { title: title.slice(0, 200), assignee_user_id: assignee }, idempotent: true });
     await this.tg.send(chatId, `کار ثبت شد 📝 «${t.title}»`);

@@ -66,6 +66,7 @@ export function CostingPage() {
 
 // ───────── Import (§18) ─────────
 const KINDS: Array<[string, string]> = [['products', 'محصولات'], ['dies', 'قالب‌ها'], ['parties', 'طرف‌های حساب'], ['contracts', 'قراردادها'], ['opening_stock', 'موجودی اول دوره'], ['open_orders', 'سفارش‌های باز'], ['factor_app', 'خروجی برنامه فاکتور (JSON)'], ['chatgpt', 'خروجی ChatGPT (JSON)']];
+/** Upload (POST /files, kind=import) → preview (POST /import/preview {kind, file_id}, nothing written) → commit (trial = revertable). */
 export function ImportPage() {
   const qc = useQueryClient();
   const [kind, setKind] = useState('products');
@@ -83,14 +84,14 @@ export function ImportPage() {
       <div className="card"><div className="grid2"><label className="field"><span>نوع</span><select value={kind} onChange={(e) => { setKind(e.target.value); setFileId(null); preview.reset(); }}>{KINDS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
         <div className="field"><span className="muted">قالب خالی</span><div><button className="btn" onClick={() => void downloadBlob(`/import/templates/${kind}.xlsx`, `${kind}-template.xlsx`)}>دانلود قالب Excel</button></div></div></div>
         {fields.data && <p className="muted">ستون‌ها: {fields.data.fields.map((f) => `${f.label}${f.required ? '*' : ''}`).join('، ')}</p>}
-        <div className="row"><FileUpload kind="other" accept=".xlsx,.csv,.json,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" label={fileId ? 'فایل انتخاب شد ✓ (تغییر)' : 'انتخاب فایل'} onDone={(f) => setFileId(f.id)} /><button className="btn primary" disabled={!fileId || preview.isPending} onClick={() => preview.mutate({ kind, file_id: fileId })}>پیش‌نمایش (بدون ثبت)</button></div>
+        <div className="row"><FileUpload kind="import" accept=".xlsx,.csv,.json,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" label={fileId ? 'فایل انتخاب شد ✓ (تغییر)' : 'انتخاب فایل'} onDone={(f) => { setFileId(f.id); preview.mutate({ kind, file_id: f.id }); }} /><button className="btn primary" disabled={!fileId || preview.isPending} onClick={() => preview.mutate({ kind, file_id: fileId })}>پیش‌نمایش (بدون ثبت)</button></div>
         {preview.error && <div className="alert danger">{preview.error.message}</div>}
       </div>
       {p && <div className="card"><h2>پیش‌نمایش: {fa(String(p.row_count))} ردیف</h2>
         {(p.unmapped_required as string[])?.length > 0 && <div className="alert danger">ستون‌های لازم پیدا نشد: {(p.unmapped_required as string[]).join('، ')}</div>}
         {(p.errors as Array<Record<string, unknown>>)?.length > 0 && <div className="alert danger"><b>{fa((p.errors as unknown[]).length)} خطا</b> — هیچ ردیفی ثبت نمی‌شود تا رفع شوند:<ul>{(p.errors as Array<Record<string, unknown>>).slice(0, 30).map((e, i) => <li key={i}>ردیف {fa(String(e.row))}: {String(e.message ?? e.error)}</li>)}</ul></div>}
         {(p.duplicates as Array<Record<string, unknown>>)?.length > 0 && <div className="alert warn">{fa((p.duplicates as unknown[]).length)} ردیف تکراری (رد می‌شوند): {(p.duplicates as Array<Record<string, unknown>>).slice(0, 10).map((d) => String(d.key ?? d.row)).join('، ')}</div>}
-        <Table head={Object.keys(((p.rows as Array<Record<string, unknown>>)?.[0]) ?? {}).map((k) => L[k] ?? k)} rows={((p.rows as Array<Record<string, unknown>>) ?? []).slice(0, 50).map((r) => Object.values(r).map((v) => (typeof v === 'object' && v ? JSON.stringify(v).slice(0, 40) : ev(v))))} />
+        <Table head={Object.keys(((p.rows as Array<Record<string, unknown>>)?.[0]) ?? {}).map((k) => L[k] ?? k)} rows={((p.rows as Array<Record<string, unknown>>) ?? []).slice(0, 50).map((r) => Object.values(r).map((v) => (Array.isArray(v) ? (v.length ? v.map(ev).join('، ') : '—') : typeof v === 'object' && v ? JSON.stringify(v).slice(0, 40) : ev(v))))} />
         <div className="row" style={{ marginTop: 8 }}><label className="row"><input type="checkbox" checked={trial} onChange={(e) => setTrial(e.target.checked)} /> <span>آزمایشی (قابل برگشت)</span></label><button className="btn primary" disabled={!p.can_commit || commit.isPending} onClick={() => commit.mutate({ id: p.id, trial, skip_duplicates: true })}>ثبت نهایی</button></div>
         {commit.data && <div className="alert ok">ثبت شد: {Object.entries((commit.data.created as Record<string, number>) ?? {}).map(([k, v]) => `${L[k] ?? k}: ${fa(v)}`).join('، ')}{commit.data.trial ? ' (آزمایشی)' : ''}</div>}
         {commit.error && <div className="alert danger">{commit.error.message}</div>}

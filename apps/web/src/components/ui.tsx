@@ -33,13 +33,16 @@ export function Select<T extends string>({ value, onChange, options, allowEmpty,
   return <select value={value ?? ''} disabled={disabled} onChange={(e) => onChange((e.target.value || null) as T | null)}>{allowEmpty !== undefined && <option value="">{allowEmpty}</option>}{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>;
 }
 
+/** List endpoints without a GET-by-id route: resolve the picked row from the list instead of a 404 round trip. */
+const NO_GET_BY_ID = new Set(['/users/directory']);
+
 /** Search-as-you-type picker for parties/products/locations/dies/orders… `label` extracts the display line. */
 export function Picker<T extends { id: string }>({ path, params, value, onChange, label, placeholder, disabled, extra }: { path: string; params?: Record<string, string | undefined>; value: string | null | undefined; onChange: (id: string | null, row: T | null) => void; label: (r: T) => string; placeholder?: string; disabled?: boolean; extra?: ReactNode }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const list = useList<T>(path, { ...params, q: q || undefined }, { limit: 20, enabled: open });
   const [picked, setPicked] = useState<T | null>(null);
-  useEffect(() => { if (value && (!picked || picked.id !== value)) void api<T>('GET', `${path}/${value}`).catch(() => api<{ items: T[] }>('GET', `${path}?limit=100`).then((l) => l.items.find((r) => r.id === value) ?? null)).then(setPicked).catch(() => setPicked(null)); if (!value) setPicked(null); }, [value, path, picked]);
+  useEffect(() => { if (value && (!picked || picked.id !== value)) void (NO_GET_BY_ID.has(path) ? Promise.reject(new Error('list only')) : api<T>('GET', `${path}/${value}`)).catch(() => api<{ items: T[] }>('GET', `${path}?limit=100`).then((l) => l.items.find((r) => r.id === value) ?? null)).then(setPicked).catch(() => setPicked(null)); if (!value) setPicked(null); }, [value, path, picked]);
   return (
     <div className="picker">
       {value && picked && !open ? (
@@ -97,17 +100,18 @@ export function Confirm({ title, children, onConfirm, onCancel, danger, busy }: 
 }
 
 /** PDF / PNG / preview buttons for a document endpoint (spec §14). */
-export function PdfButtons({ path, name, langs = ['fa', 'ar'] }: { path: string; name: string; langs?: Array<'fa' | 'ar'> }) {
+export function PdfButtons({ path, name, langs = ['fa', 'ar'], params = {}, png = true, label }: { path: string; name: string; langs?: Array<'fa' | 'ar'>; params?: Record<string, string | number | undefined>; png?: boolean; label?: string }) {
   const [busy, setBusy] = useState(false);
-  const go = async (lang: string, format: string) => { setBusy(true); try { if (format === 'html') window.open(`/api/v1${path}${qs({ lang, format })}`, '_blank'); else await downloadBlob(`${path}${qs({ lang, format })}`, `${name}-${lang}.${format}`); } finally { setBusy(false); } };
-  return <div className="row">{langs.map((l) => <span key={l} className="row" style={{ gap: 4 }}><button className="btn" disabled={busy} onClick={() => void go(l, 'pdf')}>PDF {l === 'fa' ? 'فارسی' : 'عربی'}</button><button className="btn" disabled={busy} onClick={() => void go(l, 'png')}>تصویر</button><button className="btn" disabled={busy} onClick={() => void go(l, 'html')}>پیش‌نمایش</button></span>)}</div>;
+  const [err, setErr] = useState(false);
+  const go = async (lang: string, format: string) => { setBusy(true); setErr(false); try { if (format === 'html') window.open(`/api/v1${path}${qs({ ...params, lang, format })}`, '_blank'); else await downloadBlob(`${path}${qs({ ...params, lang, format })}`, `${name}-${lang}.${format}`); } catch { setErr(true); } finally { setBusy(false); } };
+  return <div className="row">{langs.map((l) => <span key={l} className="row" style={{ gap: 4 }}><button className="btn" disabled={busy} onClick={() => void go(l, 'pdf')}>{label ?? `PDF ${l === 'fa' ? 'فارسی' : 'عربی'}`}</button>{png && <button className="btn" disabled={busy} onClick={() => void go(l, 'png')}>تصویر</button>}<button className="btn" disabled={busy} onClick={() => void go(l, 'html')}>پیش‌نمایش</button></span>)}{err && <span className="error">دانلود نشد</span>}</div>;
 }
 
-export function FileUpload({ kind, owner, onDone, accept = 'image/*,application/pdf', label = 'افزودن فایل', capture }: { kind: string; owner?: { entity: string; id: string }; onDone: (f: { id: string }) => void; accept?: string; label?: string; capture?: boolean }) {
+export function FileUpload({ kind, owner, onDone, accept = 'image/*,application/pdf', label = 'افزودن فایل', capture, sensitive }: { kind: string; owner?: { entity: string; id: string }; onDone: (f: { id: string }) => void; accept?: string; label?: string; capture?: boolean; sensitive?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   return <label className="btn" style={{ cursor: 'pointer' }}>{busy ? 'در حال ارسال…' : label}{err && <span className="error"> {err}</span>}
-    <input type="file" accept={accept} capture={capture ? 'environment' : undefined} hidden disabled={busy} onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setBusy(true); setErr(null); try { const fd = new FormData(); fd.set('kind', kind); if (owner) { fd.set('owner_entity', owner.entity); fd.set('owner_id', owner.id); } fd.set('file', f, f.name); onDone(await api<{ id: string }>('POST', '/files', { form: fd, idempotencyKey: crypto.randomUUID() })); } catch (x) { setErr((x as Error).message); } finally { setBusy(false); e.target.value = ''; } }} /></label>;
+    <input type="file" accept={accept} capture={capture ? 'environment' : undefined} hidden disabled={busy} onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setBusy(true); setErr(null); try { const fd = new FormData(); fd.set('kind', kind); if (sensitive) fd.set('sensitive', 'true'); if (owner) { fd.set('owner_entity', owner.entity); fd.set('owner_id', owner.id); } fd.set('file', f, f.name); onDone(await api<{ id: string }>('POST', '/files', { form: fd, idempotencyKey: crypto.randomUUID() })); } catch (x) { setErr((x as Error).message); } finally { setBusy(false); e.target.value = ''; } }} /></label>;
 }
 
 export function Thumb({ id, size = 64 }: { id: string; size?: number }) {

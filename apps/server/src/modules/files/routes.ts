@@ -3,10 +3,10 @@ import { FILE_KINDS, MAX_FILE_BYTES } from '@vitral/shared';
 import { z } from 'zod';
 import type { AppContext } from '../../context.js';
 import { audit } from '../../lib/audit.js';
-import { requireUser } from '../../lib/auth.js';
+import { can, requireUser } from '../../lib/auth.js';
 import { AppError } from '../../lib/errors.js';
 import { requireIdempotencyKey, withIdempotency } from '../../lib/idempotency.js';
-import { canOpen, detectMime, isImage, makeThumb, normaliseImage, presentFile, sha256 } from './service.js';
+import { canOpen, detectImportMime, detectMime, isImage, makeThumb, normaliseImage, presentFile, sha256 } from './service.js';
 
 const idParam = z.object({ id: z.string().uuid() });
 
@@ -49,16 +49,21 @@ export async function fileRoutes(app: FastifyInstance, ctx: AppContext): Promise
       if (!upload || upload.data.length === 0) throw new AppError('validation', 'فایل خالی است', { file: 'لازم است' });
       const meta = metaSchema.parse(fields);
 
-      const mime = await detectMime(upload.data);
+      // Spec §18: import files (xlsx / csv / json) only as kind `import`, only for settings.manage, always sensitive, never thumbnailed.
+      const isImport = meta.kind === 'import';
+      if (isImport && !can(me, 'settings.manage')) throw new AppError('forbidden', 'بارگذاری فایل ورود گروهی فقط با مجوز تنظیمات است');
+      const mime = isImport ? await detectImportMime(upload.data) : await detectMime(upload.data);
       if (!mime) {
-        throw new AppError('validation', 'نوع فایل مجاز نیست؛ فقط JPEG، PNG، WebP، PDF، OGG، M4A و MP3', {
-          file: 'نوع فایل مجاز نیست',
-        });
+        throw new AppError(
+          'validation',
+          isImport ? 'نوع فایل مجاز نیست؛ برای ورود گروهی فقط XLSX، CSV یا JSON' : 'نوع فایل مجاز نیست؛ فقط JPEG، PNG، WebP، PDF، OGG، M4A و MP3',
+          { file: 'نوع فایل مجاز نیست' },
+        );
       }
 
       let stored = upload.data;
       let thumb: Buffer | null = null;
-      if (isImage(mime)) {
+      if (!isImport && isImage(mime)) {
         try {
           stored = await normaliseImage(upload.data, mime);
           thumb = await makeThumb(stored);
@@ -82,7 +87,7 @@ export async function fileRoutes(app: FastifyInstance, ctx: AppContext): Promise
               sha256: sha256(stored),
               kind: meta.kind,
               caption: meta.caption ?? null,
-              sensitive: meta.sensitive === 'true',
+              sensitive: isImport || meta.sensitive === 'true',
               owner_entity: meta.owner_entity ?? null,
               owner_id: meta.owner_id ?? null,
               sort_order: meta.sort_order,

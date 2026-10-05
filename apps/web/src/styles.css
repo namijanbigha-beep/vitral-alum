@@ -191,3 +191,16 @@ pre.report { white-space: pre-wrap; font-family: inherit; background: var(--surf
 .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; }
 .toolbar > * { flex: 1 1 140px; } .toolbar input, .toolbar select { min-width: 0; }
 .nav.wide a { font-size: 0.7rem; }
+
+/* §13 shell: «بیشتر» hub link in the top bar and the floating «ثبت سریع» button above the bottom bar. */
+.topbar .more-link { color: inherit; display: flex; align-items: center; gap: 4px; text-decoration: none; min-height: 44px; }
+.topbar .more-link.active { text-decoration: underline; text-underline-offset: 6px; }
+.fab {
+  position: fixed; z-index: 6; inset-inline-end: 1rem; bottom: calc(72px + env(safe-area-inset-bottom));
+  min-height: 52px; padding: 0 1.1rem; border-radius: 999px; border: 0;
+  background: var(--primary); color: var(--primary-text); font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer;
+}
+.fab span { font-size: 1.4rem; line-height: 1; vertical-align: -2px; }
+.main { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+@media (max-width: 599px) { .topbar .user-name { display: none; } .topbar { gap: 0.6rem; } }
+@media (min-width: 900px) { .fab { bottom: 1.5rem; } .main { padding-bottom: 5rem; } }

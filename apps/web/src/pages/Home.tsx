@@ -40,7 +40,7 @@ export function HomePage() {
   for (const w of x?.weight ?? []) for (const [s, kg] of Object.entries(w.states)) byState[s] = (byState[s] ?? 0) + Number(kg);
   return (
     <div className="stack">
-      <div className="row between"><h1>سلام {me?.user.short_name || me?.user.name}</h1><Link className="muted" to="/search">جستجو</Link></div>
+      <div className="row between"><h1>سلام {me?.user.short_name || me?.user.name}</h1><div className="row"><Link className="btn" to="/reports/daily">گزارش روزانه</Link><Link className="btn" to="/reports/inventory">گزارش‌ها</Link></div></div>
       <div className="quick">{QUICK.filter((q) => !q.perm || can(q.perm as 'finance.view')).map((q) => <Link key={q.to} to={q.to}><I d={q.d} /><span>{q.l}</span></Link>)}</div>
       <h2>نیازمند تصمیم</h2>
       <div className="tiles">{tiles.map(([l, v, to, cls]) => <Link key={l} to={to} className={`tile ${v ? cls : ''}`}><div className="v">{v === undefined ? '…' : fa(v)}</div><div className="l">{l}</div></Link>)}</div>

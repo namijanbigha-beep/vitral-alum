@@ -1,5 +1,6 @@
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { buildXlsx } from '../src/lib/xlsx.js';
 import { setupTestApp, type TestApp, uuid } from './helpers.js';
 
 let t: TestApp;
@@ -114,5 +115,61 @@ describe('private upload and download', () => {
     const res = await upload(staff, { kind: 'other' }, { name: 'big.bin', data: big, type: 'application/octet-stream' });
     expect(res.statusCode).toBe(400);
     expect(res.json().error.code).toBe('validation');
+  });
+});
+
+describe('§18 — import files go through /files with kind=import', () => {
+  const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const sheet = () => buildXlsx([{ name: 'products', header: ['کد', 'نام فارسی', 'وزن هر متر (گرم)'], rows: [['9001', 'فریم آزمایشی', '791'], ['9002', 'لنگه آزمایشی', '650']] }]);
+  const preview = (cookie: string, payload: Record<string, unknown>) => t.call(cookie, { method: 'POST', url: '/api/v1/import/preview', payload });
+
+  it('xlsx, csv and json are accepted only as kind=import, only with settings.manage, stored sensitive without a thumbnail', async () => {
+    const asStaff = await upload(staff, { kind: 'import' }, { name: 'p.xlsx', data: sheet(), type: XLSX });
+    expect(asStaff.statusCode).toBe(403);
+    const wrongKind = await upload(manager, { kind: 'other' }, { name: 'p.xlsx', data: sheet(), type: XLSX });
+    expect(wrongKind.statusCode).toBe(400);
+    const csvAsOther = await upload(manager, { kind: 'drawing' }, { name: 'p.csv', data: Buffer.from('a,b\n1,2\n'), type: 'text/csv' });
+    expect(csvAsOther.statusCode).toBe(400);
+    const photoAsImport = await upload(manager, { kind: 'import' }, { name: 'x.jpg', data: await jpegWithGps(), type: 'image/jpeg' });
+    expect(photoAsImport.statusCode).toBe(400);
+
+    const x = await upload(manager, { kind: 'import' }, { name: 'products.xlsx', data: sheet(), type: 'application/octet-stream' });
+    expect(x.statusCode, x.body).toBe(201);
+    expect(x.json()).toEqual(expect.objectContaining({ mime: XLSX, kind: 'import', sensitive: true, has_thumb: false }));
+    const c = await upload(manager, { kind: 'import' }, { name: 'products.csv', data: Buffer.from('\uFEFFکد,نام فارسی\n9003,زوار\n'), type: 'text/plain' });
+    expect(c.statusCode, c.body).toBe(201);
+    expect(c.json().mime).toBe('text/csv');
+    const j = await upload(manager, { kind: 'import' }, { name: 'backup.json', data: Buffer.from(JSON.stringify({ factorApp: { customers: [{ name: 'مشتری قدیمی', phone: '09120000999' }] } })), type: 'application/json' });
+    expect(j.statusCode, j.body).toBe(201);
+    expect(j.json().mime).toBe('application/json');
+    // staff (no finance.view) cannot open the import file afterwards
+    expect((await t.call(staff, { method: 'GET', url: `/api/v1/files/${x.json().id}/download` })).statusCode).toBe(403);
+  });
+
+  it('/import/preview reads the uploaded xlsx, csv and json by file_id and refuses any other file', async () => {
+    const x = (await upload(manager, { kind: 'import' }, { name: 'products.xlsx', data: sheet(), type: XLSX })).json();
+    const px = await preview(manager, { kind: 'products', file_id: x.id });
+    expect(px.statusCode, px.body).toBe(201);
+    expect(px.json().row_count).toBe(2);
+    expect(px.json().rows[0]).toEqual(expect.objectContaining({ code: '9001', name_fa: 'فریم آزمایشی', weight_g_per_m: '791' }));
+
+    const c = (await upload(manager, { kind: 'import' }, { name: 'products.csv', data: Buffer.from('کد,نام فارسی\n9003,زوار\n9004,سپری\n9005,درب\n'), type: 'text/csv' })).json();
+    const pc = await preview(manager, { kind: 'products', file_id: c.id });
+    expect(pc.statusCode, pc.body).toBe(201);
+    expect(pc.json().row_count).toBe(3);
+
+    const j = (await upload(manager, { kind: 'import' }, { name: 'backup.json', data: Buffer.from(JSON.stringify({ factorApp: { customers: [{ name: 'مشتری قدیمی', phone: '09120000999' }], products: [{ code: 'F-1', name: 'قدیمی', weightPerMeter: 500 }] } })), type: 'application/json' })).json();
+    const pj = await preview(manager, { kind: 'factor_app', file_id: j.id });
+    expect(pj.statusCode, pj.body).toBe(201);
+    expect(pj.json().row_count).toBe(2);
+    // a JSON backup is not a spreadsheet (and vice versa): a clear validation error, never a 500
+    expect((await preview(manager, { kind: 'products', file_id: j.id })).statusCode).toBe(400);
+    expect((await preview(manager, { kind: 'factor_app', file_id: x.id })).statusCode).toBe(400);
+
+    const photo = (await upload(manager, { kind: 'bundle' }, { name: 'b.jpg', data: await jpegWithGps(), type: 'image/jpeg' })).json();
+    const pp = await preview(manager, { kind: 'products', file_id: photo.id });
+    expect(pp.statusCode).toBe(400);
+    expect(pp.json().error.fields.file_id).toBeDefined();
+    expect((await preview(staff, { kind: 'products', file_id: x.id })).statusCode).toBe(403);
   });
 });

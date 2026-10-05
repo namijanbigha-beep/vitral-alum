@@ -67,14 +67,15 @@ export function TransferDetail() {
   const version = Number(x.version);
   const lines = (x.lines as Array<Record<string, unknown>>) ?? [];
   const tickets = (x.scale_tickets as Array<Record<string, unknown>>) ?? [];
-  const policy = x.documents_policy as { missing?: string[] } | undefined;
+  // Server lists what the document policy still lacks; older servers sent only the policy, so absent → no banner.
+  const missingDocs = Array.isArray(x.documents_missing) ? (x.documents_missing as string[]) : [];
   const status = String(x.status);
   const canReceive = !['draft', 'received', 'delivered'].includes(status);
   return (
     <div className="stack">
       <Back to="/transfers">بارها</Back>
       <div className="row between"><h1>حواله {fa(String(x.number))} — {ev(x.kind)}</h1><div className="row"><Status s={status} map={TSTATUS} />{status === 'draft' && <Link className="btn" to={`/transfers/${id}/edit`}>ویرایش</Link>}</div></div>
-      {policy?.missing?.length ? <div className="alert warn">مدارک ناقص: {policy.missing.map((m) => E[m] ?? ({ load_photo: 'عکس بار', waybill: 'بارنامه', scale_ticket: 'قبض باسکول', delivery_receipt: 'رسید تحویل' } as Record<string, string>)[m] ?? m).join('، ')}</div> : null}
+      {missingDocs.length ? <div className="alert warn">مدارک ناقص: {missingDocs.map((m) => DOC_FA[m] ?? E[m] ?? m).join('، ')}</div> : null}
       <div className="card"><Details r={x} keys={['from_name', 'to_name', 'order_numbers', 'departed_at', 'eta', 'received_at', 'receiver_name', 'transport_mode', 'vehicle_type', 'plate', 'driver_name', 'driver_phone', 'waybill_no', 'border', 'is_export', 'consignee', 'destination_country', 'destination_city', 'destination_address', 'delivery_term', 'freight_payer', 'print_count', 'note']} />
         {can('finance.view') && x.freight_cost ? <div className="row" style={{ marginTop: 6 }}><span className="badge">کرایه {money(x.freight_cost, String(x.freight_currency))}</span>{x.freight_document_id ? <Link className="badge ok" to={`/documents/${x.freight_document_id}`}>سند هزینه کرایه</Link> : null}</div> : null}
         {weights.data && <div className="row" style={{ marginTop: 6 }}><span className="badge">اعلامی {num(weights.data.declared_kg, 'weight')} کیلو</span><span className="badge">دریافتی {num(weights.data.received_kg, 'weight')} کیلو</span></div>}
@@ -98,6 +99,8 @@ export function TransferDetail() {
     </div>
   );
 }
+
+const DOC_FA: Record<string, string> = { load_photo: 'عکس بار', load: 'عکس بار', vehicle: 'عکس ماشین', package: 'عکس بسته‌بندی', waybill: 'بارنامه', scale_ticket: 'قبض باسکول', delivery_receipt: 'رسید تحویل', receipt: 'رسید', packing_list: 'لیست بسته‌بندی' };
 
 /** Packing list editor (R04): per product/filler/colour/length, packages × bars per package, weight mode. */
 export function PackingPage() {

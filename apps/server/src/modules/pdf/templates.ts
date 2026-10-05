@@ -144,3 +144,53 @@ export function bundleLabelHtml(b: { code: string; product: string; filler_mm: s
   <div class="kv"><div>فیلر: ${b.filler_mm ? n(b.filler_mm, 'filler') + ' میلی‌متر' : '—'}</div><div>طول: ${b.length_m ? n(b.length_m, 'length') + ' متر' : '—'}</div><div>تعداد: ${b.bars !== null ? n(b.bars) + ' شاخه' : '—'}</div><div>وزن: <b>${n(b.weight_kg, 'weight')} کیلوگرم</b></div><div>وزن هر متر: ${b.g_per_m ? n(b.g_per_m, 'g_per_m') + ' گرم' : '—'}</div><div>تاریخ: ${jd(b.reported_at)}</div></div>
   ${b.url ? `<div class="muted" style="margin-top:12px;direction:ltr;text-align:center;word-break:break-all">${esc(b.url)}</div>` : ''}</body></html>`;
 }
+
+export interface DailyDoc {
+  report: { date: string; decisions: { quarantine: Array<Record<string, unknown>>; weight_warnings: Array<Record<string, unknown>>; incomplete_documents: Array<Record<string, unknown>>; pending_money: number }; production: { groups: Array<{ product_name: string; total_kg: string; bundles: Array<{ code: string; weight_kg: string; bars: number | null; g_per_m: string | null; note: string | null; mixed: boolean; status: string }> }>; total_kg: string; bundle_count: number }; transfers: Array<Record<string, unknown>>; filler_checks: Array<Record<string, unknown>>; money: Array<Record<string, unknown>> | null; free_notes: Array<Record<string, unknown>>; tasks: { closed: Array<Record<string, unknown>>; open: Array<Record<string, unknown>> } };
+  /** finance.view: money section and amounts; otherwise no money at all (principle 6). */
+  finance: boolean;
+  /** «نسخه کامل»: bars, weight per metre and notes next to each bundle (spec §12-a). */
+  full: boolean;
+  seller: Seller;
+  /** A moment inside the report's Tehran day, for the printed Jalali date. */
+  day: Date;
+  meta: DocMeta;
+}
+const MONEY_STATUS_FA: Record<string, string> = { draft: 'پیش‌نویس', reported: 'گزارش‌شده', posted: 'قطعی', void: 'باطل', needs_completion: 'نیازمند تکمیل' };
+/** Weight as in the report text (§12-a): Persian digits, no trailing decimal zeros («۳۹۴»، «۲۱۳٫۵»). */
+const kgt = (v: unknown): string => (v === null || v === undefined ? '—' : n(v, 'weight').replace(/٫([۰-۹]*?)۰+$/, (_m, d: string) => (d ? `٫${d}` : '')));
+const STATUS_FA: Record<string, string> = { ok: 'سالم', damaged: 'دارای خرابی', wrong_product: 'اشتباه تولید', pending_review: 'در انتظار بررسی', scrapped: 'ضایعات' };
+const DOC_KIND_FA: Record<string, string> = { ...KIND_FA, scale_ticket: 'قبض باسکول' };
+const TRANSFER_STATUS_FA: Record<string, string> = { draft: 'پیش‌نویس', dispatched: 'ارسال‌شده', in_transit: 'در مسیر', at_border: 'مرز', partially_received: 'دریافت بخشی', received: 'دریافت‌شده', delivered: 'تحویل‌شده' };
+
+/** Daily report (module 10, §14/§15): the same sections as the report text — decisions, production per product with totals, loads, filler checks, money (finance only), notes, tasks. */
+export function dailyReportHtml(d: DailyDoc, fontCss: string): string {
+  const r = d.report;
+  const title = 'گزارش روزانه';
+  const s = (v: unknown) => esc(v === null || v === undefined ? '—' : String(v));
+  const dec = r.decisions;
+  const decisions = [
+    ...dec.quarantine.map((q) => `<tr><td>بندیل قرنطینه</td><td>${toPersianDigits(s(q.code))}</td><td>${s(STATUS_FA[String(q.status)] ?? q.status)}${q.defect ? ` — ${s(q.defect)}` : ''}${q.qc_note ? ` — ${s(q.qc_note)}` : ''}</td><td class="num">${kgt(q.weight_kg)}</td></tr>`),
+    ...dec.weight_warnings.map((w) => `<tr><td>هشدار وزن</td><td>${toPersianDigits(s(w.code))}</td><td>${esc((Array.isArray(w.warnings) ? (w.warnings as Array<Record<string, unknown>>).map((x) => String(x.message ?? x.kind ?? '')) : []).join('، '))}</td><td class="num">${kgt(w.weight_kg)}</td></tr>`),
+    ...dec.incomplete_documents.map((x) => `<tr><td>مدرک ناقص</td><td>${toPersianDigits(s(x.number ?? x.transfer_number))}</td><td>${s(DOC_KIND_FA[String(x.type === 'scale_ticket' ? 'scale_ticket' : x.kind)] ?? x.kind)}</td><td></td></tr>`),
+  ].join('');
+  const groups = r.production.groups.map((g) => `<tr style="background:#f6f6f6"><td colspan="${d.full ? 5 : 2}"><b>🔹 ${esc(g.product_name)}: ${kgt(g.total_kg)} کیلو</b></td></tr>${g.bundles.map((b) => `<tr><td>${toPersianDigits(esc(b.code))}${b.mixed ? ' <span class="muted">(درهم)</span>' : ''}</td><td class="num">${kgt(b.weight_kg)}</td>${d.full ? `<td class="num">${b.bars === null ? '—' : toPersianDigits(String(b.bars))}</td><td class="num">${b.g_per_m ? n(b.g_per_m, 'g_per_m') : '—'}</td><td>${[b.status !== 'ok' ? STATUS_FA[b.status] ?? b.status : '', b.note ?? ''].filter(Boolean).map(esc).join('، ')}</td>` : ''}</tr>`).join('')}`).join('');
+  const transfers = r.transfers.map((t) => `<tr><td>${toPersianDigits(s(t.number))}</td><td>${s(t.from_name)} ← ${s(t.to_name)}</td><td class="num">${kgt(t.kg)}</td><td class="num">${t.received_kg && Number(t.received_kg) ? kgt(t.received_kg) : '—'}</td><td class="num">${n(t.tickets)}</td><td>${s(TRANSFER_STATUS_FA[String(t.status)] ?? t.status)}</td><td>${toPersianDigits(s(t.plate))}</td></tr>`).join('');
+  const fillers = r.filler_checks.map((f) => `<tr><td>${toPersianDigits(s(f.die_code))}</td><td>${f.kind === 'filler_check' ? 'چک فیلر' : f.kind === 'repair' ? 'تعمیر' : 'آسیب'}</td><td class="num">${f.measured_filler_mm ? n(f.measured_filler_mm, 'filler') : '—'}</td><td>${s(f.detail)}</td></tr>`).join('');
+  const money = d.finance && r.money ? r.money.map((m) => `<tr><td>${toPersianDigits(s(m.number))}</td><td>${m.kind === 'receipt' ? 'دریافت' : 'پرداخت'}</td><td>${s(m.party_name)}</td><td class="num">${n(m.amount, m.currency as Currency)} ${CUR[m.currency as Currency]?.fa ?? ''}</td><td>${s(MONEY_STATUS_FA[String(m.status)] ?? m.status)}</td><td>${s(m.reported_by_name)}</td></tr>`).join('') : '';
+  const notes = r.free_notes.map((x) => `<tr><td>${s(x.user_name)}</td><td class="words">${s(x.text)}</td><td class="num">${x.kg ? kgt(x.kg) : '—'}</td>${d.finance ? `<td class="num">${x.amount ? `${n(x.amount, (x.currency as Currency) ?? 'TOMAN')} ${CUR[(x.currency as Currency) ?? 'TOMAN']?.fa ?? ''}` : '—'}</td>` : ''}</tr>`).join('');
+  const tasks = [...r.tasks.closed.map((x) => `<tr><td>✅ بسته‌شده</td><td>${s(x.title)}</td><td>${s(x.assignee)}</td><td>${s(x.done_note)}</td></tr>`), ...r.tasks.open.map((x) => `<tr><td>باز</td><td>${s(x.title)}</td><td>${s(x.assignee)}</td><td>${x.due_at ? jd(x.due_at as string) : '—'}</td></tr>`)].join('');
+  const empty = (cols: number) => `<tr><td colspan="${cols}" class="muted">موردی نیست</td></tr>`;
+  return `<!doctype html><html lang="fa"><head><meta charset="utf-8"><title>${title} ${esc(r.date)}</title><style>${baseCss('rtl', fontCss, { watermark: d.meta.env !== 'production' ? 'x' : null, footer: `${title} ${r.date}` })}</style></head><body>
+  ${head('fa', d.seller, title, r.date, d.day, d.meta)}
+  <h2>۱. نیازمند تصمیم</h2><table><thead><tr><th>نوع</th><th>کد / شماره</th><th>شرح</th><th>وزن (کیلو)</th></tr></thead><tbody>${decisions || empty(4)}</tbody></table>
+  ${d.finance && dec.pending_money ? `<div class="muted">${toPersianDigits(String(dec.pending_money))} دریافت/پرداخت در انتظار تأیید</div>` : ''}
+  <h2>۲. موجودی تولیدشده — کد بندیل » وزن بندیل</h2><table><thead><tr><th>کد بندیل</th><th>وزن (کیلو)</th>${d.full ? '<th>شاخه</th><th>وزن هر متر (گرم)</th><th>توضیح</th>' : ''}</tr></thead><tbody>${groups || empty(d.full ? 5 : 2)}</tbody>
+  <tfoot><tr><th>✅ جمع کل: ${kgt(r.production.total_kg)} کیلو</th><th colspan="${d.full ? 4 : 1}">📦 تعداد بندیل: ${toPersianDigits(String(r.production.bundle_count))}</th></tr></tfoot></table>
+  <h2>۳. بارهای رفته و آمده</h2><table><thead><tr><th>شماره</th><th>مسیر</th><th>وزن (کیلو)</th><th>دریافتی (کیلو)</th><th>قبض</th><th>وضعیت</th><th>پلاک</th></tr></thead><tbody>${transfers || empty(7)}</tbody></table>
+  <h2>۴. چک فیلر قالب‌ها</h2><table><thead><tr><th>قالب</th><th>رویداد</th><th>فیلر (میلی‌متر)</th><th>شرح</th></tr></thead><tbody>${fillers || empty(4)}</tbody></table>
+  ${d.finance ? `<h2>۵. وجوه گزارش‌شده</h2><table><thead><tr><th>شماره</th><th>نوع</th><th>طرف</th><th>مبلغ</th><th>وضعیت</th><th>ثبت‌کننده</th></tr></thead><tbody>${money || empty(6)}</tbody></table>` : ''}
+  <h2>${d.finance ? '۶' : '۵'}. ثبت‌های آزاد</h2><table><thead><tr><th>کاربر</th><th>متن</th><th>کیلو</th>${d.finance ? '<th>مبلغ</th>' : ''}</tr></thead><tbody>${notes || empty(d.finance ? 4 : 3)}</tbody></table>
+  <h2>${d.finance ? '۷' : '۶'}. کارها</h2><table><thead><tr><th>وضعیت</th><th>عنوان</th><th>مسئول</th><th>توضیح / موعد</th></tr></thead><tbody>${tasks || empty(4)}</tbody></table>
+  </body></html>`;
+}

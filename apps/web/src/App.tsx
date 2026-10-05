@@ -4,6 +4,8 @@ import { useAuth } from './lib/auth.js';
 import { BackupPage } from './pages/Backup.js';
 import { BundleDetail, BundleForm, BundlesPage } from './pages/Bundles.js';
 import { ContractForm, ContractsPage, DieDetail, DieForm, DiesPage, LocationForm, LocationsPage, PartiesPage, PartyDetail, PartyForm, ProductDetail, ProductForm, ProductsPage } from './pages/Catalog.js';
+import { DieOrderDetail, DieOrderForm, DieOrdersPage } from './pages/DieOrders.js';
+import { HelpPage } from './pages/Help.js';
 import { DailyReportPage, GalleryPage, NoteDetail, NoteForm, NotesPage, NotificationsPage, SearchPage, TaskDetail, TaskForm, TasksPage } from './pages/Daily.js';
 import { HomePage } from './pages/Home.js';
 import { LoginPage } from './pages/Login.js';
@@ -32,6 +34,7 @@ export function App() {
         {/* catalog */}
         <Route path="products" element={<ProductsPage />} /><Route path="products/new" element={<ProductForm />} /><Route path="products/:id" element={<ProductDetail />} /><Route path="products/:id/edit" element={<ProductForm />} />
         <Route path="dies" element={<DiesPage />} /><Route path="dies/new" element={<DieForm />} /><Route path="dies/:id" element={<DieDetail />} /><Route path="dies/:id/edit" element={<DieForm />} />
+        <Route path="die-orders" element={<DieOrdersPage />} /><Route path="die-orders/new" element={<DieOrderForm />} /><Route path="die-orders/:id" element={<DieOrderDetail />} /><Route path="die-orders/:id/edit" element={<DieOrderForm />} />
         <Route path="parties" element={<PartiesPage />} /><Route path="parties/new" element={<PartyForm />} /><Route path="parties/:id" element={<PartyDetail />} /><Route path="parties/:id/edit" element={<PartyForm />} />
         <Route path="contracts" element={<ContractsPage />} /><Route path="contracts/new" element={<ContractForm />} /><Route path="contracts/:id" element={<ContractForm />} />
         <Route path="locations" element={<LocationsPage />} /><Route path="locations/new" element={<LocationForm />} /><Route path="locations/:id" element={<LocationForm />} />
@@ -58,7 +61,7 @@ export function App() {
         {/* reports */}
         <Route path="reports" element={<Navigate to="/reports/daily" replace />} /><Route path="reports/daily" element={<DailyReportPage />} /><Route path="reports/:name" element={<ReportsPage />} /><Route path="import" element={<ImportPage />} />
         {/* settings */}
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="settings" element={<SettingsPage />} /><Route path="help" element={<HelpPage />} />
         <Route path="settings/users" element={<UsersPage />} /><Route path="settings/users/:id" element={<UserFormPage />} />
         <Route path="settings/backup" element={<BackupPage />} /><Route path="settings/password" element={<ChangePasswordPage />} />
         <Route path="settings/telegram" element={<TelegramPage />} /><Route path="settings/share-links" element={<ShareLinksPage />} /><Route path="settings/corrections" element={<CorrectionsPage />} />

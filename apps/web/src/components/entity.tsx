@@ -6,7 +6,8 @@ import { ConflictBanner, JalaliInput, jdate, jdt, MoreButton, money, num, NumInp
 
 /** Persian labels for API fields (one place, used by forms, detail views and 409 banners). */
 export const L: Record<string, string> = {
-  order_numbers: 'سفارش‌ها',
+  order_numbers: 'سفارش‌ها', _row: 'ردیف فایل', weight_source: 'منبع وزن',
+  customer_party_id: 'مشتری', maker_cost: 'هزینه قالب‌ساز', step: 'گام', order_line_id: 'ردیف سفارش', purchase_document_id: 'سند خرید قالب', sample_length_m: 'طول نمونه (متر)', sample_weight_kg: 'وزن نمونه (کیلو)', production_run_id: 'نوبت تولید',
   run_number: 'نوبت تولید', reserved_kg: 'رزروشده (کیلو)', free_kg: 'آزاد (کیلو)', measured_filler_mm: 'فیلر اندازه‌گیری‌شده', measured_length_m: 'طول اندازه‌گیری‌شده', decision_note: 'یادداشت تصمیم',
   code: 'کد', number: 'شماره', name: 'نام', name_fa: 'نام فارسی', name_ar: 'نام عربی', name_en: 'نام انگلیسی', title: 'عنوان', description: 'شرح', note: 'یادداشت', status: 'وضعیت', kind: 'نوع', date: 'تاریخ', created_at: 'ثبت', updated_at: 'آخرین تغییر', version: 'نسخه',
   party_id: 'طرف حساب', party_name: 'طرف حساب', product_id: 'محصول', product_name: 'محصول', location_id: 'مکان', location_name: 'مکان', order_id: 'سفارش', order_number: 'سفارش', die_id: 'قالب', currency: 'ارز', amount: 'مبلغ', weight_kg: 'وزن (کیلو)', kg: 'کیلو', packaging_kg: 'وزن بسته‌بندی', raw_weight_kg: 'وزن خام', bars: 'تعداد شاخه', length_m: 'طول (متر)', filler_mm: 'فیلر (میلی‌متر)', color: 'رنگ', form: 'شکل',
@@ -22,6 +23,10 @@ export const L: Record<string, string> = {
 };
 export const E: Record<string, string> = {
   border: 'گذرگاه',
+  light_line: 'لاین نوری', facade: 'نما', door_window: 'درب و پنجره', misc: 'متفرقه',
+  drawing: 'نقشه', sample: 'نمونه', formula: 'فرمول', proposed: 'پیشنهادی',
+  design: 'طراحی', making: 'در ساخت', needs_repair: 'نیاز به تعمیر',
+  preview: 'پیش‌نمایش', committed: 'ثبت‌شده', reverted: 'برگشت‌خورده',
   customer: 'مشتری', factory: 'کارخانه', painter: 'رنگکار', anodizer: 'آنادایزکار', ingot_supplier: 'تأمین‌کننده شمش', scrap_trader: 'خریدار ضایعات', smelter: 'ذوب‌کار', die_maker: 'قالب‌ساز', carrier: 'حمل‌کننده', tool_supplier: 'تأمین ابزار', other: 'دیگر',
   TOMAN: 'تومان', USD: 'دلار', IQD: 'دینار', raw: 'خام', painted: 'رنگ‌شده', anodized: 'آنادایز', ok: 'سالم', damaged: 'آسیب‌دیده', wrong_product: 'محصول اشتباه', pending_review: 'در انتظار بررسی', scrapped: 'ضایعات شد', consumed: 'مصرف شد', accept: 'قبول', rework: 'بازکاری', discount_sale: 'فروش با تخفیف', scrap: 'ضایعات',
   extrusion: 'اکستروژن', smelting: 'ذوب', paint: 'رنگ پودری', anodize: 'آنادایز', input: 'وزن ورودی', good_output: 'خروجی سالم', vitral: 'ویترال', party: 'طرف', open: 'باز', closed: 'بسته', draft: 'پیش‌نویس', proforma: 'پیش‌فاکتور', approved: 'تأییدشده', cancelled: 'لغو', reported: 'گزارش‌شده', posted: 'قطعی', void: 'باطل', needs_completion: 'ناقص',

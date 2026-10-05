@@ -111,21 +111,41 @@ export function SettingsPage() {
   return (
     <div className="stack">
       <h1>بیشتر</h1>
+      <p className="muted">منوی اصلی چهار بخش دارد (خلاصه، محصولات، سفارش‌ها، حساب‌ها)؛ بقیه بخش‌ها اینجاست.</p>
       <div className="list">
-        <Item to="/products" title="محصولات، قالب‌ها، طرف‌حساب‌ها" sub="کاتالوگ" />
-        <Item to="/dies" title="قالب‌ها" />
-        <Item to="/parties" title="طرف‌حساب‌ها" />
-        <Item to="/contracts" title="قراردادها" />
-        <Item to="/locations" title="مکان‌ها" />
+        <Item to="/help" title="راهنمای کار" sub="قدم‌های کوتاه هر بخش با مثال عددی" />
+      </div>
+      <h2>کارخانه و انبار</h2>
+      <div className="list">
+        <Item to="/bundles" title="بندیل‌ها" />
         <Item to="/production" title="نوبت‌های تولید" />
         <Item to="/coating" title="رنگ و پوشش" />
+        <Item to="/transfers" title="بارها و حواله‌ها" />
         <Item to="/scale" title="قبض‌های باسکول" />
-        <Item to="/materials" title="مواد اولیه و خرید" />
+        <Item to="/stock" title="انبار و وزن کجاست" />
+        <Item to="/materials" title="مواد اولیه و خرید" sub="شمش، بیلت، ضایعات، رنگ" />
+      </div>
+      <h2>کاتالوگ</h2>
+      <div className="list">
+        <Item to="/dies" title="قالب‌ها" />
+        <Item to="/die-orders" title="سفارش ساخت قالب" sub="شش گام از نقشه تا ثبت رسمی" />
+        <Item to="/contracts" title="قراردادها و نرخ‌ها" />
+        <Item to="/locations" title="مکان‌ها" />
+      </div>
+      <h2>مالی</h2>
+      <div className="list">
+        <Item to="/documents" title="اسناد مالی" sub="دریافت، پرداخت، فاکتور، هزینه" />
         <Item to="/accounts" title="حساب‌ها و صندوق" />
         <Item to="/fx-rates" title="نرخ ارز" />
+        <Item to="/settings/corrections" title="درخواست‌های اصلاح" sub="اصلاح سند قطعی بدون دستکاری" />
+      </div>
+      <h2>روزانه و گزارش</h2>
+      <div className="list">
+        <Item to="/reports/daily" title="گزارش روزانه" />
+        <Item to="/reports/inventory" title="گزارش‌ها" sub="فروش، مطالبات، موجودی، کارگاه‌ها و…" />
+        <Item to="/notes" title="یادداشت‌های آزاد" sub="متن و ویس، رسیدگی مالی" />
         <Item to="/tasks" title="کارها" />
         <Item to="/gallery" title="گالری عکس‌ها" />
-        <Item to="/settings/corrections" title="درخواست‌های اصلاح" sub="اصلاح سند قطعی بدون دستکاری" />
       </div>
       <h2>حساب من</h2>
       <div className="list">

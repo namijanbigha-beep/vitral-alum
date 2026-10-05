@@ -47,6 +47,7 @@ export async function loadCoatingRun(db: Db | Trx, id: string) {
   return { ...r, items: items.map((i) => ({ ...i, gain: i.coated_kg === null ? null : weightGain(i.raw_kg, i.coated_kg) })), totals };
 }
 
+/** Settings `coating_gain_range_percent` (paint) and `anodize_gain_range_percent` (anodize); D4 — NULL until the client decides. */
 async function gainRange(db: Db | Trx, service: string): Promise<{ min: string; max: string } | null> {
   const v = await getSetting<{ min: string; max: string } | null>(db, service === 'anodize' ? 'anodize_gain_range_percent' : 'coating_gain_range_percent');
   return v && v.min !== undefined && v.max !== undefined ? v : null;
@@ -157,7 +158,8 @@ export function coatingRoutes(app: FastifyInstance, ctx: AppContext): void {
       if (item.coated_kg !== null) throw new AppError('validation', 'این بندیل قبلاً برگشت خورده است');
       const b = await trx.selectFrom('bundles').selectAll().where('id', '=', item.bundle_id).forUpdate().executeTakeFirstOrThrow();
       const g = weightGain(item.raw_kg, it.coated_kg)!;
-      const needsReview = range !== null && g.percent !== null && (new Dec(g.percent).lt(range.min) || new Dec(g.percent).gt(range.max));
+      // Module 5: outside the normal range of this service (paint or anodize, if set) or negative → «نیازمند بررسی».
+      const needsReview = new Dec(g.gain_kg).lt(0) || (range !== null && g.percent !== null && (new Dec(g.percent).lt(range.min) || new Dec(g.percent).gt(range.max)));
       if (needsReview) flagged.push(`${b.code} (${g.percent}٪)`);
       await trx.updateTable('coating_run_items').set({ coated_kg: it.coated_kg, bars_returned: it.bars_returned ?? null, qc: it.qc, note: it.note ?? null, returned_at: at, gain_needs_review: needsReview, ...bump }).where('id', '=', item.id).execute();
       // Weight changes between send and return: the bundle leaves with raw kg and arrives with coated kg (gain appears as a positive adjustment at the painter).

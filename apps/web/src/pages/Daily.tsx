@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query';
 import { formatJalali, jalaliOf, toGregorian, toJalali } from '@vitral/shared';
 import { Action, Details, E, EntityForm, ev, FieldEditor, L, ListPage, showOrder, showParty, showProduct, useForm, type FieldSpec } from '../components/entity.js';
-import { Back, ConflictBanner, FileUpload, JalaliInput, Status, Table, Tabs, Thumb, fa, jdt, money, num } from '../components/ui.js';
+import { Back, ConflictBanner, FileUpload, JalaliInput, PdfButtons, Status, Table, Tabs, Thumb, fa, jdt, money, num } from '../components/ui.js';
 import { useAuth } from '../lib/auth.js';
 import { downloadBlob, qs, useAct, useOne } from '../lib/hooks.js';
 import { api } from '../api/client.js';
@@ -134,7 +134,10 @@ export function DailyReportPage() {
   const makeShare = async () => { const s = await api<{ url: string }>('POST', '/share-links', { body: { scope_type: 'daily_report', scope_date: dateArg, expires_in_days: 7 }, idempotencyKey: crypto.randomUUID() }); setShare(`${location.origin}${s.url}`); };
   return (
     <div className="stack">
-      <div className="row between"><h1>گزارش روزانه</h1><div className="row"><label className="row"><span className="muted">تاریخ</span><JalaliInput value={date ? isoOfJalali(date) : null} onChange={(iso) => { const n = new URLSearchParams(sp); if (iso) n.set('date', jalaliOfIso(iso)); else n.delete('date'); setSp(n); }} /></label>{can('finance.view') && <button className="btn" onClick={() => snap.mutate({ date: dateArg })}>ثبت نسخه قطعی</button>}<button className="btn" onClick={() => void makeShare()}>لینک مهمان</button><button className="btn" onClick={() => void downloadBlob(`/reports/daily/photos.zip${qs({ date: dateArg })}`, `photos-${dateArg.replace(/\//g, '-')}.zip`)}>عکس‌های روز (zip)</button></div></div>
+      <div className="row between"><h1>گزارش روزانه</h1><div className="row"><label className="row"><span className="muted">تاریخ</span><JalaliInput value={date ? isoOfJalali(date) : null} onChange={(iso) => { const n = new URLSearchParams(sp); if (iso) n.set('date', jalaliOfIso(iso)); else n.delete('date'); setSp(n); }} /></label>{can('settings.manage') && <button className="btn" disabled={snap.isPending} onClick={() => snap.mutate({ date: dateArg })}>ثبت نسخه قطعی</button>}<button className="btn" onClick={() => void makeShare()}>لینک مهمان</button><button className="btn" onClick={() => void downloadBlob(`/reports/daily/photos.zip${qs({ date: dateArg })}`, `photos-${dateArg.replace(/\//g, '-')}.zip`)}>عکس‌های روز (zip)</button></div></div>
+      <div className="row"><span className="muted">PDF گزارش:</span><PdfButtons path="/reports/daily.pdf" name={`daily-${dateArg.replace(/\//g, '-')}`} langs={['fa']} png={false} params={{ date: dateArg, full: tab === 'full' ? 1 : 0 }} label={tab === 'full' ? 'PDF کامل' : 'PDF خلاصه'} /></div>
+      {snap.error && <div className="alert danger">{snap.error.message}</div>}
+      {snap.isSuccess && <div className="alert ok">نسخه قطعی این روز ثبت شد.</div>}
       {share && <div className="alert ok">لینک ۷ روزه: <input dir="ltr" readOnly value={share} onFocus={(e) => e.target.select()} /> <button className="btn" onClick={() => void navigator.clipboard.writeText(share)}>کپی</button></div>}
       {!x && <p className="muted">…</p>}
       {x && prod && <>

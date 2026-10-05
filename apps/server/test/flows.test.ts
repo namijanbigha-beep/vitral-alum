@@ -3,6 +3,7 @@
  * T23, T24, T37, T38, T39, T40, T41, T43, T44, T48, T49, T50, T51, T52, T54.
  */
 import type { LightMyRequestResponse } from 'fastify';
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { findConfidentialKeys } from '../src/lib/confidential.js';
 import { buildXlsx } from '../src/lib/xlsx.js';
@@ -513,5 +514,48 @@ describe('T54 — §18: product import with two bad rows', () => {
     expect(fillers.items[0]).toEqual(expect.objectContaining({ filler_mm: '1.20', weight_g_per_m: '791.0', status: 'approved' }));
     // the same batch cannot be committed twice
     expect((await t.call(m, { method: 'POST', url: `/api/v1/import/${p2.id}/commit`, payload: {}, idempotency: uuid() })).statusCode).toBe(400);
+  });
+});
+
+describe('T44 — security: a guest link opens only the files inside its scope', () => {
+  async function photo(owner: { entity: string; id: string }): Promise<string> {
+    const img = await sharp({ create: { width: 64, height: 64, channels: 3, background: '#a04020' } }).jpeg().toBuffer();
+    const boundary = `----vt${uuid().replace(/-/g, '')}`;
+    const field = (k: string, v: string) => Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="${k}"\r\n\r\n${v}\r\n`);
+    const payload = Buffer.concat([field('kind', 'bundle'), field('owner_entity', owner.entity), field('owner_id', owner.id), Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="p.jpg"\r\nContent-Type: image/jpeg\r\n\r\n`), img, Buffer.from(`\r\n--${boundary}--\r\n`)]);
+    const r = await t.call(m, { method: 'POST', url: '/api/v1/files', payload, headers: { 'content-type': `multipart/form-data; boundary=${boundary}` }, idempotency: uuid() });
+    return expectStatus(r, 201).id as string;
+  }
+  const open = (token: string, fileId: string) => t.app.inject({ method: 'GET', url: `/api/v1/public/share/${token}/files/${fileId}` }).then((r) => r.statusCode);
+  const tokenOf = (link: Record<string, any>) => String(link.url).slice('/s/'.length);
+
+  it('daily_report: only that day\'s production bundles; bundle_gallery: only that bundle; document: only that document → otherwise 404', async () => {
+    const factory = await party('کارخانه اشتراک', ['factory']);
+    const p = await product('پروفیل اشتراک');
+    const run = await post('/api/v1/production-runs', { factory_party_id: factory, lines: [{ product_id: p }] });
+    const mk = (code: string, at: string) => post('/api/v1/bundles', { production_run_id: run.id, code, weight_kg: '300', reported_at: at, lines: [{ product_id: p, length_m: '6' }] });
+    const today = await mk('SH-1', '2026-09-16T08:00:00.000Z'); // 1405/06/25
+    const otherDay = await mk('SH-2', '2026-09-17T08:00:00.000Z'); // 1405/06/26
+    const stock = await stockBundle(p, '120');
+    const inScope = await photo({ entity: 'bundles', id: today.id });
+    const otherDayPhoto = await photo({ entity: 'bundles', id: otherDay.id });
+    const stockPhoto = await photo({ entity: 'bundles', id: stock.id });
+
+    const daily = tokenOf(await post('/api/v1/share-links', { scope_type: 'daily_report', scope_date: '1405/06/25' }));
+    const report = await t.app.inject({ method: 'GET', url: `/api/v1/public/share/${daily}` });
+    expect(report.json().photos.map((x: any) => x.id)).toEqual([inScope]);
+    expect(await open(daily, inScope)).toBe(200);
+    expect(await open(daily, otherDayPhoto)).toBe(404);
+    expect(await open(daily, stockPhoto)).toBe(404);
+
+    const gallery = tokenOf(await post('/api/v1/share-links', { scope_type: 'bundle_gallery', scope_id: otherDay.id }));
+    expect(await open(gallery, otherDayPhoto)).toBe(200);
+    expect(await open(gallery, inScope)).toBe(404);
+    expect(await open(gallery, stockPhoto)).toBe(404);
+
+    const inv = await post('/api/v1/documents', { kind: 'invoice', party_id: customer, lines: [{ description: 'فروش', amount: '1000' }], post: true });
+    const doc = tokenOf(await post('/api/v1/share-links', { scope_type: 'document', scope_id: inv.id }));
+    expect(await open(doc, inScope)).toBe(404);
+    expect(await open(doc, uuid())).toBe(404);
   });
 });

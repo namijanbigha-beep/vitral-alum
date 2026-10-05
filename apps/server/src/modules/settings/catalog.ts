@@ -1,4 +1,4 @@
-import { CURRENCIES, decimalString } from '@vitral/shared';
+import { CURRENCIES, TRANSFER_DOCUMENTS, TRANSFER_KINDS, decimalString } from '@vitral/shared';
 import { z, type ZodTypeAny } from 'zod';
 
 export interface SettingDef {
@@ -20,6 +20,11 @@ const pattern = z
   .refine((v) => /\{seq(:\d)?\}/.test(v), 'الگو باید {seq} داشته باشد')
   .refine((v) => /^[A-Za-z0-9\-_/{}:]+$/.test(v), 'فقط حروف لاتین، عدد و - _ / مجاز است');
 
+const gainRange = z
+  .object({ min: decimalString, max: decimalString })
+  .refine((r) => Number(r.min) <= Number(r.max), 'کمینه باید از بیشینه کوچک‌تر باشد')
+  .nullable();
+
 export const SETTINGS_CATALOG: Record<string, SettingDef> = {
   seller_name_fa: { label: 'نام فروشنده (فارسی)', schema: text(200) },
   seller_name_ar: { label: 'نام فروشنده (عربی)', schema: text(200) },
@@ -37,9 +42,13 @@ export const SETTINGS_CATALOG: Record<string, SettingDef> = {
   weight_per_meter_tolerance_percent: { label: 'آستانه اختلاف وزن هر متر (٪)', schema: percent.nullable() },
   bundle_weight_median_threshold_percent: { label: 'آستانه وزن بندیل نسبت به میانه (٪)', schema: percent.nullable() },
   production_balance_threshold_percent: { label: 'آستانه تراز نوبت تولید (٪)', schema: percent.nullable() },
-  coating_gain_range_percent: {
-    label: 'بازه طبیعی افزایش وزن رنگ (٪)',
-    schema: z.object({ min: decimalString, max: decimalString }).nullable(),
+  // Module 5 / D4: the normal weight-gain range, separately for paint and anodize; NULL = no range warning, only the number.
+  coating_gain_range_percent: { label: 'بازه طبیعی افزایش وزن رنگ (٪)', schema: gainRange },
+  anodize_gain_range_percent: { label: 'بازه طبیعی افزایش وزن آنادایز (٪)', schema: gainRange },
+  // Module 6 «سیاست مدارک»: per transfer kind, the documents needed (default: load photo + scale ticket for to_customer and ingot_in).
+  transfer_document_policy: {
+    label: 'سیاست مدارک هر نوع بار',
+    schema: z.record(z.enum(TRANSFER_KINDS), z.array(z.enum(TRANSFER_DOCUMENTS)).max(TRANSFER_DOCUMENTS.length).refine((a) => new Set(a).size === a.length, 'مدرک تکراری است')),
   },
   default_prepay_percent: { label: 'درصد پیش‌پرداخت پیش‌فرض', schema: percent.nullable() },
   default_delivery_days: { label: 'روزهای تحویل پیش‌فرض', schema: z.number().int().min(0).max(365).nullable() },
