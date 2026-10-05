@@ -6,7 +6,7 @@ import { Back, ConflictBanner, FileUpload, NumInput, PdfButtons, Picker, Status,
 import { useAuth } from '../lib/auth.js';
 import { useAct, useOne, newRequestIdSafe } from '../lib/hooks.js';
 import { flushQueue, queue, type QueuedBundle } from '../lib/offline.js';
-import { isOffline } from '../api/client.js';
+import { API, isOffline } from '../api/client.js';
 
 const STATUS: Record<string, [string, string?]> = { ok: ['سالم', 'ok'], damaged: ['آسیب‌دیده', 'danger'], wrong_product: ['محصول اشتباه', 'danger'], pending_review: ['در انتظار بررسی', 'warn'], scrapped: ['ضایعات شد'], consumed: ['مصرف شد'] };
 export const BundlesPage = () => <ListPage title="بندیل‌ها" path="/bundles" newTo="/bundles/new" rowTo={(r) => `/bundles/${r.id}`}
@@ -28,7 +28,7 @@ export function BundleForm() {
   const qc = useQueryClient();
   const refreshQueue = () => void queue.list().then(setQueued).catch(() => setQueued([]));
   useEffect(() => { refreshQueue(); const on = () => void flushQueue().then((r) => { refreshQueue(); if (r.sent) setMsg(`${fa(r.sent)} بندیل صف‌شده ارسال شد`); }); window.addEventListener('online', on); return () => window.removeEventListener('online', on); }, []);
-  const act = useAct<Record<string, unknown>, { id: string; code: string }>('POST', '/bundles', { onSuccess: async (r) => { for (const p of photos) { const fd = new FormData(); fd.set('kind', 'bundle'); fd.set('owner_entity', 'bundles'); fd.set('owner_id', r.id); fd.set('file', p.blob, p.name); await fetch('/api/v1/files', { method: 'POST', body: fd, headers: { 'X-Requested-With': 'vitral', 'Idempotency-Key': newRequestIdSafe() } }); } void qc.invalidateQueries(); nav(`/bundles/${r.id}`); } });
+  const act = useAct<Record<string, unknown>, { id: string; code: string }>('POST', '/bundles', { onSuccess: async (r) => { for (const p of photos) { const fd = new FormData(); fd.set('kind', 'bundle'); fd.set('owner_entity', 'bundles'); fd.set('owner_id', r.id); fd.set('file', p.blob, p.name); await fetch(`${API}/files`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'vitral', 'Idempotency-Key': newRequestIdSafe() } }); } void qc.invalidateQueries(); nav(`/bundles/${r.id}`); } });
   const body = () => ({ ...form, lines: lines.filter((l) => l.product_id).map((l) => ({ ...l, bars: l.bars == null ? null : Number(l.bars) })) });
   const submit = async () => {
     if (isOffline()) { await queue.add(body(), photos); setMsg('اینترنت نیست؛ بندیل در صف ذخیره شد و با اتصال ارسال می‌شود. کد موقت بعداً صادر می‌شود.'); setLines([emptyLine()]); set('weight_kg', null); setPhotos([]); refreshQueue(); return; }

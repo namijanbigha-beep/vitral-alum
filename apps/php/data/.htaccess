@@ -1,0 +1,8 @@
+# Uploaded files, logs and backups are private: never served directly (downloads go through the API's permission checks).
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

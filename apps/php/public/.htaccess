@@ -1,0 +1,37 @@
+# Vitral on Apache / LiteSpeed shared hosting (cPanel). Upload the contents of vitral-app.zip into public_html/app/.
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Never serve application code, data, configuration or data files over HTTP.
+  RewriteRule ^(src|data|migrations|bin|dev|tests)(/|$) - [F,L,NC]
+  RewriteRule (^|/)\. - [F,L]
+  RewriteRule ^config\.php$ - [F,L,NC]
+  RewriteRule \.(json|sql|log|md|sh|lock|ini|dist)$ - [F,L,NC]
+
+  # The API and every client-side route go to the front controller; existing files (assets) are served as is.
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Second line of defence when mod_rewrite rules are skipped.
+<IfModule mod_authz_core.c>
+  <FilesMatch "^(config\.php|\.user\.ini|\.htaccess)$">
+    Require all denied
+  </FilesMatch>
+  <FilesMatch "\.(json|sql|log|md|sh|lock)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+# The API sets its own headers; keep PHP's version out of responses.
+<IfModule mod_headers.c>
+  Header always unset X-Powered-By
+</IfModule>
+
+# Authorization headers reach PHP under CGI/FastCGI as well.
+SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1

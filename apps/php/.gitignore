@@ -1,0 +1,5 @@
+config.php
+config.php.tmp
+dist/
+data/*
+!data/.htaccess
