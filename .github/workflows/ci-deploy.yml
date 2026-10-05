@@ -1,0 +1,62 @@
+# Every push to main: run the checks, then (if they pass and the server secrets are set) update the server.
+# Secrets (GitHub › Settings › Secrets and variables › Actions):
+#   SERVER_HOST      server IP or domain
+#   SERVER_USER      ssh user (e.g. root)
+#   SERVER_SSH_KEY   private key whose public half is in the server's ~/.ssh/authorized_keys
+#   SERVER_DIR       optional; folder of the app on the server (default: vitral in the user's home)
+name: ci-deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vitral
+          POSTGRES_PASSWORD: vitral
+          POSTGRES_DB: vitral_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U vitral" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://vitral:vitral@localhost:5432/vitral_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: PGPASSWORD=vitral psql -h localhost -U vitral -d vitral_test -c "CREATE DATABASE vitral_test_restore"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm --filter @vitral/web build
+
+  deploy:
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update the server
+        env:
+          HOST: ${{ secrets.SERVER_HOST }}
+          USER: ${{ secrets.SERVER_USER }}
+          KEY: ${{ secrets.SERVER_SSH_KEY }}
+          DIR: ${{ secrets.SERVER_DIR }}
+        run: |
+          if [ -z "$HOST" ] || [ -z "$KEY" ]; then echo "Server secrets not set; skipping deploy."; exit 0; fi
+          DIR=${DIR:-vitral}
+          mkdir -p ~/.ssh && printf '%s\n' "$KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
+          SSH="ssh -i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new ${USER:-root}@$HOST"
+          # Ship the exact commit (ops/.env on the server is never touched), then rebuild and restart.
+          git archive --format=tar HEAD | $SSH "mkdir -p $DIR && tar -x -C $DIR"
+          $SSH "cd $DIR && docker compose -f ops/docker-compose.yml --env-file ops/.env up -d --build --remove-orphans && docker image prune -f"
