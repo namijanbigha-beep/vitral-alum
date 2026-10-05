@@ -70,6 +70,11 @@ export function useAct<TBody = unknown, TRes = unknown>(method: 'POST' | 'PATCH'
 export async function downloadBlob(url: string, filename: string): Promise<void> {
   const res = await fetch(`/api/v1${url}`, { credentials: 'same-origin', headers: { 'X-Requested-With': 'vitral' } });
   if (!res.ok) throw new Error(`download ${res.status}`);
+  if (/\.(pdf|png)$/.test(filename) && (res.headers.get('content-type') ?? '').startsWith('text/html')) {
+    // Server has no PDF renderer (shared hosting): it sent a print page instead — open it so the browser's «Save as PDF» runs.
+    if (!window.open(`/api/v1${url}`, '_blank')) window.location.assign(`/api/v1${url}`);
+    return;
+  }
   const blob = await res.blob();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = filename; a.click();

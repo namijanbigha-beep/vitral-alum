@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { Dec, round, toLatinDigits, type Currency } from '@vitral/shared';
 import { sql } from 'kysely';
@@ -38,6 +40,8 @@ async function fileDataUri(db: Db | Trx, storage: AppContext['storage'], fileId:
 
 export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
   const { db, storage, config } = ctx;
+  let chromium: boolean | undefined;
+  const chromiumAvailable = () => (chromium ??= existsSync(config.CHROMIUM_PATH));
   const meta = (user: AuthUser, version: number, printCount: number, draft: boolean): DocMeta => ({ env: config.NODE_ENV, version, issued_by: user.name, print_count: printCount, draft });
 
   /**
@@ -46,6 +50,13 @@ export function pdfRoutes(app: FastifyInstance, ctx: AppContext): void {
    */
   async function send(reply: FastifyReply, html: string, format: 'pdf' | 'png' | 'html', filename: string, onPdf?: (pdf: Buffer) => Promise<void>): Promise<void> {
     if (format === 'html') { reply.header('Content-Security-Policy', PREVIEW_CSP).type('text/html; charset=utf-8').send(html); return; }
+    if (!chromiumAvailable()) {
+      // Shared hosting has no Chromium: hand the same page to the browser and open its print dialog («Save as PDF»).
+      const nonce = randomUUID().replace(/-/g, '');
+      const page = html.replace('</body>', `<script nonce="${nonce}">addEventListener('load',()=>setTimeout(()=>print(),300))</script></body>`);
+      reply.header('Content-Security-Policy', `${PREVIEW_CSP}; script-src 'nonce-${nonce}'`).type('text/html; charset=utf-8').send(page);
+      return;
+    }
     const r = await renderPdf(config, html, format === 'png');
     if (onPdf) await onPdf(r.pdf);
     const body = format === 'png' ? r.png! : r.pdf;
