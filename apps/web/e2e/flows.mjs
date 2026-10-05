@@ -102,7 +102,10 @@ assert.ok(body.includes(`مشتری آزمون ${tag}`), 'proforma names the buy
 assert.ok(body.includes('۸۳۱٬۱۲۵٬۷۵۰') || body.includes('831,125,750') || body.includes('۸۳۱,۱۲۵,۷۵۰'), 'proforma shows the line amount');
 const pdf = await ctx.request.get(`${URL}/api/v1/orders/${orderId}/proforma?format=pdf`);
 assert.ok(pdf.ok(), 'proforma pdf');
-assert.equal((await pdf.body()).subarray(0, 4).toString(), '%PDF');
+const pdfBody = await pdf.body();
+// Without Chromium on the host (shared hosting) the server answers with the print page instead of PDF bytes.
+if ((pdf.headers()['content-type'] ?? '').includes('application/pdf')) assert.equal(pdfBody.subarray(0, 4).toString(), '%PDF');
+else assert.ok(pdfBody.toString().includes('print()'), 'proforma print page');
 const after = await api('GET', `/orders/${orderId}`);
 assert.equal(after.print_count, (order.print_count ?? 0) + 1, 'T48: print_count +1 per PDF print');
 console.log('  order', order.number, 'amount', order.lines[0].amount);
