@@ -21,6 +21,7 @@ export type DecimalInput = string | number | Decimal;
 
 const D = Decimal.clone({ precision: 40, rounding: Decimal.ROUND_HALF_UP });
 export { D as Dec };
+export type Dec = Decimal;
 
 export function dec(value: DecimalInput): Decimal {
   return new D(value);

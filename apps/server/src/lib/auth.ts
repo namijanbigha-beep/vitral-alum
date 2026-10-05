@@ -69,8 +69,8 @@ export async function loadSessionUser(db: Db, secret: string, token: string | un
     id: row.user_id,
     sessionId: row.session_id,
     name: row.name,
-    role: row.role,
-    permissions: effectivePermissions(row.role, row.permissions),
+    role: row.role as Role,
+    permissions: effectivePermissions(row.role as Role, row.permissions),
   };
 }
 
@@ -86,4 +86,12 @@ export function setSessionCookie(reply: FastifyReply, token: string, expires: Da
 
 export function clearSessionCookie(reply: FastifyReply, secure: boolean): void {
   reply.clearCookie(SESSION_COOKIE, { httpOnly: true, secure, sameSite: 'lax', path: '/' });
+}
+
+/** Bot service identity: an active user by id, with the same effective permissions as a web session. */
+export async function loadBotUser(db: Db, userId: string): Promise<AuthUser | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return null;
+  const row = await db.selectFrom('users').select(['id', 'name', 'role', 'permissions', 'active']).where('id', '=', userId).executeTakeFirst();
+  if (!row || !row.active) return null;
+  return { id: row.id, sessionId: 'bot', name: row.name, role: row.role as Role, permissions: effectivePermissions(row.role as Role, row.permissions) };
 }

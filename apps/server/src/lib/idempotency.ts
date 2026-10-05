@@ -48,7 +48,7 @@ export async function withIdempotency(
       if (existing.user_id !== userId || existing.endpoint !== endpoint || existing.response === null) {
         throw new AppError('conflict', 'این کلید یکتا قبلاً برای درخواست دیگری به کار رفته است');
       }
-      return { ...(existing.response as StoredResponse), replayed: true };
+      return { ...(existing.response as unknown as StoredResponse), replayed: true };
     }
 
     const result = await work(trx);

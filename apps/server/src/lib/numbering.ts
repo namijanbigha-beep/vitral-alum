@@ -34,14 +34,19 @@ async function setting(trx: Trx, key: string): Promise<unknown> {
   return row?.value ?? null;
 }
 
+/** Kinds stored in the single `documents` table, whose `number` is unique across kinds. */
+const FINANCIAL_DOCUMENT_KINDS = new Set(['invoice', 'sales_return', 'purchase', 'toll_fee', 'expense', 'receipt', 'payment', 'barter', 'opening_balance', 'fx_difference']);
+
 export async function nextNumber(trx: Trx, kind: string, at: Date = new Date()): Promise<string> {
   const patterns = ((await setting(trx, 'numbering_patterns')) ?? {}) as Record<string, string>;
   const pattern = patterns[kind] ?? ((await setting(trx, 'default_numbering_pattern')) as string | null) ?? 'VT-{seq:4}';
   const timeZone = ((await setting(trx, 'time_zone')) as string | null) ?? 'Asia/Tehran';
   const period = counterPeriod(pattern, at, timeZone);
+  // Financial documents without a pattern of their own share one counter: they live in one table with one unique number column.
+  const counterKind = !patterns[kind] && FINANCIAL_DOCUMENT_KINDS.has(kind) ? 'document' : kind;
   const row = await trx
     .insertInto('counters')
-    .values({ kind, year: period, last_value: 1 })
+    .values({ kind: counterKind, year: period, last_value: 1 })
     .onConflict((oc) => oc.columns(['kind', 'year']).doUpdateSet({ last_value: sql`counters.last_value + 1` }))
     .returning('last_value')
     .executeTakeFirstOrThrow();

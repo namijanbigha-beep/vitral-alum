@@ -1,10 +1,14 @@
 import type { Kysely } from 'kysely';
 import { Migrator, type Migration, type MigrationProvider } from 'kysely/migration';
 import * as m0001 from './migrations/0001_base.js';
+import * as m0002 from './migrations/0002_domain.js';
+import * as m0003 from './migrations/0003_bundle_code_warning.js';
 
 /** Versioned migrations, listed explicitly so the order never depends on the file system. */
 const MIGRATIONS: Record<string, Migration> = {
   '0001_base': m0001,
+  '0002_domain': m0002,
+  '0003_bundle_code_warning': m0003,
 };
 
 class StaticProvider implements MigrationProvider {

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { sql } from 'kysely';
 import type { AppContext } from '../../context.js';
 import { audit } from '../../lib/audit.js';
-import { requirePermission } from '../../lib/auth.js';
+import { requirePermission, requireUser } from '../../lib/auth.js';
 import { AppError } from '../../lib/errors.js';
 import { requireIdempotencyKey, withIdempotency } from '../../lib/idempotency.js';
 import { decodeCursor, encodeCursor, listQuery } from '../../lib/pagination.js';
@@ -43,6 +43,13 @@ export async function userRoutes(app: FastifyInstance, ctx: AppContext): Promise
       items: page.map(presentUser),
       next_cursor: rows.length > q.limit && last ? encodeCursor(last.created_at, last.id) : null,
     };
+  });
+
+  /** Names only, for assigning tasks and @mentions; any signed-in user. */
+  app.get('/users/directory', async (req) => {
+    requireUser(req);
+    const rows = await db.selectFrom('users').select(['id', 'name', 'short_name', 'role']).where('active', '=', true).orderBy('name').execute();
+    return { items: rows };
   });
 
   app.get('/users/:id', async (req) => {

@@ -19,6 +19,16 @@ const envSchema = z.object({
   SESSION_TTL_DAYS: z.coerce.number().int().positive().default(14),
   LOG_LEVEL: z.string().default('info'),
   LOGIN_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(20),
+  /** Headless Chromium used for PDF/PNG documents (spec §14). */
+  CHROMIUM_PATH: z.string().default('/opt/pw-browsers/chromium-1194/chrome-linux/chrome'),
+  /** Vazirmatn variable font embedded into every PDF. */
+  VAZIRMATN_PATH: z.string().optional(),
+  /** Service key the Telegram bot presents on /internal/bot/*; unset disables those routes. */
+  BOT_SERVICE_KEY: z.string().min(32).optional(),
+  /** Public origin used in guest links and bot messages, e.g. https://app.example.com */
+  PUBLIC_URL: z.string().url().optional(),
+  /** Nightly report time (Tehran, HH:MM). */
+  DAILY_REPORT_TIME: z.string().regex(/^\d{2}:\d{2}$/).default('21:00'),
 });
 
 export type Config = z.infer<typeof envSchema>;

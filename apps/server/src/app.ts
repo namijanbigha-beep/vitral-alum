@@ -1,4 +1,6 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID, timingSafeEqual } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 import Fastify, { type FastifyInstance } from 'fastify';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -7,7 +9,7 @@ import rateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import { ZodError } from 'zod';
 import type { AppContext } from './context.js';
-import { loadSessionUser, SESSION_COOKIE } from './lib/auth.js';
+import { loadBotUser, loadSessionUser, SESSION_COOKIE } from './lib/auth.js';
 import { AppError } from './lib/errors.js';
 import { findConfidentialKeys, stripConfidential } from './lib/confidential.js';
 import { can } from './lib/auth.js';
@@ -17,6 +19,25 @@ import { settingsRoutes } from './modules/settings/routes.js';
 import { fileRoutes } from './modules/files/routes.js';
 import { healthRoutes } from './modules/health/routes.js';
 import { backupRoutes } from './modules/backup/routes.js';
+import { partyRoutes } from './modules/parties/routes.js';
+import { locationRoutes } from './modules/parties/locations.js';
+import { contractRoutes } from './modules/contracts/routes.js';
+import { productRoutes } from './modules/products/routes.js';
+import { dieRoutes } from './modules/dies/routes.js';
+import { orderRoutes } from './modules/orders/routes.js';
+import { productionRoutes } from './modules/production/routes.js';
+import { bundleRoutes } from './modules/bundles/routes.js';
+import { coatingRoutes } from './modules/coating/routes.js';
+import { logisticsRoutes } from './modules/logistics/routes.js';
+import { materialRoutes } from './modules/materials/routes.js';
+import { stockRoutes } from './modules/stock/routes.js';
+import { moneyRoutes } from './modules/money/routes.js';
+import { dailyRoutes } from './modules/daily/routes.js';
+import { reportRoutes } from './modules/reports/routes.js';
+import { pdfRoutes } from './modules/pdf/routes.js';
+import { botRoutes } from './modules/bot/routes.js';
+import { importRoutes } from './modules/import/routes.js';
+import { publicRoutes } from './modules/daily/public.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -80,6 +101,13 @@ export async function buildApp(ctx: AppContext): Promise<FastifyInstance> {
   // Session → request.user, for every request.
   app.decorateRequest('user', null);
   app.addHook('onRequest', async (req) => {
+    // Telegram bot service acts on behalf of a linked user: service key + user id headers (spec §16), never a session.
+    const botKey = req.headers['x-bot-key'];
+    if (typeof botKey === 'string' && config.BOT_SERVICE_KEY && botKey.length === config.BOT_SERVICE_KEY.length && timingSafeEqual(Buffer.from(botKey), Buffer.from(config.BOT_SERVICE_KEY))) {
+      const uid = req.headers['x-bot-user'];
+      req.user = typeof uid === 'string' ? await loadBotUser(ctx.db, uid) : null;
+      return;
+    }
     req.user = await loadSessionUser(ctx.db, config.SESSION_SECRET, req.cookies[SESSION_COOKIE]);
   });
 
@@ -153,15 +181,42 @@ export async function buildApp(ctx: AppContext): Promise<FastifyInstance> {
       await settingsRoutes(api, ctx);
       await fileRoutes(api, ctx);
       await backupRoutes(api, ctx);
+      await partyRoutes(api, ctx);
+      await locationRoutes(api, ctx);
+      await contractRoutes(api, ctx);
+      await productRoutes(api, ctx);
+      await dieRoutes(api, ctx);
+      await orderRoutes(api, ctx);
+      productionRoutes(api, ctx);
+      bundleRoutes(api, ctx);
+      coatingRoutes(api, ctx);
+      logisticsRoutes(api, ctx);
+      materialRoutes(api, ctx);
+      stockRoutes(api, ctx);
+      moneyRoutes(api, ctx);
+      dailyRoutes(api, ctx);
+      reportRoutes(api, ctx);
+      pdfRoutes(api, ctx);
+      botRoutes(api, ctx);
+      importRoutes(api, ctx);
+      publicRoutes(api, ctx);
     },
     { prefix: '/api/v1' },
   );
 
   // The built web app (fonts, icons and scripts all served from here — no CDN).
   if (config.WEB_DIST_DIR) {
-    await app.register(fastifyStatic, { root: config.WEB_DIST_DIR, wildcard: false, index: false });
+    // `serve: false`: files are resolved per request (a rebuilt bundle is served without a restart);
+    // the catch-all below sends the file when it exists and index.html otherwise (SPA routes such as /s/:token).
+    await app.register(fastifyStatic, { root: config.WEB_DIST_DIR, serve: false, index: false });
+    const distRoot = config.WEB_DIST_DIR;
     app.get('/*', async (req, reply) => {
       if (req.url.startsWith('/api/')) return reply.callNotFound();
+      const rel = decodeURIComponent(req.url.split('?')[0] ?? '/').replace(/^\/+/, '');
+      const abs = path.resolve(distRoot, rel);
+      if (rel && abs.startsWith(distRoot + path.sep) && fs.existsSync(abs) && fs.statSync(abs).isFile()) {
+        return reply.header('Cache-Control', rel.startsWith('assets/') ? 'public, max-age=31536000, immutable' : 'no-cache').sendFile(rel);
+      }
       return reply.header('Cache-Control', 'no-cache').sendFile('index.html');
     });
   }

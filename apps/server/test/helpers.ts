@@ -24,7 +24,10 @@ export interface TestApp {
   call(cookie: string | null, opts: InjectOptions & { idempotency?: string }): Promise<LightMyRequestResponse>;
 }
 
-export async function setupTestApp(): Promise<TestApp> {
+/** Optional environment overrides (e.g. `BOT_SERVICE_KEY`); every key is a raw env string as `loadConfig` expects. */
+export type TestEnvOverrides = Partial<Record<string, string>>;
+
+export async function setupTestApp(overrides: TestEnvOverrides = {}): Promise<TestApp> {
   const url = process.env.TEST_DATABASE_URL ?? 'postgres://vitral:vitral@localhost:5432/vitral_test';
   const dir = await mkdtemp(path.join(os.tmpdir(), 'vitral-files-'));
   const config = loadConfig({
@@ -35,8 +38,9 @@ export async function setupTestApp(): Promise<TestApp> {
     FILE_STORAGE_DIR: dir,
     BACKUP_DIR: dir,
     COOKIE_SECURE: 'false',
-    LOG_LEVEL: 'silent',
+    LOG_LEVEL: process.env.TEST_LOG_LEVEL ?? 'silent',
     LOGIN_RATE_LIMIT_PER_MINUTE: '1000',
+    ...overrides,
   });
   const db = createDb(url);
   await sql`DROP SCHEMA public CASCADE`.execute(db);

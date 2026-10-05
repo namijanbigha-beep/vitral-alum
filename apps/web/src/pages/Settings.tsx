@@ -103,30 +103,49 @@ function SettingRow({ item }: { item: SettingItem }) {
 
 export function SettingsPage() {
   const { can } = useAuth();
-  const q = useQuery({ queryKey: ['settings'], queryFn: () => api<{ items: SettingItem[] }>('GET', '/settings') });
-  if (!can('settings.manage')) return <div className="alert danger">اجازه این بخش را ندارید</div>;
+  const manage = can('settings.manage');
+  const q = useQuery({ queryKey: ['settings'], queryFn: () => api<{ items: SettingItem[] }>('GET', '/settings'), enabled: manage });
+  const Item = ({ to, title, sub }: { to: string; title: string; sub?: string }) => (
+    <Link className="item" to={to}><div className="grow"><div className="title">{title}</div>{sub && <div className="muted">{sub}</div>}</div><span>‹</span></Link>
+  );
   return (
     <div className="stack">
-      <h1>تنظیمات</h1>
+      <h1>بیشتر</h1>
       <div className="list">
-        <Link className="item" to="/settings/users">
-          <div className="grow"><div className="title">کاربران</div><div className="muted">ایجاد کارمند، مجوزها، غیرفعال‌کردن</div></div>
-          <span>‹</span>
-        </Link>
-        <Link className="item" to="/settings/backup">
-          <div className="grow"><div className="title">پشتیبان</div><div className="muted">فهرست پشتیبان‌ها و سابقه آزمون بازیابی</div></div>
-          <span>‹</span>
-        </Link>
-        <Link className="item" to="/settings/password">
-          <div className="grow"><div className="title">تغییر رمز من</div></div>
-          <span>‹</span>
-        </Link>
+        <Item to="/products" title="محصولات، قالب‌ها، طرف‌حساب‌ها" sub="کاتالوگ" />
+        <Item to="/dies" title="قالب‌ها" />
+        <Item to="/parties" title="طرف‌حساب‌ها" />
+        <Item to="/contracts" title="قراردادها" />
+        <Item to="/locations" title="مکان‌ها" />
+        <Item to="/production" title="نوبت‌های تولید" />
+        <Item to="/coating" title="رنگ و پوشش" />
+        <Item to="/scale" title="قبض‌های باسکول" />
+        <Item to="/materials" title="مواد اولیه و خرید" />
+        <Item to="/accounts" title="حساب‌ها و صندوق" />
+        <Item to="/fx-rates" title="نرخ ارز" />
+        <Item to="/tasks" title="کارها" />
+        <Item to="/gallery" title="گالری عکس‌ها" />
+        <Item to="/settings/corrections" title="درخواست‌های اصلاح" sub="اصلاح سند قطعی بدون دستکاری" />
       </div>
-      <h2>تنظیمات عمومی</h2>
-      <p className="muted">مقدار خالی یعنی «نامشخص»؛ سامانه آن را صفر فرض نمی‌کند. قراردادها، نرخ‌ها و ورود داده در فازهای بعدی اضافه می‌شوند.</p>
-      {q.isLoading && <p className="muted">در حال بارگذاری…</p>}
-      {q.error && <div className="alert danger">{errorInfo(q.error).message}</div>}
-      {q.data?.items.filter((i) => i.key !== 'restore_test_log' && i.key !== 'seller_logo_file_id').map((item) => <SettingRow key={item.key} item={item} />)}
+      <h2>حساب من</h2>
+      <div className="list">
+        <Item to="/settings/telegram" title="اتصال تلگرام" sub="دریافت کد و ارسال به بات" />
+        <Item to="/settings/password" title="تغییر رمز من" />
+        <Item to="/settings/share-links" title="لینک‌های مهمان" sub="ساخته‌شده برای مشتری یا شریک؛ ابطال" />
+      </div>
+      {manage && <>
+        <h2>مدیریت</h2>
+        <div className="list">
+          <Item to="/settings/users" title="کاربران" sub="ایجاد کارمند، مجوزها، غیرفعال‌کردن" />
+          <Item to="/settings/backup" title="پشتیبان" sub="فهرست پشتیبان‌ها و سابقه آزمون بازیابی" />
+          <Item to="/import" title="ورود داده از Excel" sub="پیش‌نمایش، ثبت، برگشت" />
+        </div>
+        <h2>تنظیمات عمومی</h2>
+        <p className="muted">مقدار خالی یعنی «نامشخص»؛ سامانه آن را صفر فرض نمی‌کند.</p>
+        {q.isLoading && <p className="muted">در حال بارگذاری…</p>}
+        {q.error && <div className="alert danger">{errorInfo(q.error).message}</div>}
+        {q.data?.items.filter((i) => i.key !== 'restore_test_log' && i.key !== 'seller_logo_file_id').map((item) => <SettingRow key={item.key} item={item} />)}
+      </>}
     </div>
   );
 }

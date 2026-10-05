@@ -2,17 +2,17 @@
 
 سامانه وب چندکاربره «ویترال آلومینیوم اراک». مشخصات کامل در [`docs/spec.md`](docs/spec.md)؛ گزارش هر فاز در `docs/phase-reports/`.
 
-**وضعیت: فاز ۰ (زیرساخت) تمام شده.** فازهای بعد: ۱ محصول و فروش و بندیل · ۲ کارگاه و مواد و رنگ · ۳ ارسال و صادرات و پول · ۴ سود و داشبورد · ۵ ربات تلگرام.
+**وضعیت: فازهای ۰ تا ۵ ساخته شده و در حال اشکال‌زدایی با مالک.** ۰ زیرساخت · ۱ کاتالوگ، بندیل، تولید، رنگ، انبار · ۲ سفارش، بار، باسکول، بسته‌بندی · ۳ پول، گزارش‌ها، کارهای روزانه · ۴ PDF، بات تلگرام، ورود اکسل · ۵ رابط کامل، بهای تمام‌شده، آزمون‌های مرورگری.
 
 ## ساختار
 
 ```
 apps/server     Fastify + Kysely + PostgreSQL  (src/modules، src/rules، src/db، test)
 apps/web        React + Vite، راست‌به‌چپ، PWA (فونت وزیرمتن از خود سرور)
-apps/bot        ربات تلگرام (فاز ۵)
+apps/bot        ربات تلگرام (long polling؛ از طریق API سرور کار می‌کند)
 packages/shared schemaهای Zod، عدد (R19، R20)، تاریخ شمسی (R26)، مبلغ به حروف (R25)، مجوزها
 ops             docker-compose، Dockerfile، Caddyfile، backup.sh، restore.sh، .env.example
-docs            spec.md، گزارش فازها، قالب‌های اکسل (فاز ۱)
+docs            spec.md، گزارش فازها، راهنمای کار، قالب‌های اکسل
 ```
 
 ## نیازمندی‌ها
@@ -36,7 +36,14 @@ pnpm dev                                   # http://localhost:3000
 
 # رابط (در ترمینال دوم؛ /api به سرور پروکسی می‌شود)
 cd apps/web && pnpm dev                    # http://localhost:5173
+
+# بات تلگرام (اختیاری؛ به سرور در حال اجرا وصل می‌شود)
+cd apps/bot
+export TELEGRAM_BOT_TOKEN=... SERVER_URL=http://localhost:3000 BOT_SERVICE_KEY=<همان مقدار سرور>
+pnpm dev
 ```
+
+متغیرهای محیطی سرور (همه در `ops/.env.example`): `DATABASE_URL`، `SESSION_SECRET`، `FILE_STORAGE_DIR`، `BACKUP_DIR`، `BACKUP_ENCRYPTION_KEY`، `APP_ORIGIN`، `PUBLIC_URL` (برای لینک مهمان و پیام بات)، `COOKIE_SECURE`، `WEB_DIST_DIR`، `CHROMIUM_PATH` (رندر PDF؛ پیش‌فرض مسیر Playwright)، `BOT_SERVICE_KEY` (کلید مشترک سرور و بات؛ بدون آن مسیرهای `/internal/bot/*` خاموش‌اند)، `DAILY_REPORT_TIME` (ساعت تهران، پیش‌فرض ۲۱:۰۰). بات: `TELEGRAM_BOT_TOKEN`، `SERVER_URL`، `BOT_SERVICE_KEY`، `DAILY_REPORT_TIME`، `ALERT_POLL_SECONDS`.
 
 برای سرو کردن رابط ساخته‌شده از خود سرور: `pnpm --filter @vitral/web build` و `WEB_DIST_DIR=apps/web/dist`.
 
@@ -47,9 +54,10 @@ pnpm test        # Vitest؛ آزمون‌های سرور به دیتابیس vit
                  # (TEST_DATABASE_URL و برای T53 TEST_RESTORE_DATABASE_URL قابل تنظیم است)
 pnpm typecheck   # TypeScript strict، بدون any
 pnpm lint
+pnpm --filter @vitral/web e2e   # Playwright: سه مسیر اصلی رابط روی سرور در حال اجرا (E2E_URL, E2E_MOBILE, E2E_PASSWORD)
 ```
 
-آزمون‌های ثابت بخش ۱۱ با همان شناسه (T01 …) در `packages/shared/test` و `apps/server/test` هستند.
+آزمون‌های ثابت بخش ۱۱ با همان شناسه (T01 …) در `packages/shared/test` و `apps/server/test` هستند؛ سناریوی طلایی بخش ۱۲ در `apps/server/test/golden.test.ts`، آزمون‌های PDF و بات در `apps/server/test/pdf-bot.test.ts` و `apps/bot/test`. آزمون‌های سرور هر بار اسکیمای `vitral_test` را از نو می‌سازند و پشت سر هم اجرا می‌شوند. PDF با Chromium بدون سر رندر می‌شود؛ اگر Chromium نباشد فقط آزمون‌های PDF رد می‌شوند.
 
 ## استقرار (Docker Compose)
 
@@ -60,7 +68,7 @@ docker compose -f ops/docker-compose.yml --env-file ops/.env exec \
   -e ADMIN_MOBILE=09xxxxxxxxx -e ADMIN_NAME="مدیر" -e ADMIN_PASSWORD='...' app pnpm --filter @vitral/server create-admin
 ```
 
-سرویس‌ها: `db` (PostgreSQL 16)، `app` (API و رابط روی یک پورت)، `caddy` (HTTPS خودکار برای `DOMAIN`)، `backup` (پشتیبان روزانه ۰۲:۳۰). محیط `staging` با `APP_ENV=staging` و دیتابیس و پوشه فایل جدا بالا می‌آید؛ در رابط برچسب «محیط آزمایشی» دارد.
+سرویس‌ها: `db` (PostgreSQL 16)، `app` (API، رابط و PDF روی یک پورت؛ Chromium داخل تصویر)، `bot` (بات تلگرام؛ فقط با `TELEGRAM_BOT_TOKEN`)، `caddy` (HTTPS خودکار برای `DOMAIN`)، `backup` (پشتیبان روزانه ۰۲:۳۰). محیط `staging` با `APP_ENV=staging` و دیتابیس و پوشه فایل جدا بالا می‌آید؛ در رابط برچسب «محیط آزمایشی» دارد.
 
 ## پشتیبان و بازیابی
 
@@ -68,6 +76,10 @@ docker compose -f ops/docker-compose.yml --env-file ops/.env exec \
 - یک کپی بیرون از سرور را خودتان با rclone/scp از `BACKUP_DIR` بردارید (اسکریپت فقط محلی می‌نویسد).
 - `ops/restore.sh <file.tar.enc>` فقط در دیتابیس و پوشه خالی اجرا می‌شود، بعد از بازیابی sha256 همه فایل‌ها را تطبیق می‌دهد. سپس نتیجه آزمون بازیابی را در «تنظیمات › پشتیبان» ثبت کنید.
 - سلامت: `GET /api/v1/health` (دیتابیس و درصد پر بودن دیسک؛ بالای ۸۰٪ در صفحه خلاصه مدیر هشدار می‌دهد).
+
+## مستندات
+
+`docs/spec.md` مشخصات کامل، `docs/phase-reports/` گزارش هر فاز، `docs/user-guide.md` راهنمای کار روزانه، `docs/templates/` قالب‌های ورود اکسل.
 
 ## قرارداد API (خلاصه)
 

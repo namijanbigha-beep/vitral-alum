@@ -1,4 +1,4 @@
-# Single Linux VPS: app (API + web), db, caddy (HTTPS), backup (daily cron). bot arrives in phase 5.
+# Single Linux VPS: app (API + web + PDF), db, caddy (HTTPS), backup (daily cron), bot (Telegram long polling).
 # Run from the repository root:  docker compose -f ops/docker-compose.yml --env-file ops/.env up -d
 services:
   db:
@@ -28,6 +28,7 @@ services:
       BACKUP_DIR: /backups
       PORT: '3000'
       HOST: 0.0.0.0
+      CHROMIUM_PATH: /usr/bin/chromium
     volumes:
       - files:/data/files
       - backups:/backups:ro
@@ -77,6 +78,19 @@ services:
              while true; do
                now=$$(date +%H%M); if [ \"$$now\" = \"0230\" ]; then vitral-backup daily; sleep 61; fi; sleep 30;
              done"
+
+  bot:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SERVER_URL: http://app:3000
+    command: ['pnpm', '--filter', '@vitral/bot', 'start']
+    depends_on:
+      app:
+        condition: service_healthy
 
 volumes:
   db-data:

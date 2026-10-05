@@ -5,3 +5,4 @@ dist
 ops/.env
 /data
 *.tmp.*
+.scratch/
