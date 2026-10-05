@@ -50,7 +50,7 @@ export function OpeningPage() {
   const { form, set } = useForm({ as_of: new Date().toISOString().slice(0, 10), location_id: null, reason: null, file_id: null });
   const [items, setItems] = useState<Array<Record<string, unknown>>>([]);
   const act = useAct<Record<string, unknown>>('POST', '/stock/opening', { onSuccess: () => nav('/stock') });
-  const existing = useOne<{ items: Array<Record<string, unknown>> }>('/stock/opening');
+  const existing = useOne<{ items: Array<Record<string, unknown>> }>('/stock/opening', { refetchInterval: false, refetchOnWindowFocus: false });
   const upd = (i: number, p: Record<string, unknown>) => setItems(items.map((x, j) => (j === i ? { ...x, ...p } : x)));
   return (
     <div className="stack">

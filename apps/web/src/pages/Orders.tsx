@@ -19,7 +19,7 @@ export function OrderForm() {
   const { id } = useParams();
   const isNew = !id || id === 'new';
   const nav = useNavigate();
-  const existing = useOne<Record<string, unknown>>(isNew ? null : `/orders/${id}`);
+  const existing = useOne<Record<string, unknown>>(isNew ? null : `/orders/${id}`, { refetchInterval: false, refetchOnWindowFocus: false });
   const { form, set, setForm } = useForm({ party_id: null, title: null, currency: 'TOMAN', settlement_basis: 'final_net_scale', prepay_percent: null, payment_terms: 'cash', valid_until: null, delivery_days: null, due_date: null, order_date: new Date().toISOString().slice(0, 10), destination_country: null, destination_city: null, destination_address: null, invoice_notes: null, internal_note: null, numbering_kind: 'order' });
   const [lines, setLines] = useState<OLine[]>([newLine('TOMAN')]);
   useEffect(() => { if (existing.data) { setForm({ ...existing.data }); setLines(((existing.data.lines as OLine[]) ?? []).map((l) => ({ ...l }))); } }, [existing.data]);

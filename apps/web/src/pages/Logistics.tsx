@@ -20,7 +20,7 @@ export function TransferForm() {
   const isNew = !id || id === 'new';
   const nav = useNavigate();
   const [sp] = useSearchParams();
-  const existing = useOne<Record<string, unknown>>(isNew ? null : `/transfers/${id}`);
+  const existing = useOne<Record<string, unknown>>(isNew ? null : `/transfers/${id}`, { refetchInterval: false, refetchOnWindowFocus: false });
   const { form, set, setForm } = useForm({ kind: sp.get('order_id') ? 'to_customer' : 'between_locations', from_location_id: null, to_location_id: null, order_ids: sp.get('order_id') ? [sp.get('order_id')] : [], freight_currency: 'TOMAN', is_export: false });
   const [lines, setLines] = useState<TLine[]>([]);
   const [q, setQ] = useState('');
@@ -146,7 +146,7 @@ export function ScaleForm() {
   const nav = useNavigate();
   const qc = useQueryClient();
   const isNew = !id || id === 'new';
-  const existing = useOne<Record<string, unknown>>(isNew ? null : `/scale-tickets/${id}`);
+  const existing = useOne<Record<string, unknown>>(isNew ? null : `/scale-tickets/${id}`, { refetchInterval: false, refetchOnWindowFocus: false });
   const { form, set, setForm } = useForm({ transfer_id: sp.get('transfer_id'), stage: 'origin', site: null, ticket_no: null, at: new Date().toISOString(), gross_kg: null, tare_kg: null, packaging_kg: null, net_direct_kg: null, file_id: null, note: null });
   useEffect(() => { if (existing.data) setForm({ ...existing.data }); }, [existing.data]);
   const act = useAct<Record<string, unknown>, { id: string }>(isNew ? 'POST' : 'PATCH', isNew ? '/scale-tickets' : `/scale-tickets/${id}`, { onSuccess: (r) => { void qc.invalidateQueries(); nav(isNew ? `/scale/${r.id}` : -1 as never); } });

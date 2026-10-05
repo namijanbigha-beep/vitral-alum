@@ -90,7 +90,7 @@ export function useForm(initial: Record<string, unknown>) {
 /** Generic create/edit form over a crud endpoint. */
 export function EntityForm({ specs, initial, path, id, onSaved, title, children, transform, extraActions }: { specs: FieldSpec[]; initial: Record<string, unknown>; path: string; id?: string; onSaved: (r: Record<string, unknown>) => void; title: string; children?: ReactNode; transform?: (f: Record<string, unknown>) => Record<string, unknown>; extraActions?: ReactNode }) {
   const nav = useNavigate();
-  const existing = useOne<Record<string, unknown>>(id ? `${path}/${id}` : null);
+  const existing = useOne<Record<string, unknown>>(id ? `${path}/${id}` : null, { refetchInterval: false, refetchOnWindowFocus: false });
   const { form, set, setForm } = useForm(initial);
   useEffect(() => { if (existing.data) setForm({ ...initial, ...existing.data }); }, [existing.data]);
   const act = useAct<Record<string, unknown>, Record<string, unknown>>(id ? 'PATCH' : 'POST', id ? `${path}/${id}` : path, { onSuccess: onSaved });
