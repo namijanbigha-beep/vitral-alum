@@ -17,7 +17,29 @@ export function TelegramPage() {
     <div className="card"><p>کد را بگیرید و در تلگرام به بات بفرستید: <code dir="ltr">/start ۱۲۳۴۵۶</code>. کد ۱۰ دقیقه اعتبار دارد و یک‌بار مصرف است.</p>
       <div className="row"><button className="btn primary" disabled={gen.isPending} onClick={() => gen.mutate({})}>دریافت کد</button><button className="btn danger" disabled={unlink.isPending} onClick={() => unlink.mutate({})}>قطع اتصال</button></div>
       {code && <div className="alert ok" style={{ fontSize: '1.6rem', letterSpacing: 4, textAlign: 'center' }} dir="ltr">{fa(code.code)}</div>}
-      <p className="muted">کاربر: {me?.user.name}</p></div></div>;
+      <p className="muted">کاربر: {me?.user.name}</p></div>
+    <BotAdmin /></div>;
+}
+
+type BotState = { configured: boolean; webhook_url: string | null; telegram: { url?: string; pending_update_count?: number; last_error_message?: string } | null; telegram_error: string | null };
+
+/** Managers on the PHP (shared-hosting) edition: turn the Telegram webhook on/off. Hidden where the server has no such endpoint. */
+function BotAdmin() {
+  const { can } = useAuth();
+  const qc = useQueryClient();
+  const st = useOne<BotState>(can('settings.manage') ? '/bot/telegram' : null, { retry: false, refetchInterval: false });
+  const set = useAct<Record<string, unknown>>('POST', '/bot/telegram/webhook', { onSuccess: () => void qc.invalidateQueries() });
+  const del = useAct<Record<string, unknown>>('DELETE', '/bot/telegram/webhook', { onSuccess: () => void qc.invalidateQueries() });
+  if (!st.data) return null;
+  const d = st.data;
+  const active = !!d.telegram?.url;
+  return <div className="card"><h2>بات تلگرام شرکت</h2>
+    {!d.configured && <p>توکن بات تنظیم نشده است. توکن را از <code dir="ltr">@BotFather</code> بگیرید و در فایل <code dir="ltr">app/config.php</code> جلوی <code dir="ltr">TELEGRAM_BOT_TOKEN</code> بگذارید.</p>}
+    {d.telegram_error && <div className="alert danger">{d.telegram_error}</div>}
+    {d.configured && !d.telegram_error && <p>{active ? <span className="badge ok">فعال</span> : <span className="badge">غیرفعال</span>} {d.telegram?.last_error_message && <span className="error">آخرین خطا: {d.telegram.last_error_message}</span>}</p>}
+    {d.configured && <div className="row"><button className="btn primary" disabled={set.isPending} onClick={() => set.mutate({})}>{active ? 'فعال‌سازی دوباره' : 'فعال‌سازی بات'}</button>{active && <button className="btn danger" disabled={del.isPending} onClick={() => del.mutate({})}>خاموش کردن</button>}</div>}
+    {(set.error?.message || del.error?.message) && <div className="error">{set.error?.message ?? del.error?.message}</div>}
+  </div>;
 }
 
 /** Share links the user created (or all, for managers), with revoke. */
