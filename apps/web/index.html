@@ -11,7 +11,15 @@
     <title>ویترال</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><p style="font-family:sans-serif;text-align:center;margin-top:30vh;color:#666">در حال بارگذاری ویترال…<br><small>اگر این پیام ماند، فایل را با مرورگر Chrome یا Safari باز کنید.</small></p></div>
+    <script>
+      // Never leave a blank page: show load errors instead (old browsers, blocked scripts, previews).
+      window.addEventListener('error', function (e) {
+        var r = document.getElementById('root');
+        if (r && !r.dataset.ok) r.innerHTML = '<p style="font-family:sans-serif;text-align:center;margin-top:25vh;padding:16px;color:#a00">برنامه باز نشد. فایل را با مرورگر Chrome یا Safari باز کنید.<br><small dir="ltr">' + String(e.message || '').replace(/</g, '&lt;') + '</small></p>';
+      });
+      setTimeout(function () { var r = document.getElementById('root'); if (r && !r.dataset.ok && /بارگذاری/.test(r.textContent)) r.innerHTML = '<p style="font-family:sans-serif;text-align:center;margin-top:25vh;padding:16px;color:#a00">این پیش‌نمایش اجازه‌ی اجرای برنامه را نمی‌دهد. فایل را با مرورگر Chrome یا Safari باز کنید.</p>'; }, 8000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
