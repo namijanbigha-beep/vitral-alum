@@ -18,6 +18,7 @@ import { PublicSharePage } from './pages/Public.js';
 import { CostingPage, ImportPage, ReportsPage } from './pages/Reports.js';
 import { SettingsPage } from './pages/Settings.js';
 import { AdjustPage, LotDetail, LotForm, MaterialsPage, OpeningPage, PurchaseDetail, PurchaseForm, ScrapSalePage, SmeltingPage, StockPage } from './pages/Stock.js';
+import { UpdatePage } from './pages/Update.js';
 import { ChangePasswordPage, UserFormPage, UsersPage } from './pages/Users.js';
 
 /** Route table. Guest share pages (/s/:token) render before the login gate; everything else needs a session. */
@@ -63,7 +64,7 @@ export function App() {
         {/* settings */}
         <Route path="settings" element={<SettingsPage />} /><Route path="help" element={<HelpPage />} />
         <Route path="settings/users" element={<UsersPage />} /><Route path="settings/users/:id" element={<UserFormPage />} />
-        <Route path="settings/backup" element={<BackupPage />} /><Route path="settings/password" element={<ChangePasswordPage />} />
+        <Route path="settings/backup" element={<BackupPage />} /><Route path="settings/update" element={<UpdatePage />} /><Route path="settings/password" element={<ChangePasswordPage />} />
         <Route path="settings/telegram" element={<TelegramPage />} /><Route path="settings/share-links" element={<ShareLinksPage />} /><Route path="settings/corrections" element={<CorrectionsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

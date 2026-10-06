@@ -1,0 +1,52 @@
+# After the checks pass on main: build the shared-hosting package and publish it as a GitHub release.
+# The app's «بیشتر › به‌روزرسانی برنامه» page installs the newest release from here (vitral-app.zip + its .sha256).
+name: release-php
+on:
+  workflow_run:
+    workflows: [ci-deploy]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-php
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SHA }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo_mysql, mbstring, zlib, curl
+      - run: pnpm install --frozen-lockfile
+      - run: php apps/php/tests/run.php
+      - name: Build vitral-app.zip
+        run: |
+          TAG="v$(date -u +%Y.%m.%d).${{ github.run_number }}"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          VITRAL_VERSION="$TAG" bash apps/php/build.sh
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PREV=$(git tag --list 'v*' --sort=-creatordate | head -1)
+          { echo "تغییرات این نسخه:"; git log --format='- %s' ${PREV:+$PREV..}"$SHA" -- . ':!docs/screens*' | head -40; } > notes.md
+          gh release create "$TAG" apps/php/dist/vitral-app.zip apps/php/dist/vitral-app.zip.sha256 \
+            --target "$SHA" --title "ویترال $TAG" --notes-file notes.md --latest

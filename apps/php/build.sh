@@ -29,6 +29,10 @@ mkdir -p "$STAGE"
 cp -R "$WEB_DIST"/. "$STAGE"/
 cp "$HERE/public/index.php" "$HERE/public/install.php" "$HERE/public/telegram.php" "$HERE/public/cron.php" "$HERE/public/.htaccess" "$HERE/public/.user.ini" "$STAGE"/
 cp -R "$HERE/src" "$HERE/migrations" "$HERE/bin" "$STAGE"/
+# Version the in-app updater compares with GitHub releases (VITRAL_VERSION = the release tag in CI).
+VERSION="${VITRAL_VERSION:-dev-$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo local)}"
+[[ "$VERSION" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || { echo "bad VITRAL_VERSION: $VERSION" >&2; exit 1; }
+printf "<?php\nreturn '%s';\n" "$VERSION" > "$STAGE/src/version.php"
 mkdir -p "$STAGE/data"
 cp "$HERE/data/.htaccess" "$STAGE/data/.htaccess"
 find "$STAGE" -name '.DS_Store' -delete
@@ -38,4 +42,5 @@ find "$STAGE" -name '*.php' -print0 | xargs -0 -n1 php -l >/dev/null
 
 (cd "$STAGE" && zip -qr -X "$OUT/vitral-app.zip" .)
 rm -rf "$STAGE"
-echo "built $OUT/vitral-app.zip ($(du -h "$OUT/vitral-app.zip" | cut -f1))"
+(cd "$OUT" && sha256sum vitral-app.zip > vitral-app.zip.sha256)
+echo "built $OUT/vitral-app.zip $VERSION ($(du -h "$OUT/vitral-app.zip" | cut -f1))"

@@ -6,6 +6,7 @@ import type { SettingItem } from '../api/types.js';
 import { errorInfo, Field, SaveStatus, type SaveState } from '../components/forms.js';
 import { useAuth } from '../lib/auth.js';
 import { faDateTime } from '../lib/format.js';
+import { UpdateMenuItem } from './Update.js';
 
 /** Which keys the generic form edits as plain text, number, list or JSON. */
 const TEXT_KEYS = new Set([
@@ -159,6 +160,7 @@ export function SettingsPage() {
           <Item to="/settings/users" title="کاربران" sub="ایجاد کارمند، مجوزها، غیرفعال‌کردن" />
           <Item to="/settings/backup" title="پشتیبان" sub="فهرست پشتیبان‌ها و سابقه آزمون بازیابی" />
           <Item to="/import" title="ورود داده از Excel" sub="پیش‌نمایش، ثبت، برگشت" />
+          <UpdateMenuItem />
         </div>
         <h2>تنظیمات عمومی</h2>
         <p className="muted">مقدار خالی یعنی «نامشخص»؛ سامانه آن را صفر فرض نمی‌کند.</p>
